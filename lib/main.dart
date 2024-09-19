@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lpms/screens/ExportDashboard.dart';
+import 'package:lpms/screens/Login.dart';
 import 'package:lpms/theme/app_theme.dart';
 
 void main() {
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme:AppTheme.lightTheme,
-      home: const ExportsDashboardScreen(),
+      home:  LoginPage(),
     );
   }
 }
