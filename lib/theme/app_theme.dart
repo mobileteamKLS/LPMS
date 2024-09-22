@@ -30,8 +30,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         textStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontSize: 18,
           color: Colors.white,
         ),
         shape: const RoundedRectangleBorder(
@@ -39,6 +38,32 @@ class AppTheme {
         ),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: AppColors.primary),
+        textStyle: const TextStyle(
+          fontSize: 18,
+          color: AppColors.primary, // Text color
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        minimumSize: const Size.fromHeight(50),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+
+        textStyle: const TextStyle(
+          fontSize: 18,
+          color: AppColors.primary,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        minimumSize: const Size.fromHeight(50),
+      ),
+    )
 
   );
 }

@@ -29,14 +29,16 @@ class _ExportScreenState extends State<ExportScreen> {
   final AuthService authService = AuthService();
   List<bool> _isExpandedList = [];
 
-
-
   @override
   void initState() {
     super.initState();
-    getShipmentDetails();
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    String startOfDayFormatted = startOfDay.toUtc().toIso8601String();
 
-
+    DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+    String endOfDayFormatted = endOfDay.toUtc().toIso8601String();
+    getShipmentDetails(endOfDayFormatted, startOfDayFormatted);
   }
 
   @override
@@ -63,14 +65,20 @@ class _ExportScreenState extends State<ExportScreen> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(FontAwesomeIcons.userGear),
+              icon: const Icon(
+                FontAwesomeIcons.userGear,
+                size: 26,
+              ),
               color: Colors.white,
               onPressed: () {},
             ),
             IconButton(
               icon: Stack(
                 children: [
-                  const Icon(FontAwesomeIcons.bell),
+                  const Icon(
+                    FontAwesomeIcons.bell,
+                    size: 26,
+                  ),
                   // Bell icon
                   Positioned(
                     right: 0,
@@ -98,46 +106,52 @@ class _ExportScreenState extends State<ExportScreen> {
         children: [
           Container(
             constraints: const BoxConstraints.expand(),
-            // Expands to maximum width and height
             color: AppColors.background,
             child: Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 2, left: 10, right: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(CupertinoIcons.cube),
-                          Text(
-                            '  SHIPMENT LIST',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.search,
-                              color: AppColors.primary,
+                  child: Material(
+                    color: Colors.transparent,
+                    // Ensures background transparency
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(CupertinoIcons.cube),
+                            Text(
+                              '  SHIPMENT LIST',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
-                            onPressed: () {
-                              // Search action
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.more_vert_outlined,
-                              color: AppColors.primary,
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.search,
+                                color: AppColors.primary,
+                              ),
+                              onPressed: () {
+                                print("Search button pressed");
+                                showShipmentSearchBottomSheet(context);
+                              },
                             ),
-                            onPressed: () {},
-                          ),
-                        ],
-                      )
-                    ],
+                            IconButton(
+                              icon: const Icon(
+                                Icons.more_vert_outlined,
+                                color: AppColors.primary,
+                              ),
+                              onPressed: () {
+                                print("More button pressed");
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Padding(
@@ -159,7 +173,9 @@ class _ExportScreenState extends State<ExportScreen> {
                                   Icons.upload_file,
                                   color: AppColors.primary,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  print("search2");
+                                },
                               ),
                               const Text(
                                 'Export',
@@ -174,7 +190,9 @@ class _ExportScreenState extends State<ExportScreen> {
                                   Icons.filter_alt_outlined,
                                   color: AppColors.primary,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  print("search3");
+                                },
                               ),
                               const Text(
                                 'Filter',
@@ -221,10 +239,12 @@ class _ExportScreenState extends State<ExportScreen> {
             top: 0,
             left: 0,
             right: 0,
-            child: CustomPaint(
-              size: Size(MediaQuery.of(context).size.width,
-                  100), // Adjust the height as needed
-              painter: AppBarPainterGradient(),
+            child: IgnorePointer(
+              child: CustomPaint(
+                size: Size(MediaQuery.of(context).size.width,
+                    100), // Adjust the height as needed
+                painter: AppBarPainterGradient(),
+              ),
             ),
           ),
         ],
@@ -255,17 +275,13 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  getShipmentDetails() async {
+  getShipmentDetails(endOfDayFormatted, startOfDayFormatted) async {
     if (isLoading) return;
     listShipmentDetails = [];
     listShipmentDetailsBind = [];
     setState(() {
       isLoading = true;
     });
-    DateTime now = DateTime.now();
-    DateTime startOfTodayIST = DateTime(now.year, now.month, now.day, 0, 0); // Start of today in local time
-    DateTime startOfTodayUTC = startOfTodayIST.toUtc().add(const Duration(hours: 5, minutes: 30)); // Convert to UTC
-    DateTime currentIST = now.toUtc().add(const Duration(hours: 5, minutes: 30)); // Current time in IST
 
     var queryParams = {
       "AirportId": 151,
@@ -275,11 +291,8 @@ class _ExportScreenState extends State<ExportScreen> {
       "BranchCode": "LPAI",
       "SBillNo": "",
       "TimeZone": "India Standard Time",
-      "Todate": currentIST.toIso8601String(), // Current date and time in IST
-      "Fromdate": startOfTodayUTC.toIso8601String() // Start of today in IST, converted to UTC
-      // "Todate": now.toUtc().toIso8601String(),
-      // "Fromdate": startOfToday.toUtc().toIso8601String()
-
+      "Todate": endOfDayFormatted,
+      "Fromdate": startOfDayFormatted
     };
     await authService
         .postData(
@@ -289,7 +302,8 @@ class _ExportScreenState extends State<ExportScreen> {
         .then((response) {
       print("data received ");
       List<dynamic> jsonData = json.decode(response.body);
-      listShipmentDetailsBind =jsonData.map((json) => ShipmentDetails.fromJSON(json)).toList();
+      listShipmentDetailsBind =
+          jsonData.map((json) => ShipmentDetails.fromJSON(json)).toList();
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
@@ -326,12 +340,13 @@ class _ExportScreenState extends State<ExportScreen> {
                   // Icon with DRAFT label
                   Container(
                     decoration: BoxDecoration(
-                      color: Utils.getStatusColor(shipmentDetails.statusDescription),
+                      color: Utils.getStatusColor(
+                          shipmentDetails.statusDescription),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child:  Row(
+                    child: Row(
                       children: [
                         Utils.getStatusIcon(shipmentDetails.statusDescription),
                         SizedBox(width: 4),
@@ -356,7 +371,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
               Row(
                 children: [
-                   Text(
+                  Text(
                     shipmentDetails.bookingNo,
                     style: const TextStyle(
                       fontSize: 16,
@@ -372,7 +387,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    child:  Text(
+                    child: Text(
                       shipmentDetails.cargoTypeName,
                       style: TextStyle(
                         fontSize: 12,
@@ -383,7 +398,7 @@ class _ExportScreenState extends State<ExportScreen> {
                 ],
               ),
               isExpanded
-                  ?  Padding(
+                  ? Padding(
                       padding: EdgeInsets.only(top: 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,7 +422,7 @@ class _ExportScreenState extends State<ExportScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    '${DateFormat('dd MMM yyyy').format( DateTime.parse(shipmentDetails.sBillDt))}  ',
+                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Icon(
@@ -423,7 +438,7 @@ class _ExportScreenState extends State<ExportScreen> {
                           Row(
                             children: [
                               Text(
-                                '${DateFormat('dd MMM yyyy HH:mm').format( DateTime.parse(shipmentDetails.bookingDt))}  ',
+                                '${DateFormat('dd MMM yyyy HH:mm').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
                                 style: TextStyle(fontSize: 14),
                               ),
                               const Icon(
@@ -470,6 +485,361 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
     );
   }
+
+  Future<void> showShipmentSearchDialog(BuildContext context) async {
+    TextEditingController bookingNoController = TextEditingController();
+    TextEditingController shippingBillNoController = TextEditingController();
+    TextEditingController fromDateController = TextEditingController();
+    TextEditingController toDateController = TextEditingController();
+
+    Future<void> _selectDate(
+        BuildContext context, TextEditingController controller) async {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) {
+        controller.text = "${picked.day}-${picked.month}-${picked.year}";
+      }
+    }
+
+    void _search() async {
+      String bookingNo = bookingNoController.text.trim();
+      String shippingBillNo = shippingBillNoController.text.trim();
+      String fromDate = fromDateController.text.trim();
+      String toDate = toDateController.text.trim();
+
+      if (bookingNo.isEmpty ||
+          shippingBillNo.isEmpty ||
+          fromDate.isEmpty ||
+          toDate.isEmpty) {
+        await Future.delayed(Duration(milliseconds: 100));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please fill in all fields")),
+        );
+        return;
+      }
+      DateTime fromDateTime = DateFormat('d-M-yyyy').parse(fromDate);
+      DateTime toDateTime = DateFormat('d-M-yyyy').parse(toDate);
+
+      if (fromDateTime.isAfter(toDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("From Date should not exceed To Date")),
+        );
+        return;
+      }
+
+      String fromDateISO = fromDateTime.toIso8601String();
+      String toDateISO = toDateTime.toIso8601String();
+
+      print(
+          "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+      getShipmentDetails(fromDateISO, toDateISO);
+    }
+
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          insetPadding: EdgeInsets.all(0), // Remove default padding
+          child: Container(
+            color: Colors.white,
+            // Set dialog background to white
+            height: MediaQuery.of(context).size.height *0.8,
+            // Full screen
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Shipment Search",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Container(
+                    width: double.infinity,
+                    child: Divider(color: Colors.grey),
+                  ), // Gray horizontal line
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: bookingNoController,
+                    decoration: InputDecoration(
+                      labelText: "Booking No.",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: shippingBillNoController,
+                    decoration: InputDecoration(
+                      labelText: "Shipping Bill No.",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: fromDateController,
+                    decoration: InputDecoration(
+                      labelText: "From Date",
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () =>
+                            _selectDate(context, fromDateController),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: toDateController,
+                    decoration: InputDecoration(
+                      labelText: "To Date",
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () => _selectDate(context, toDateController),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 150),
+                  Container(
+                    width: double.infinity,
+                    child: Divider(color: Colors.grey),
+                  ),
+                  SizedBox(height: 16),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      _search();
+                      // Navigator.pop(context); // Close dialog after search
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      minimumSize: Size.fromHeight(50),
+                    ),
+                    child:
+                        Text("SEARCH", style: TextStyle(color: Colors.white)),
+                  ),
+                  SizedBox(height: 16), // Space between buttons
+                  // Reset button
+                  OutlinedButton(
+                    onPressed: () {
+                      bookingNoController.clear();
+                      shippingBillNoController.clear();
+                      fromDateController.clear();
+                      toDateController.clear();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.primary),
+                      minimumSize: Size.fromHeight(50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      "RESET",
+                      style: TextStyle(color: AppColors.primary), // Blue text
+                    ),
+                  ),
+                  SizedBox(height: 16), // Space between buttons
+                  // Cancel button
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: TextButton.styleFrom(
+                      minimumSize: Size.fromHeight(50),
+                    ),
+                    child: Text(
+                      "CANCEL",
+                      style: TextStyle(color: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showShipmentSearchBottomSheet(BuildContext context) {
+    TextEditingController bookingNoController = TextEditingController();
+    TextEditingController shippingBillNoController = TextEditingController();
+    TextEditingController fromDateController = TextEditingController();
+    TextEditingController toDateController = TextEditingController();
+
+    Future<void> _selectDate(
+        BuildContext context, TextEditingController controller) async {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null) {
+        controller.text = "${picked.day}-${picked.month}-${picked.year}";
+      }
+    }
+
+    void _search() async {
+      String bookingNo = bookingNoController.text.trim();
+      String shippingBillNo = shippingBillNoController.text.trim();
+      String fromDate = fromDateController.text.trim();
+      String toDate = toDateController.text.trim();
+
+      if (bookingNo.isEmpty || shippingBillNo.isEmpty || fromDate.isEmpty || toDate.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please fill in all fields")),
+        );
+        return;
+      }
+
+      DateTime fromDateTime = DateFormat('d-M-yyyy').parse(fromDate);
+      DateTime toDateTime = DateFormat('d-M-yyyy').parse(toDate);
+
+      if (fromDateTime.isAfter(toDateTime)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("From Date should not exceed To Date")),
+        );
+        return;
+      }
+
+      String fromDateISO = fromDateTime.toIso8601String();
+      String toDateISO = toDateTime.toIso8601String();
+
+      print("Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+      getShipmentDetails(fromDateISO, toDateISO);
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Shipment Search",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Divider(color: Colors.grey),
+                SizedBox(height: 16),
+                TextField(
+                  controller: bookingNoController,
+                  decoration: InputDecoration(
+                    labelText: "Booking No.",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: shippingBillNoController,
+                  decoration: InputDecoration(
+                    labelText: "Shipping Bill No.",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: fromDateController,
+                  decoration: InputDecoration(
+                    labelText: "From Date",
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () => _selectDate(context, fromDateController),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: toDateController,
+                  decoration: InputDecoration(
+                    labelText: "To Date",
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () => _selectDate(context, toDateController),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    _search();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Replace with your color
+                    minimumSize: Size.fromHeight(50),
+                  ),
+                  child: Text("SEARCH", style: TextStyle(color: Colors.white)),
+                ),
+                SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () {
+                    bookingNoController.clear();
+                    shippingBillNoController.clear();
+                    fromDateController.clear();
+                    toDateController.clear();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.blue), // Replace with your color
+                    minimumSize: Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    "RESET",
+                    style: TextStyle(color: Colors.blue), // Replace with your color
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.fromHeight(50),
+                  ),
+                  child: Text(
+                    "CANCEL",
+                    style: TextStyle(color: Colors.blue), // Replace with your color
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
 }
 
 class ExpandableCard extends StatefulWidget {

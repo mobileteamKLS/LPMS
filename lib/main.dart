@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:lpms/screens/ExportDashboard.dart';
 import 'package:lpms/screens/Login.dart';
 import 'package:lpms/theme/app_theme.dart';
 
 void main() {
+ // debugPaintSizeEnabled = true;
   runApp(const MyApp());
 }
 
