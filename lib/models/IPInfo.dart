@@ -1,20 +1,19 @@
 class IpInfo {
-  String? ip;
-  String? city;
-  String? country;
-  String? org;
+  final String ip;
+  final String city;
+  final String country;
+  final String org;
 
-  IpInfo(
-      {this.ip,
-        this.city,
-        this.country,
-        this.org});
+  IpInfo({required this.ip,
+    required this.city,
+    required this.country,
+    required this.org});
 
-  IpInfo.fromJson(Map<String, dynamic> json) {
-    ip = json['ip'];
-    city = json['city'];
-    country = json['country'];
-    org = json['org'];
+  factory IpInfo.fromJson(Map<String, dynamic> json) {
+    return IpInfo(ip: json['ip'] ?? "",
+        city: json['city'] ?? "",
+        country: json['country'] ?? "",
+        org: json['org'] ?? "");
   }
 
   Map<String, dynamic> toJson() {

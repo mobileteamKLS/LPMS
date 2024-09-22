@@ -4,45 +4,13 @@ import 'dart:convert';
 
 import 'package:lpms/theme/app_color.dart';
 
+import '../api/auth.dart';
 import '../models/IPInfo.dart';
 import 'Encryption.dart';
-class AuthService {
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    try {
-      // Replace with your API endpoint
-      var response = await http.post(
-        Uri.parse('https://example.com/api/login'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"email": email, "password": password}),
-      );
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        return {"success": true, "data": data};
-      } else {
-        return {"success": false, "message": "Invalid username or password"};
-      }
-    } catch (error) {
-      return {"success": false, "message": "An error occurred. Please try again."};
-    }
-  }
-
-  Future<IpInfo> fetchIpInfo() async {
-    final response = await http.get(Uri.parse("https://ipapi.co/json/"));
-    final int statusCode = response.statusCode;
-    if (statusCode <= 200 || statusCode > 400) {
-      final data = json.decode(response.body);
-      debugPrint(IpInfo.fromJson(data).toString());
-      return IpInfo.fromJson(data);
-    } else {
-      throw Exception('Failed to load IP information');
-    }
-  }
-}
-
-
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -51,11 +19,12 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService(); 
-  final EncryptionService encryptionService = EncryptionService(); 
+  final AuthService _authService = AuthService();
+  final EncryptionService encryptionService = EncryptionService();
   bool _isLoading = false;
   String? _errorMessage;
-  IpInfo? ipInfo;
+  late IpInfo ipInfo;
+
   Future<void> _handleLogin() async {
     setState(() {
       _isLoading = true;
@@ -65,8 +34,17 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    // Call the AuthService login function
-    var result = await _authService.login(username, password);
+    var result = await _authService.getUserAuthenticationDetails(
+        username,
+        "",
+        password,
+        ipInfo.ip,
+        ipInfo.city,
+        ipInfo.country,
+        ipInfo.org,
+        "",
+        "",
+        "");
 
     setState(() {
       _isLoading = false;
@@ -86,8 +64,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> fetchIpInfo() async {
     try {
       final fetchedIpInfo = await _authService.fetchIpInfo();
-      print("check_Api=======${fetchedIpInfo.ip}");
-      debugPrint(encryptionService.encryptUsingRandomKey("Kale@123`223.185.15.90", "userKey"));
+
+      debugPrint(encryptionService.encryptUsingRandomKey(
+          "Kale@123`223.185.15.90", "61"));
       setState(() {
         ipInfo = fetchedIpInfo;
       });
@@ -99,19 +78,16 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
     fetchIpInfo();
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'),
-      backgroundColor: AppColors.primary),
+      appBar: AppBar(title: Text('Login'), backgroundColor: AppColors.primary),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -123,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 controller: _usernameController,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: const InputDecoration(labelText: 'Username'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your username';
@@ -136,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
@@ -146,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Error message display
               if (_errorMessage != null)
@@ -154,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Text(
                     _errorMessage!,
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
 
@@ -163,15 +139,18 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _isLoading
                     ? null
                     : () {
-                  if (_formKey.currentState!.validate()) {
-                    _handleLogin();
-                  }
-                },
+                        if (_formKey.currentState!.validate()) {
+                          _handleLogin();
+                        }
+                      },
                 child: _isLoading
-                    ? CircularProgressIndicator(
-                  color: Colors.white,
-                )
-                    : Text('Login',style: TextStyle(color: Colors.white),),
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ],
           ),
