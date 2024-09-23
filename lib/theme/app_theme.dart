@@ -21,50 +21,48 @@ import 'package:lpms/theme/app_color.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
-    primaryColor: AppColors.primary,
-    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-    brightness: Brightness.light,
-    useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.background,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        textStyle: const TextStyle(
-          fontSize: 18,
-          color: Colors.white,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+      primaryColor: AppColors.primary,
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+      brightness: Brightness.light,
+      useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.background,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          textStyle: const TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
         ),
       ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: AppColors.primary),
-        textStyle: const TextStyle(
-          fontSize: 18,
-          color: AppColors.primary, // Text color
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.primary),
+          textStyle: const TextStyle(
+            fontSize: 18,
+            color: AppColors.primary,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          minimumSize: const Size.fromHeight(50),
         ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        minimumSize: const Size.fromHeight(50),
       ),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-
-        textStyle: const TextStyle(
-          fontSize: 18,
-          color: AppColors.primary,
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: const TextStyle(
+            fontSize: 18,
+            color: AppColors.primary,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          minimumSize: const Size.fromHeight(50),
         ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        minimumSize: const Size.fromHeight(50),
       ),
-    )
-
   );
 }
 
@@ -117,7 +115,6 @@ class AppBarPainterGradient extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-
     final Rect rect = Rect.fromLTWH(0.0, 0.0, size.width, size.height);
     const Gradient gradient = LinearGradient(
       colors: [
@@ -136,18 +133,18 @@ class AppBarPainterGradient extends CustomPainter {
       ..moveTo(0, 0)
       ..lineTo(size.width * 0.08, 0.0)
       ..cubicTo(
-        size.width * 0.04, 0.0, // control point 1
-        0.0, 0.0001 * size.width, // control point 2
-        0.0, 0.06 * size.width, // end point
+        size.width * 0.04, 0.0,
+        0.0, 0.0001 * size.width,
+        0.0, 0.06 * size.width,
       );
 
     Path path_2 = Path()
       ..moveTo(size.width, 0)
       ..lineTo(size.width * 0.92, 0.0)
       ..cubicTo(
-        size.width * 0.96, 0.0, // control point 1
-        size.width, 0.0001 * size.width, // control point 2
-        size.width, 0.09 * size.width, // end point
+        size.width * 0.96, 0.0,
+        size.width, 0.0001 * size.width,
+        size.width, 0.09 * size.width,
       );
 
     Paint paint_2 = Paint()
@@ -164,4 +161,3 @@ class AppBarPainterGradient extends CustomPainter {
     // canvas.drawPath(path_3, paint_2);
   }
 }
-

@@ -23,22 +23,38 @@ class ExportScreen extends StatefulWidget {
 
 class _ExportScreenState extends State<ExportScreen> {
   bool isLoading = false;
-  bool isExapnded = false;
+  bool hasNoRecord = false;
   List<ShipmentDetails> listShipmentDetails = [];
   List<ShipmentDetails> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
   List<bool> _isExpandedList = [];
 
+  String _formatDate(DateTime date) {
+    return DateFormat('d MMM yyyy').format(date);
+  }
+
+  late TextEditingController fromDateController;
+  late TextEditingController toDateController;
+
   @override
   void initState() {
     super.initState();
-    DateTime now = DateTime.now();
-    DateTime startOfDay = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    DateTime today = DateTime.now();
+    DateTime startOfDay = today
+        .subtract(Duration(days: 1))
+        .toLocal()
+        .copyWith(hour: 0, minute: 0, second: 0);
     String startOfDayFormatted = startOfDay.toUtc().toIso8601String();
 
-    DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+    DateTime endOfDay =
+        today.toLocal().copyWith(hour: 23, minute: 59, second: 59);
     String endOfDayFormatted = endOfDay.toUtc().toIso8601String();
-    getShipmentDetails(endOfDayFormatted, startOfDayFormatted);
+    print('Start of Day: $startOfDayFormatted');
+    print('End of Day: $endOfDayFormatted');
+    getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "");
+    fromDateController = TextEditingController(
+        text: _formatDate(DateTime.now().subtract(Duration(days: 2))));
+    toDateController = TextEditingController(text: _formatDate(DateTime.now()));
   }
 
   @override
@@ -117,8 +133,8 @@ class _ExportScreenState extends State<ExportScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: const [
+                        const Row(
+                          children: [
                             Icon(CupertinoIcons.cube),
                             Text(
                               '  SHIPMENT LIST',
@@ -136,7 +152,7 @@ class _ExportScreenState extends State<ExportScreen> {
                               ),
                               onPressed: () {
                                 print("Search button pressed");
-                                showShipmentSearchBottomSheet(context);
+                                showShipmentSearchDialog(context);
                               },
                             ),
                             IconButton(
@@ -275,7 +291,8 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  getShipmentDetails(endOfDayFormatted, startOfDayFormatted) async {
+  getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
+      String bookingNo, String sbNo) async {
     if (isLoading) return;
     listShipmentDetails = [];
     listShipmentDetailsBind = [];
@@ -286,10 +303,10 @@ class _ExportScreenState extends State<ExportScreen> {
     var queryParams = {
       "AirportId": 151,
       "OrgProdId": 3284,
-      "BookingNo": "",
+      "BookingNo": bookingNo,
       "CompanyCode": "LPAI",
       "BranchCode": "LPAI",
-      "SBillNo": "",
+      "SBillNo": sbNo,
       "TimeZone": "India Standard Time",
       "Todate": endOfDayFormatted,
       "Fromdate": startOfDayFormatted
@@ -489,19 +506,21 @@ class _ExportScreenState extends State<ExportScreen> {
   Future<void> showShipmentSearchDialog(BuildContext context) async {
     TextEditingController bookingNoController = TextEditingController();
     TextEditingController shippingBillNoController = TextEditingController();
-    TextEditingController fromDateController = TextEditingController();
-    TextEditingController toDateController = TextEditingController();
 
     Future<void> _selectDate(
-        BuildContext context, TextEditingController controller) async {
+        BuildContext context, TextEditingController controller,
+        {bool isFromDate = false}) async {
       final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: isFromDate
+            ? DateTime.now().subtract(Duration(days: 2))
+            : DateTime.now(),
         firstDate: DateTime(2020),
         lastDate: DateTime(2101),
       );
+
       if (picked != null) {
-        controller.text = "${picked.day}-${picked.month}-${picked.year}";
+        controller.text = DateFormat('d MMM yyyy').format(picked);
       }
     }
 
@@ -511,18 +530,15 @@ class _ExportScreenState extends State<ExportScreen> {
       String fromDate = fromDateController.text.trim();
       String toDate = toDateController.text.trim();
 
-      if (bookingNo.isEmpty ||
-          shippingBillNo.isEmpty ||
-          fromDate.isEmpty ||
-          toDate.isEmpty) {
+      if (fromDate.isEmpty || toDate.isEmpty) {
         await Future.delayed(Duration(milliseconds: 100));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Please fill in all fields")),
         );
         return;
       }
-      DateTime fromDateTime = DateFormat('d-M-yyyy').parse(fromDate);
-      DateTime toDateTime = DateFormat('d-M-yyyy').parse(toDate);
+      DateTime fromDateTime = DateFormat('d MMM yyyy').parse(fromDate);
+      DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
 
       if (fromDateTime.isAfter(toDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -536,9 +552,9 @@ class _ExportScreenState extends State<ExportScreen> {
 
       print(
           "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
-      getShipmentDetails(fromDateISO, toDateISO);
+      getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
+      Navigator.pop(context);
     }
-
 
     return showDialog(
       context: context,
@@ -546,22 +562,20 @@ class _ExportScreenState extends State<ExportScreen> {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          insetPadding: EdgeInsets.all(0), // Remove default padding
+          insetPadding: EdgeInsets.all(0),
           child: Container(
             color: Colors.white,
-            // Set dialog background to white
-            height: MediaQuery.of(context).size.height *0.8,
-            // Full screen
+            height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Shipment Search",
+                  const Text("Shipment Search",
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  Container(
+                  const SizedBox(
                     width: double.infinity,
                     child: Divider(color: Colors.grey),
                   ), // Gray horizontal line
@@ -592,8 +606,9 @@ class _ExportScreenState extends State<ExportScreen> {
                       labelText: "From Date",
                       suffixIcon: IconButton(
                         icon: Icon(Icons.calendar_today),
-                        onPressed: () =>
-                            _selectDate(context, fromDateController),
+                        onPressed: () => _selectDate(
+                            context, fromDateController,
+                            isFromDate: true),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
@@ -639,8 +654,9 @@ class _ExportScreenState extends State<ExportScreen> {
                     onPressed: () {
                       bookingNoController.clear();
                       shippingBillNoController.clear();
-                      fromDateController.clear();
-                      toDateController.clear();
+                      fromDateController.text = _formatDate(
+                          DateTime.now().subtract(Duration(days: 2)));
+                      toDateController.text = _formatDate(DateTime.now());
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: AppColors.primary),
@@ -649,7 +665,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       "RESET",
                       style: TextStyle(color: AppColors.primary), // Blue text
                     ),
@@ -702,7 +718,7 @@ class _ExportScreenState extends State<ExportScreen> {
       String fromDate = fromDateController.text.trim();
       String toDate = toDateController.text.trim();
 
-      if (bookingNo.isEmpty || shippingBillNo.isEmpty || fromDate.isEmpty || toDate.isEmpty) {
+      if (fromDate.isEmpty || toDate.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Please fill in all fields")),
         );
@@ -722,8 +738,9 @@ class _ExportScreenState extends State<ExportScreen> {
       String fromDateISO = fromDateTime.toIso8601String();
       String toDateISO = toDateTime.toIso8601String();
 
-      print("Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
-      getShipmentDetails(fromDateISO, toDateISO);
+      print(
+          "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+      getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
     }
 
     showModalBottomSheet(
@@ -737,7 +754,8 @@ class _ExportScreenState extends State<ExportScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Shipment Search",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 Divider(color: Colors.grey),
                 SizedBox(height: 16),
                 TextField(
@@ -807,7 +825,8 @@ class _ExportScreenState extends State<ExportScreen> {
                     toDateController.clear();
                   },
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blue), // Replace with your color
+                    side: BorderSide(color: Colors.blue),
+                    // Replace with your color
                     minimumSize: Size.fromHeight(50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -815,7 +834,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                   child: Text(
                     "RESET",
-                    style: TextStyle(color: Colors.blue), // Replace with your color
+                    style: TextStyle(
+                        color: Colors.blue), // Replace with your color
                   ),
                 ),
                 SizedBox(height: 16),
@@ -828,7 +848,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                   child: Text(
                     "CANCEL",
-                    style: TextStyle(color: Colors.blue), // Replace with your color
+                    style: TextStyle(
+                        color: Colors.blue), // Replace with your color
                   ),
                 ),
               ],
@@ -838,8 +859,6 @@ class _ExportScreenState extends State<ExportScreen> {
       },
     );
   }
-
-
 }
 
 class ExpandableCard extends StatefulWidget {
