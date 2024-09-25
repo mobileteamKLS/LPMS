@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'package:lpms/theme/app_color.dart';
 
@@ -87,7 +85,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login'), backgroundColor: AppColors.primary),
+      appBar: AppBar(
+          title: const Text('Login'), backgroundColor: AppColors.primary),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

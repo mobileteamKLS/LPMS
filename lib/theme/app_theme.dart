@@ -63,8 +63,7 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
         ),
       ),
-    iconButtonTheme: IconButtonThemeData()
-  );
+      iconButtonTheme: IconButtonThemeData());
 }
 
 // class AppBarPainter extends CustomPainter {
@@ -134,28 +133,25 @@ class AppBarPainterGradient extends CustomPainter {
       ..moveTo(0, 0)
       ..lineTo(size.width * 0.08, 0.0)
       ..cubicTo(
-        size.width * 0.04, 0.0,
-        0.0, 0.0001 * size.width,
-        0.0, 0.06 * size.width,
+        size.width * 0.04,
+        0.0,
+        0.0,
+        0.0001 * size.width,
+        0.0,
+        0.06 * size.width,
       );
 
     Path path_2 = Path()
       ..moveTo(size.width, 0)
       ..lineTo(size.width * 0.92, 0.0)
       ..cubicTo(
-        size.width * 0.96, 0.0,
-        size.width, 0.0001 * size.width,
-        size.width, 0.09 * size.width,
+        size.width * 0.96,
+        0.0,
+        size.width,
+        0.0001 * size.width,
+        size.width,
+        0.09 * size.width,
       );
-
-    Paint paint_2 = Paint()
-      ..color = const Color(0xffF57752)
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-
-    Path path_3 = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0);
 
     canvas.drawPath(path_1, paint_1);
     canvas.drawPath(path_2, paint_1);

@@ -43,7 +43,7 @@ class _ExportScreenState extends State<ExportScreen> {
     super.initState();
     DateTime today = DateTime.now();
     DateTime startOfDay = today
-        .subtract(Duration(days: 1))
+        .subtract(const Duration(days: 1))
         .toLocal()
         .copyWith(hour: 0, minute: 0, second: 0);
     String startOfDayFormatted = startOfDay.toUtc().toIso8601String();
@@ -55,7 +55,7 @@ class _ExportScreenState extends State<ExportScreen> {
     print('End of Day: $endOfDayFormatted');
     getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "");
     fromDateController = TextEditingController(
-        text: _formatDate(DateTime.now().subtract(Duration(days: 2))));
+        text: _formatDate(DateTime.now().subtract(const Duration(days: 2))));
     toDateController = TextEditingController(text: _formatDate(DateTime.now()));
   }
 
@@ -199,7 +199,7 @@ class _ExportScreenState extends State<ExportScreen> {
                             ),
                             onTap: () {},
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 8,
                           ),
                           GestureDetector(
@@ -235,20 +235,45 @@ class _ExportScreenState extends State<ExportScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(top: 2.0, left: 0.0),
                             child: SizedBox(
-                                width: MediaQuery.of(context).size.width / 1.01,
-                                child: ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder: (BuildContext, index) {
-                                    List<ShipmentDetails> filteredList = getFilteredShipmentDetails(listShipmentDetails, selectedFilters);
-                                    ShipmentDetails shipmentDetails =
-                                        listShipmentDetails.elementAt(index);
-                                    return buildShipmentDetailsCardV2(
-                                        shipmentDetails, index);
-                                  },
-                                  itemCount: listShipmentDetails.length,
-                                  shrinkWrap: true,
-                                  padding: EdgeInsets.all(2),
-                                )),
+                              width: MediaQuery.of(context).size.width / 1.01,
+                              child: filteredList.isNotEmpty
+                                  ? ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (BuildContext, index) {
+                                        // List<ShipmentDetails> filteredList =
+                                        //     getFilteredShipmentDetails(
+                                        //         listShipmentDetails,
+                                        //         selectedFilters);
+                                        ShipmentDetails shipmentDetails =
+                                        filteredList
+                                                .elementAt(index);
+                                        return buildShipmentDetailsCardV2(
+                                            shipmentDetails, index);
+                                      },
+                                      itemCount: filteredList.length,
+                                      shrinkWrap: true,
+                                      padding: const EdgeInsets.all(2),
+                                    )
+                                  : ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (BuildContext, index) {
+                                        // List<ShipmentDetails> filteredList =
+                                        //     getFilteredShipmentDetails(
+                                        //         listShipmentDetails,
+                                        //         selectedFilters);
+                                        ShipmentDetails shipmentDetails =
+                                            listShipmentDetails
+                                                .elementAt(index);
+                                        return buildShipmentDetailsCardV2(
+                                            shipmentDetails, index);
+                                      },
+                                      itemCount: listShipmentDetails.length,
+                                      shrinkWrap: true,
+                                      padding: const EdgeInsets.all(2),
+                                    ),
+                            ),
                           ),
                         ),
                       ),
@@ -328,7 +353,7 @@ class _ExportScreenState extends State<ExportScreen> {
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
-        filteredList=listShipmentDetails;
+        filteredList = listShipmentDetails;
         isLoading = false;
         _isExpandedList = List<bool>.filled(listShipmentDetails.length, false);
       });
@@ -371,10 +396,10 @@ class _ExportScreenState extends State<ExportScreen> {
                     child: Row(
                       children: [
                         Utils.getStatusIcon(shipmentDetails.statusDescription),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           shipmentDetails.statusDescription,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: Colors.black,
                           ),
@@ -411,7 +436,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     child: Text(
                       shipmentDetails.cargoTypeName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Colors.black54,
                       ),
@@ -421,7 +446,7 @@ class _ExportScreenState extends State<ExportScreen> {
               ),
               isExpanded
                   ? Padding(
-                      padding: EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -431,23 +456,23 @@ class _ExportScreenState extends State<ExportScreen> {
                                 children: [
                                   Text(
                                     '${shipmentDetails.sBillNo}  ',
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.info_outline_rounded,
                                     size: 18,
                                     color: AppColors.primary,
                                   ),
                                 ],
                               ),
-                              SizedBox(width: 24),
+                              const SizedBox(width: 24),
                               Row(
                                 children: [
                                   Text(
                                     '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.calendar_month_outlined,
                                     size: 18,
                                     color: AppColors.primary,
@@ -456,12 +481,12 @@ class _ExportScreenState extends State<ExportScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               Text(
                                 '${DateFormat('dd MMM yyyy HH:mm').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
-                                style: TextStyle(fontSize: 14),
+                                style: const TextStyle(fontSize: 14),
                               ),
                               const Icon(
                                 Icons.calendar_month_outlined,
@@ -624,10 +649,10 @@ class _ExportScreenState extends State<ExportScreen> {
                     child: Row(
                       children: [
                         Utils.getStatusIcon(shipmentDetails.statusDescription),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           shipmentDetails.statusDescription,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: Colors.black,
                           ),
@@ -639,7 +664,7 @@ class _ExportScreenState extends State<ExportScreen> {
               ),
               isExpanded
                   ? Padding(
-                      padding: EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -660,7 +685,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-                              SizedBox(width: 24),
+                              const SizedBox(width: 24),
                               Column(
                                 children: [
                                   const Text(
@@ -669,7 +694,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                   Text(
                                     '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
                                   ),
@@ -677,17 +702,17 @@ class _ExportScreenState extends State<ExportScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'Booking Date & Time',
-                                style: const TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 14),
                               ),
                               Text(
                                 '${DateFormat('dd MMM yyyy HH:mm').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.w800),
                               ),
                             ],
@@ -728,7 +753,6 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-
   Future<void> showShipmentSearchDialog(BuildContext context) async {
     TextEditingController bookingNoController = TextEditingController();
     TextEditingController shippingBillNoController = TextEditingController();
@@ -739,7 +763,7 @@ class _ExportScreenState extends State<ExportScreen> {
       final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: isFromDate
-            ? DateTime.now().subtract(Duration(days: 2))
+            ? DateTime.now().subtract(const Duration(days: 2))
             : DateTime.now(),
         firstDate: DateTime(2020),
         lastDate: DateTime(2101),
@@ -750,16 +774,16 @@ class _ExportScreenState extends State<ExportScreen> {
       }
     }
 
-    void _search() async {
+    void search() async {
       String bookingNo = bookingNoController.text.trim();
       String shippingBillNo = shippingBillNoController.text.trim();
       String fromDate = fromDateController.text.trim();
       String toDate = toDateController.text.trim();
 
       if (fromDate.isEmpty || toDate.isEmpty) {
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Please fill in all fields")),
+          const SnackBar(content: Text("Please fill in all fields")),
         );
         return;
       }
@@ -768,7 +792,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
       if (fromDateTime.isAfter(toDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("From Date should not exceed To Date")),
+          const SnackBar(content: Text("From Date should not exceed To Date")),
         );
         return;
       }
@@ -788,7 +812,7 @@ class _ExportScreenState extends State<ExportScreen> {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          insetPadding: EdgeInsets.all(0),
+          insetPadding: const EdgeInsets.all(0),
           child: Container(
             color: Colors.white,
             height: MediaQuery.of(context).size.height,
@@ -805,7 +829,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     width: double.infinity,
                     child: Divider(color: Colors.grey),
                   ), // Gray horizontal line
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: bookingNoController,
                     decoration: InputDecoration(
@@ -815,7 +839,7 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: shippingBillNoController,
                     decoration: InputDecoration(
@@ -825,13 +849,13 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: fromDateController,
                     decoration: InputDecoration(
                       labelText: "From Date",
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                         onPressed: () => _selectDate(
                             context, fromDateController,
                             isFromDate: true),
@@ -841,13 +865,13 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: toDateController,
                     decoration: InputDecoration(
                       labelText: "To Date",
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                         onPressed: () => _selectDate(context, toDateController),
                       ),
                       border: OutlineInputBorder(
@@ -864,15 +888,15 @@ class _ExportScreenState extends State<ExportScreen> {
 
                   ElevatedButton(
                     onPressed: () {
-                      _search();
+                      search();
                       // Navigator.pop(context); // Close dialog after search
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      minimumSize: Size.fromHeight(50),
+                      minimumSize: const Size.fromHeight(50),
                     ),
-                    child:
-                        Text("SEARCH", style: TextStyle(color: Colors.white)),
+                    child: const Text("SEARCH",
+                        style: TextStyle(color: Colors.white)),
                   ),
                   const SizedBox(height: 16), // Space between buttons
                   // Reset button
@@ -881,12 +905,12 @@ class _ExportScreenState extends State<ExportScreen> {
                       bookingNoController.clear();
                       shippingBillNoController.clear();
                       fromDateController.text = _formatDate(
-                          DateTime.now().subtract(Duration(days: 2)));
+                          DateTime.now().subtract(const Duration(days: 2)));
                       toDateController.text = _formatDate(DateTime.now());
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.primary),
-                      minimumSize: Size.fromHeight(50),
+                      side: const BorderSide(color: AppColors.primary),
+                      minimumSize: const Size.fromHeight(50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -903,9 +927,9 @@ class _ExportScreenState extends State<ExportScreen> {
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
-                      minimumSize: Size.fromHeight(50),
+                      minimumSize: const Size.fromHeight(50),
                     ),
-                    child: Text(
+                    child: const Text(
                       "CANCEL",
                       style: TextStyle(color: AppColors.primary),
                     ),
@@ -924,22 +948,32 @@ class _ExportScreenState extends State<ExportScreen> {
       filteredList =
           getFilteredShipmentDetails(listShipmentDetails, selectedFilters);
     });
-    print("${filteredList.length}------");
   }
 
   List<ShipmentDetails> getFilteredShipmentDetails(
       List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters) {
-    if (selectedFilters.isEmpty) {
-      return listShipmentDetails;
-    }
+    // return listShipmentDetails.where((shipment) {
+    //   print("${shipment.statusDescription.toUpperCase()}  ${selectedFilters.any((filter)}");
+    //   return selectedFilters.any((filter) => shipment.statusDescription.toUpperCase() == filter);
+    // }).toList();
 
     return listShipmentDetails.where((shipment) {
-      return selectedFilters.contains(
-          shipment.statusDescription);
+      bool matchFound = selectedFilters.any((filter) {
+        // Print both values for debugging
+        print(
+            "Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
+        return shipment.statusDescription.toUpperCase() == filter;
+      });
+
+      // Print if a match is found or not
+      if (matchFound) {
+        print("Match found for Shipment Status: ${shipment.statusDescription}");
+      } else {
+        print("No match for Shipment Status: ${shipment.statusDescription}");
+      }
+      return matchFound;
     }).toList();
   }
-
-
 
   // void showShipmentSearchBottomSheet(BuildContext context) {
   //   showModalBottomSheet(
@@ -1009,7 +1043,7 @@ class _ExportScreenState extends State<ExportScreen> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        List<String> selectedFilters = [];
+        // List<String> selectedFilters = [];
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -1033,7 +1067,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         spacing: 8.0,
                         children: [
                           FilterChip(
-                            label: Text('Draft'),
+                            label: const Text('Draft'),
                             selected: selectedFilters.contains('DRAFT'),
                             onSelected: (bool selected) {
                               setState(() {
@@ -1055,7 +1089,7 @@ class _ExportScreenState extends State<ExportScreen> {
                             checkmarkColor: Colors.blue,
                           ),
                           FilterChip(
-                            label: Text('Gate-in'),
+                            label: const Text('Gate-in'),
                             selected: selectedFilters.contains('GATE-IN'),
                             onSelected: (bool selected) {
                               setState(() {
@@ -1076,8 +1110,9 @@ class _ExportScreenState extends State<ExportScreen> {
                             ),
                           ),
                           FilterChip(
-                            label: Text('Gate-in Pending'),
-                            selected: selectedFilters.contains('Gate-in Pending'),
+                            label: const Text('Gate-in Pending'),
+                            selected:
+                                selectedFilters.contains('Gate-in Pending'),
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
@@ -1090,20 +1125,23 @@ class _ExportScreenState extends State<ExportScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
-                                color: selectedFilters.contains('Gate-in Pending')
-                                    ? Colors.blue
-                                    : Colors.transparent,
+                                color:
+                                    selectedFilters.contains('Gate-in Pending')
+                                        ? Colors.blue
+                                        : Colors.transparent,
                               ),
                             ),
                           ),
                           FilterChip(
                             label: const Text('Gate-in Rejected'),
-                            selected: selectedFilters.contains('REJECTED FOR GATE-IN'),
+                            selected:
+                                selectedFilters.contains('REJECT FOR GATE-IN'),
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
-                                    ? selectedFilters.add('REJECTED FOR GATE-IN')
-                                    : selectedFilters.remove('REJECTED FOR GATE-IN');
+                                    ? selectedFilters.add('REJECT FOR GATE-IN')
+                                    : selectedFilters
+                                        .remove('REJECT FOR GATE-IN');
                               });
                             },
                             selectedColor: Colors.blue.withOpacity(0.1),
@@ -1111,7 +1149,8 @@ class _ExportScreenState extends State<ExportScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
-                                color: selectedFilters.contains('REJECTED FOR GATE-IN')
+                                color: selectedFilters
+                                        .contains('REJECT FOR GATE-IN')
                                     ? Colors.blue
                                     : Colors.transparent,
                               ),
@@ -1123,7 +1162,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
-                      child: Divider(color: Colors.grey),
+                      child: const Divider(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                     const Column(
@@ -1150,9 +1189,9 @@ class _ExportScreenState extends State<ExportScreen> {
                     const SizedBox(height: 16),
                     Container(
                       width: double.infinity,
-                      child: Divider(color: Colors.grey),
+                      child: const Divider(color: Colors.grey),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -1160,12 +1199,12 @@ class _ExportScreenState extends State<ExportScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        minimumSize: Size.fromHeight(50),
+                        minimumSize: const Size.fromHeight(50),
                       ),
-                      child: Text("SEARCH",
+                      child: const Text("SEARCH",
                           style: TextStyle(color: Colors.white)),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
@@ -1173,8 +1212,8 @@ class _ExportScreenState extends State<ExportScreen> {
                         });
                       },
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.primary),
-                        minimumSize: Size.fromHeight(50),
+                        side: const BorderSide(color: AppColors.primary),
+                        minimumSize: const Size.fromHeight(50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -1194,332 +1233,147 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-
-  // void showShipmentSearchBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     builder: (BuildContext context) {
-  //       return Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: SingleChildScrollView(
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               const Text("Filter",
-  //                   style:
-  //                       TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-  //               const Divider(color: Colors.grey),
-  //               const SizedBox(height: 16),
-  //               const Text('SORT BY STATUS',style:
-  //               TextStyle(fontSize: 16, )),
-  //               const SizedBox(height: 16),
-  //             SizedBox(
-  //               width: MediaQuery.of(context).size.width,
-  //               child: Wrap(
-  //                 spacing: 8.0,
-  //                 children: [
-  //                   FilterChip(
-  //                     label: Text('Draft'),
-  //                     selected: selectedFilters.contains('Draft'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Draft')
-  //                             : selectedFilters.remove('Draft');
-  //                       });
-  //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Draft')
-  //                             ? Colors.blue
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                     checkmarkColor: Colors.blue,
-  //                   ),
-  //                   FilterChip(
-  //                     label: Text('Gate-in'),
-  //                     selected: selectedFilters.contains('Gate-in'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in')
-  //                             : selectedFilters.remove('Gate-in');
-  //                       });
-  //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in')
-  //                             ? Colors.blue
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   FilterChip(
-  //                     label: Text('Gate-in Pending'),
-  //                     selected: selectedFilters.contains('Gate-in Pending'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in Pending')
-  //                             : selectedFilters.remove('Gate-in Pending');
-  //                       });
-  //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in Pending')
-  //                             ? Colors.blue
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   FilterChip(
-  //                     label: const Text('Gate-in Rejected'),
-  //                     selected: selectedFilters.contains('Gate-in Rejected'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in Rejected')
-  //                             : selectedFilters.remove('Gate-in Rejected');
-  //                       });
-  //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in Rejected')
-  //                             ? Colors.blue
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //
-  //               const SizedBox(height: 8),
-  //               Container(
-  //                 width: double.infinity,
-  //                 child: Divider(color: Colors.grey),
-  //               ),
-  //               const SizedBox(height: 4),
-  //               const Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     'FILTER BY DATE',
-  //                     style: TextStyle(fontSize: 16),),
-  //                   const SizedBox(height: 16),
-  //                   Row(
-  //                     children: [
-  //                       Icon(Icons.calendar_today, color: AppColors.primary),
-  //                       SizedBox(width: 8),
-  //                       Text(
-  //                         'Slot Date',
-  //                         style: TextStyle(fontSize: 16),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Container(
-  //                 width: double.infinity,
-  //                 child: Divider(color: Colors.grey),
-  //               ),
-  //               SizedBox(height: 8),
-  //
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //
-  //                   // Navigator.pop(context); // Close dialog after search
-  //                 },
-  //                 style: ElevatedButton.styleFrom(
-  //                   backgroundColor: AppColors.primary,
-  //                   minimumSize: Size.fromHeight(50),
-  //                 ),
-  //                 child:
-  //                 Text("SEARCH", style: TextStyle(color: Colors.white)),
-  //               ),
-  //               SizedBox(height: 16), // Space between buttons
-  //               // Reset button
-  //               OutlinedButton(
-  //                 onPressed: () {
-  //
-  //                 },
-  //                 style: OutlinedButton.styleFrom(
-  //                   side: BorderSide(color: AppColors.primary),
-  //                   minimumSize: Size.fromHeight(50),
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //                 child: const Text(
-  //                   "RESET",
-  //                   style: TextStyle(color: AppColors.primary), // Blue text
-  //                 ),
-  //               ),
-  //
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-  void showCustomBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      // ),
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        // return DraggableScrollableSheet(
-        //   expand: false,
-        //   builder: (context, scrollController) {
-        return SingleChildScrollView(
-          // controller: scrollController,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Filter/Sort',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Add your reset logic here
-                      },
-                      child: Text(
-                        'RESET',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Text('Sort by Status'),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Wrap(
-                    spacing: 8.0,
-                    children: [
-                      FilterChip(
-                        label: Text('Draft'),
-                        selected: true,
-                        onSelected: (bool selected) {},
-                        selectedColor: Colors.blue.withOpacity(0.2),
-                      ),
-                      FilterChip(
-                        label: Text('Gate-in'),
-                        selected: false,
-                        onSelected: (bool selected) {},
-                        selectedColor: Colors.blue.withOpacity(0.2),
-                      ),
-                      FilterChip(
-                        label: Text('Gate-in Pending'),
-                        selected: false,
-                        onSelected: (bool selected) {},
-                        selectedColor: Colors.blue.withOpacity(0.2),
-                      ),
-                      FilterChip(
-                        label: Text('Gate-in Rejected'),
-                        selected: false,
-                        onSelected: (bool selected) {},
-                        selectedColor: Colors.blue.withOpacity(0.2),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text(
-                      'Slot Date',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 32,
-                        ),
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Add apply logic here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Apply',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-        //   },
-        // );
-      },
-    );
-  }
+// void showCustomBottomSheet(BuildContext context) {
+//   showModalBottomSheet(
+//     context: context,
+//     // shape: RoundedRectangleBorder(
+//     //   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+//     // ),
+//     isScrollControlled: true,
+//     builder: (BuildContext context) {
+//       // return DraggableScrollableSheet(
+//       //   expand: false,
+//       //   builder: (context, scrollController) {
+//       return SingleChildScrollView(
+//         // controller: scrollController,
+//         child: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   const Text(
+//                     'Filter/Sort',
+//                     style: TextStyle(
+//                       fontSize: 18,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//                   TextButton(
+//                     onPressed: () {
+//                       // Add your reset logic here
+//                     },
+//                     child: const Text(
+//                       'RESET',
+//                       style: TextStyle(
+//                         color: Colors.blue,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 20),
+//               const Text('Sort by Status'),
+//               SizedBox(
+//                 width: MediaQuery.of(context).size.width,
+//                 child: Wrap(
+//                   spacing: 8.0,
+//                   children: [
+//                     FilterChip(
+//                       label: const Text('Draft'),
+//                       selected: true,
+//                       onSelected: (bool selected) {},
+//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                     ),
+//                     FilterChip(
+//                       label: const Text('Gate-in'),
+//                       selected: false,
+//                       onSelected: (bool selected) {},
+//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                     ),
+//                     FilterChip(
+//                       label: const Text('Gate-in Pending'),
+//                       selected: false,
+//                       onSelected: (bool selected) {},
+//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                     ),
+//                     FilterChip(
+//                       label: const Text('Gate-in Rejected'),
+//                       selected: false,
+//                       onSelected: (bool selected) {},
+//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 20),
+//               const Row(
+//                 children: [
+//                   Icon(Icons.calendar_today, color: Colors.blue),
+//                   SizedBox(width: 8),
+//                   Text(
+//                     'Slot Date',
+//                     style: TextStyle(fontSize: 16),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 20),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   TextButton(
+//                     onPressed: () {
+//                       Navigator.pop(context);
+//                     },
+//                     style: TextButton.styleFrom(
+//                       padding: const EdgeInsets.symmetric(
+//                         vertical: 12,
+//                         horizontal: 32,
+//                       ),
+//                       backgroundColor: Colors.white,
+//                       shape: RoundedRectangleBorder(
+//                         side: const BorderSide(color: Colors.blue),
+//                         borderRadius: BorderRadius.circular(8),
+//                       ),
+//                     ),
+//                     child: const Text(
+//                       'Cancel',
+//                       style: TextStyle(color: Colors.blue),
+//                     ),
+//                   ),
+//                   ElevatedButton(
+//                     onPressed: () {
+//                       // Add apply logic here
+//                     },
+//                     style: ElevatedButton.styleFrom(
+//                       padding: const EdgeInsets.symmetric(
+//                         vertical: 12,
+//                         horizontal: 32,
+//                       ),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(8),
+//                       ),
+//                     ),
+//                     child: const Text(
+//                       'Apply',
+//                       style: TextStyle(color: Colors.white),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 20),
+//             ],
+//           ),
+//         ),
+//       );
+//       //   },
+//       // );
+//     },
+//   );
+// }
 }
 
 class ExpandableCard extends StatefulWidget {
@@ -1756,7 +1610,7 @@ class _ExpandableCardState extends State<ExpandableCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // EXP/AGA/20240822/00001 and GEN labels below DRAFT
                   Row(
                     children: [
@@ -1923,7 +1777,7 @@ class _ExpandableCardState extends State<ExpandableCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // EXP/AGA/20240822/00001 and GEN labels below DRAFT
                   Row(
                     children: [
@@ -2090,7 +1944,7 @@ class _ExpandableCardState extends State<ExpandableCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // EXP/AGA/20240822/00001 and GEN labels below DRAFT
                   Row(
                     children: [
@@ -2215,6 +2069,190 @@ class _ExpandableCardState extends State<ExpandableCard> {
 class CustomCard extends StatelessWidget {
   const CustomCard({super.key});
 
+  // void showShipmentSearchBottomSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     builder: (BuildContext context) {
+  //       return Padding(
+  //         padding: const EdgeInsets.all(16.0),
+  //         child: SingleChildScrollView(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const Text("Filter",
+  //                   style:
+  //                       TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+  //               const Divider(color: Colors.grey),
+  //               const SizedBox(height: 16),
+  //               const Text('SORT BY STATUS',style:
+  //               TextStyle(fontSize: 16, )),
+  //               const SizedBox(height: 16),
+  //             SizedBox(
+  //               width: MediaQuery.of(context).size.width,
+  //               child: Wrap(
+  //                 spacing: 8.0,
+  //                 children: [
+  //                   FilterChip(
+  //                     label: Text('Draft'),
+  //                     selected: selectedFilters.contains('Draft'),
+  //                     onSelected: (bool selected) {
+  //                       setState(() {
+  //                         selected
+  //                             ? selectedFilters.add('Draft')
+  //                             : selectedFilters.remove('Draft');
+  //                       });
+  //                     },
+  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     backgroundColor: Colors.transparent,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(20.0),
+  //                       side: BorderSide(
+  //                         color: selectedFilters.contains('Draft')
+  //                             ? Colors.blue
+  //                             : Colors.transparent,
+  //                       ),
+  //                     ),
+  //                     checkmarkColor: Colors.blue,
+  //                   ),
+  //                   FilterChip(
+  //                     label: Text('Gate-in'),
+  //                     selected: selectedFilters.contains('Gate-in'),
+  //                     onSelected: (bool selected) {
+  //                       setState(() {
+  //                         selected
+  //                             ? selectedFilters.add('Gate-in')
+  //                             : selectedFilters.remove('Gate-in');
+  //                       });
+  //                     },
+  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     backgroundColor: Colors.transparent,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(20.0),
+  //                       side: BorderSide(
+  //                         color: selectedFilters.contains('Gate-in')
+  //                             ? Colors.blue
+  //                             : Colors.transparent,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   FilterChip(
+  //                     label: Text('Gate-in Pending'),
+  //                     selected: selectedFilters.contains('Gate-in Pending'),
+  //                     onSelected: (bool selected) {
+  //                       setState(() {
+  //                         selected
+  //                             ? selectedFilters.add('Gate-in Pending')
+  //                             : selectedFilters.remove('Gate-in Pending');
+  //                       });
+  //                     },
+  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     backgroundColor: Colors.transparent,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(20.0),
+  //                       side: BorderSide(
+  //                         color: selectedFilters.contains('Gate-in Pending')
+  //                             ? Colors.blue
+  //                             : Colors.transparent,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   FilterChip(
+  //                     label: const Text('Gate-in Rejected'),
+  //                     selected: selectedFilters.contains('Gate-in Rejected'),
+  //                     onSelected: (bool selected) {
+  //                       setState(() {
+  //                         selected
+  //                             ? selectedFilters.add('Gate-in Rejected')
+  //                             : selectedFilters.remove('Gate-in Rejected');
+  //                       });
+  //                     },
+  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     backgroundColor: Colors.transparent,
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(20.0),
+  //                       side: BorderSide(
+  //                         color: selectedFilters.contains('Gate-in Rejected')
+  //                             ? Colors.blue
+  //                             : Colors.transparent,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //
+  //               const SizedBox(height: 8),
+  //               Container(
+  //                 width: double.infinity,
+  //                 child: Divider(color: Colors.grey),
+  //               ),
+  //               const SizedBox(height: 4),
+  //               const Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     'FILTER BY DATE',
+  //                     style: TextStyle(fontSize: 16),),
+  //                   const SizedBox(height: 16),
+  //                   Row(
+  //                     children: [
+  //                       Icon(Icons.calendar_today, color: AppColors.primary),
+  //                       SizedBox(width: 8),
+  //                       Text(
+  //                         'Slot Date',
+  //                         style: TextStyle(fontSize: 16),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Container(
+  //                 width: double.infinity,
+  //                 child: Divider(color: Colors.grey),
+  //               ),
+  //               SizedBox(height: 8),
+  //
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //
+  //                   // Navigator.pop(context); // Close dialog after search
+  //                 },
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: AppColors.primary,
+  //                   minimumSize: Size.fromHeight(50),
+  //                 ),
+  //                 child:
+  //                 Text("SEARCH", style: TextStyle(color: Colors.white)),
+  //               ),
+  //               SizedBox(height: 16), // Space between buttons
+  //               // Reset button
+  //               OutlinedButton(
+  //                 onPressed: () {
+  //
+  //                 },
+  //                 style: OutlinedButton.styleFrom(
+  //                   side: BorderSide(color: AppColors.primary),
+  //                   minimumSize: Size.fromHeight(50),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 child: const Text(
+  //                   "RESET",
+  //                   style: TextStyle(color: AppColors.primary), // Blue text
+  //                 ),
+  //               ),
+  //
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -2238,8 +2276,9 @@ class CustomCard extends StatelessWidget {
                         color: Colors.blue.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Row(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      child: const Row(
                         children: [
                           Icon(
                             Icons.local_shipping,
@@ -2258,24 +2297,25 @@ class CustomCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     // Text: EXP/AGA/20240822/00001
-                    Text(
+                    const Text(
                       'EXP/AGA/20240822/00001',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     // Label with GEN
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Text(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      child: const Text(
                         'GEN',
                         style: TextStyle(
                           fontSize: 12,
@@ -2286,20 +2326,20 @@ class CustomCard extends StatelessWidget {
                   ],
                 ),
                 // Three dots icon
-                Icon(
+                const Icon(
                   Icons.more_vert,
                   color: Colors.grey,
                 ),
               ],
             ),
-            SizedBox(height: 0),
+            const SizedBox(height: 0),
             // "SHOW MORE" link with the location icon
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
                   onPressed: () {},
-                  child: Text(
+                  child: const Text(
                     'SHOW MORE',
                     style: TextStyle(
                       color: Colors.blue,
@@ -2308,7 +2348,7 @@ class CustomCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.location_on,
                   color: Colors.blue,
                 ),
