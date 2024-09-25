@@ -63,6 +63,7 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
         ),
       ),
+    iconButtonTheme: IconButtonThemeData()
   );
 }
 
