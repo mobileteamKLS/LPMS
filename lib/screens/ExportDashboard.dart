@@ -24,6 +24,8 @@ class ExportScreen extends StatefulWidget {
 class _ExportScreenState extends State<ExportScreen> {
   bool isLoading = false;
   bool hasNoRecord = false;
+  bool isFilterApplied = false;
+  DateTime? selectedDate;
   List<ShipmentDetails> listShipmentDetails = [];
   List<ShipmentDetails> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
@@ -236,43 +238,44 @@ class _ExportScreenState extends State<ExportScreen> {
                             padding: const EdgeInsets.only(top: 2.0, left: 0.0),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
-                              child: filteredList.isNotEmpty
-                                  ? ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (BuildContext, index) {
-                                        // List<ShipmentDetails> filteredList =
-                                        //     getFilteredShipmentDetails(
-                                        //         listShipmentDetails,
-                                        //         selectedFilters);
-                                        ShipmentDetails shipmentDetails =
-                                        filteredList
-                                                .elementAt(index);
-                                        return buildShipmentDetailsCardV2(
-                                            shipmentDetails, index);
-                                      },
-                                      itemCount: filteredList.length,
-                                      shrinkWrap: true,
-                                      padding: const EdgeInsets.all(2),
-                                    )
-                                  : ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (BuildContext, index) {
-                                        // List<ShipmentDetails> filteredList =
-                                        //     getFilteredShipmentDetails(
-                                        //         listShipmentDetails,
-                                        //         selectedFilters);
-                                        ShipmentDetails shipmentDetails =
-                                            listShipmentDetails
-                                                .elementAt(index);
-                                        return buildShipmentDetailsCardV2(
-                                            shipmentDetails, index);
-                                      },
-                                      itemCount: listShipmentDetails.length,
-                                      shrinkWrap: true,
-                                      padding: const EdgeInsets.all(2),
-                                    ),
+                              child: (hasNoRecord)
+                                  ? const Center(child: Text("NO RECORD FOUND"))
+                                  : selectedFilters.isNotEmpty
+                                      ? ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemBuilder: (BuildContext, index) {
+                                            // List<ShipmentDetails> filteredList =
+                                            //     getFilteredShipmentDetails(
+                                            //         listShipmentDetails,
+                                            //         selectedFilters);
+                                            ShipmentDetails shipmentDetails =
+                                                filteredList.elementAt(index);
+                                            return buildShipmentDetailsCardV2(
+                                                shipmentDetails, index);
+                                          },
+                                          itemCount: filteredList.length,
+                                          shrinkWrap: true,
+                                          padding: const EdgeInsets.all(2),
+                                        )
+                                      : ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemBuilder: (BuildContext, index) {
+                                            // List<ShipmentDetails> filteredList =
+                                            //     getFilteredShipmentDetails(
+                                            //         listShipmentDetails,
+                                            //         selectedFilters);
+                                            ShipmentDetails shipmentDetails =
+                                                listShipmentDetails
+                                                    .elementAt(index);
+                                            return buildShipmentDetailsCardV2(
+                                                shipmentDetails, index);
+                                          },
+                                          itemCount: listShipmentDetails.length,
+                                          shrinkWrap: true,
+                                          padding: const EdgeInsets.all(2),
+                                        ),
                             ),
                           ),
                         ),
@@ -348,6 +351,11 @@ class _ExportScreenState extends State<ExportScreen> {
         .then((response) {
       print("data received ");
       List<dynamic> jsonData = json.decode(response.body);
+      if (jsonData.isEmpty) {
+        setState(() {
+          hasNoRecord = true;
+        });
+      }
       listShipmentDetailsBind =
           jsonData.map((json) => ShipmentDetails.fromJSON(json)).toList();
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
@@ -554,29 +562,29 @@ class _ExportScreenState extends State<ExportScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        shipmentDetails.bookingNo,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.black26),
+                          color: Utils.getStatusColor(
+                              shipmentDetails.statusDescription),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        child: Text(
-                          shipmentDetails.cargoTypeName.substring(0, 3),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
+                            horizontal: 8, vertical: 4),
+                        child: Row(
+                          children: [
+                            Utils.getStatusIcon(
+                                shipmentDetails.statusDescription),
+                            const SizedBox(width: 4),
+                            Text(
+                              shipmentDetails.statusDescription,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -634,34 +642,41 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                 ],
               ),
-              // const SizedBox(height: 2),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Utils.getStatusColor(
-                          shipmentDetails.statusDescription),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      children: [
-                        Utils.getStatusIcon(shipmentDetails.statusDescription),
-                        const SizedBox(width: 4),
-                        Text(
-                          shipmentDetails.statusDescription,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    shipmentDetails.bookingNo,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(width: 24),
+                  Text(
+                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.grey.shade200,
+                  //     borderRadius: BorderRadius.circular(4),
+                  //     border: Border.all(color: Colors.black26),
+                  //   ),
+                  //   padding: const EdgeInsets.symmetric(
+                  //       horizontal: 4, vertical: 2),
+                  //   child: Text(
+                  //     shipmentDetails.cargoTypeName.substring(0, 3),
+                  //     style: const TextStyle(
+                  //       fontSize: 12,
+                  //       color: Colors.black54,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
+              // const SizedBox(height: 2),
+
               isExpanded
                   ? Padding(
                       padding: const EdgeInsets.only(top: 8.0),
@@ -674,7 +689,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Shipping Billing No.',
+                                    'S. Bill No.',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
@@ -685,11 +700,12 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 24),
+                              const SizedBox(width: 64),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Shipping Date',
+                                    'S. Bill Date',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
@@ -703,17 +719,38 @@ class _ExportScreenState extends State<ExportScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          const Row(
                             children: [
-                              const Text(
-                                'Booking Date & Time',
-                                style: TextStyle(fontSize: 14),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'CHA Name',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    'ABC',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                '${DateFormat('dd MMM yyyy HH:mm').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.w800),
+                              SizedBox(width: 64),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Exporter Name',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    'XYZ',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -739,11 +776,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  const Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.primary,
-                  ),
+                  )
                 ],
               ),
             ],
@@ -899,7 +932,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         style: TextStyle(color: Colors.white)),
                   ),
                   const SizedBox(height: 16), // Space between buttons
-                  // Reset button
+
                   OutlinedButton(
                     onPressed: () {
                       bookingNoController.clear();
@@ -943,6 +976,59 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
+//   void filterShipments() {
+//     setState(() {
+//       filteredList = getFilteredShipmentDetails(listShipmentDetails, selectedFilters, selectedDate);
+//     });
+//
+//   }
+//
+// // Function to handle filtering by status and date
+//   List<ShipmentDetails> getFilteredShipmentDetails(
+//       List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters, DateTime? selectedDate) {
+//     return listShipmentDetails.where((shipment) {
+//       bool matchFound = selectedFilters.any((filter) {
+//         // Debugging print
+//         print("Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
+//         bool statusMatch = shipment.statusDescription.toUpperCase() == filter;
+//         bool dateMatch = selectedDate == null || isSameDate(selectedDate, DateTime.parse(shipment.bookingDt));
+//
+//         return statusMatch && dateMatch;
+//       });
+//
+//       // Debugging print
+//       if (matchFound) {
+//         print("Match found for Shipment Status: ${shipment.statusDescription}");
+//       } else {
+//         print("No match for Shipment Status: ${shipment.statusDescription}");
+//       }
+//
+//       return matchFound;
+//     }).toList();
+//   }
+
+// Helper function to check if two dates are the same
+  bool isSameDate(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+  }
+
+// Function to pick a date
+  Future<void> pickDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null && pickedDate != selectedDate) {
+      setState(() {
+        selectedDate = pickedDate;
+      });
+      filterShipments(); // Re-filter the list after selecting the date
+    }
+  }
+
   void filterShipments() {
     setState(() {
       filteredList =
@@ -952,11 +1038,6 @@ class _ExportScreenState extends State<ExportScreen> {
 
   List<ShipmentDetails> getFilteredShipmentDetails(
       List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters) {
-    // return listShipmentDetails.where((shipment) {
-    //   print("${shipment.statusDescription.toUpperCase()}  ${selectedFilters.any((filter)}");
-    //   return selectedFilters.any((filter) => shipment.statusDescription.toUpperCase() == filter);
-    // }).toList();
-
     return listShipmentDetails.where((shipment) {
       bool matchFound = selectedFilters.any((filter) {
         // Print both values for debugging
@@ -964,13 +1045,6 @@ class _ExportScreenState extends State<ExportScreen> {
             "Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
         return shipment.statusDescription.toUpperCase() == filter;
       });
-
-      // Print if a match is found or not
-      if (matchFound) {
-        print("Match found for Shipment Status: ${shipment.statusDescription}");
-      } else {
-        print("No match for Shipment Status: ${shipment.statusDescription}");
-      }
       return matchFound;
     }).toList();
   }
@@ -1165,24 +1239,29 @@ class _ExportScreenState extends State<ExportScreen> {
                       child: const Divider(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
-                    const Column(
+                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'FILTER BY DATE',
                           style: TextStyle(fontSize: 16),
                         ),
                         SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today,
-                                color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text(
-                              'Slot Date',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
+                        GestureDetector(
+                          child: const Row(
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  color: AppColors.primary),
+                              SizedBox(width: 8),
+                              Text(
+                                'Slot Date',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          onTap: (){
+                            pickDate(context);
+                          },
                         ),
                       ],
                     ),
@@ -1196,6 +1275,9 @@ class _ExportScreenState extends State<ExportScreen> {
                       onPressed: () {
                         Navigator.pop(context);
                         filterShipments();
+                        setState(() {
+                          isFilterApplied=true;
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
@@ -1209,7 +1291,11 @@ class _ExportScreenState extends State<ExportScreen> {
                       onPressed: () {
                         setState(() {
                           selectedFilters.clear();
+                          isFilterApplied = false;
+                          print("$isFilterApplied-----");
                         });
+                        Navigator.pop(context);
+                        filterShipments();
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.primary),
