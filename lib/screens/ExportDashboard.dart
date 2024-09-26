@@ -26,6 +26,7 @@ class _ExportScreenState extends State<ExportScreen> {
   bool hasNoRecord = false;
   bool isFilterApplied = false;
   DateTime? selectedDate;
+  String slotFilterDate="Slot Date";
   List<ShipmentDetails> listShipmentDetails = [];
   List<ShipmentDetails> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
@@ -240,7 +241,7 @@ class _ExportScreenState extends State<ExportScreen> {
                               width: MediaQuery.of(context).size.width / 1.01,
                               child: (hasNoRecord)
                                   ? const Center(child: Text("NO RECORD FOUND"))
-                                  : selectedFilters.isNotEmpty
+                                  : selectedFilters.isNotEmpty || selectedDate!=null
                                       ? ListView.builder(
                                           physics:
                                               const NeverScrollableScrollPhysics(),
@@ -361,7 +362,7 @@ class _ExportScreenState extends State<ExportScreen> {
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
-        filteredList = listShipmentDetails;
+        // filteredList = listShipmentDetails;
         isLoading = false;
         _isExpandedList = List<bool>.filled(listShipmentDetails.length, false);
       });
@@ -976,36 +977,89 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-//   void filterShipments() {
-//     setState(() {
-//       filteredList = getFilteredShipmentDetails(listShipmentDetails, selectedFilters, selectedDate);
-//     });
-//
-//   }
-//
-// // Function to handle filtering by status and date
+  void filterShipments() {
+    setState(() {
+      filteredList = getFilteredShipmentDetails(listShipmentDetails, selectedFilters, selectedDate);
+    });
+
+  }
+
+
+  List<ShipmentDetails> getFilteredShipmentDetails(
+      List<ShipmentDetails> listShipmentDetails,
+      List<String> selectedFilters,
+      DateTime? selectedDate) {
+
+    return listShipmentDetails.where((shipment) {
+      bool statusMatchFound = true;  // Default to true if no status filter is provided
+      bool dateMatchFound = true;    // Default to true if no date is provided
+
+      // Check status filters if they are not empty
+      if (selectedFilters.isNotEmpty) {
+        statusMatchFound = selectedFilters.any((filter) {
+          return shipment.statusDescription.trim().toUpperCase() == filter.trim().toUpperCase();
+        });
+      }
+
+      // Check date if a date is selected
+      if (selectedDate != null) {
+        try {
+          // Parse the string date into DateTime (adjust the format if needed)
+          DateFormat format = DateFormat("yyyy-MM-dd");  // Example: adjust this format if needed
+          DateTime shipmentDate = format.parse(shipment.bookingDt);
+
+          // Compare the parsed date with the selected date
+          dateMatchFound = shipmentDate.year == selectedDate.year &&
+              shipmentDate.month == selectedDate.month &&
+              shipmentDate.day == selectedDate.day;
+        } catch (e) {
+          print("Error parsing date: ${shipment.bookingDt}");
+          dateMatchFound = false;  // If date parsing fails, exclude this shipment
+        }
+      }
+
+      // If no status filters are selected, only date is considered
+      // If no date is selected, only status is considered
+      return statusMatchFound && dateMatchFound;
+    }).toList();
+  }
+
+
+// Function to handle filtering by status and date
 //   List<ShipmentDetails> getFilteredShipmentDetails(
-//       List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters, DateTime? selectedDate) {
-//     return listShipmentDetails.where((shipment) {
-//       bool matchFound = selectedFilters.any((filter) {
-//         // Debugging print
-//         print("Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
-//         bool statusMatch = shipment.statusDescription.toUpperCase() == filter;
-//         bool dateMatch = selectedDate == null || isSameDate(selectedDate, DateTime.parse(shipment.bookingDt));
+//       List<ShipmentDetails> listShipmentDetails,
+//       List<String> selectedFilters,
+//       DateTime? selectedDate) {
 //
-//         return statusMatch && dateMatch;
+//     return listShipmentDetails.where((shipment) {
+//       // Status filtering
+//       bool statusMatchFound = selectedFilters.any((filter) {
+//         return shipment.statusDescription.trim().toUpperCase() == filter.trim().toUpperCase();
 //       });
 //
-//       // Debugging print
-//       if (matchFound) {
-//         print("Match found for Shipment Status: ${shipment.statusDescription}");
-//       } else {
-//         print("No match for Shipment Status: ${shipment.statusDescription}");
+//       // Date filtering
+//       bool dateMatchFound = true; // Default to true if no date is provided
+//
+//       if (selectedDate != null) {
+//         try {
+//           // Parse the string date into DateTime
+//           DateTime shipmentDate = DateTime.parse(shipment.bookingDt);
+//
+//           // Compare the parsed date with the selected date
+//           dateMatchFound = shipmentDate.year == selectedDate.year &&
+//               shipmentDate.month == selectedDate.month &&
+//               shipmentDate.day == selectedDate.day;
+//         } catch (e) {
+//           print("Error parsing date: ${shipment.bookingDt}");
+//           dateMatchFound = false; // If date parsing fails, exclude this shipment
+//         }
 //       }
 //
-//       return matchFound;
+//       // Return true only if both status and date match
+//       return statusMatchFound && dateMatchFound;
 //     }).toList();
 //   }
+
 
 // Helper function to check if two dates are the same
   bool isSameDate(DateTime date1, DateTime date2) {
@@ -1013,10 +1067,10 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
 // Function to pick a date
-  Future<void> pickDate(BuildContext context) async {
+  Future<void> pickDate(BuildContext context, StateSetter setState) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate:selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
@@ -1024,30 +1078,31 @@ class _ExportScreenState extends State<ExportScreen> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
+        slotFilterDate=DateFormat('d MMM yyyy').format(pickedDate);
+        print("DATE is $slotFilterDate");
       });
-      filterShipments(); // Re-filter the list after selecting the date
     }
   }
-
-  void filterShipments() {
-    setState(() {
-      filteredList =
-          getFilteredShipmentDetails(listShipmentDetails, selectedFilters);
-    });
-  }
-
-  List<ShipmentDetails> getFilteredShipmentDetails(
-      List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters) {
-    return listShipmentDetails.where((shipment) {
-      bool matchFound = selectedFilters.any((filter) {
-        // Print both values for debugging
-        print(
-            "Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
-        return shipment.statusDescription.toUpperCase() == filter;
-      });
-      return matchFound;
-    }).toList();
-  }
+  //
+  // void filterShipments() {
+  //   setState(() {
+  //     filteredList =
+  //         getFilteredShipmentDetails(listShipmentDetails, selectedFilters);
+  //   });
+  // }
+  //
+  // List<ShipmentDetails> getFilteredShipmentDetails(
+  //     List<ShipmentDetails> listShipmentDetails, List<String> selectedFilters) {
+  //   return listShipmentDetails.where((shipment) {
+  //     bool matchFound = selectedFilters.any((filter) {
+  //       // Print both values for debugging
+  //       print(
+  //           "Checking Shipment Status: ${shipment.statusDescription}, Filter: $filter");
+  //       return shipment.statusDescription.toUpperCase() == filter;
+  //     });
+  //     return matchFound;
+  //   }).toList();
+  // }
 
   // void showShipmentSearchBottomSheet(BuildContext context) {
   //   showModalBottomSheet(
@@ -1078,25 +1133,25 @@ class _ExportScreenState extends State<ExportScreen> {
   //                         label: Text('Draft'),
   //                         selected: true,
   //                         onSelected: (bool selected) {},
-  //                         selectedColor: Colors.blue.withOpacity(0.2),
+  //                         selectedColor: AppColors.primary.withOpacity(0.2),
   //                       ),
   //                       FilterChip(
   //                         label: Text('Gate-in'),
   //                         selected: false,
   //                         onSelected: (bool selected) {},
-  //                         selectedColor: Colors.blue.withOpacity(0.2),
+  //                         selectedColor: AppColors.primary.withOpacity(0.2),
   //                       ),
   //                       FilterChip(
   //                         label: Text('Gate-in Pending'),
   //                         selected: false,
   //                         onSelected: (bool selected) {},
-  //                         selectedColor: Colors.blue.withOpacity(0.2),
+  //                         selectedColor: AppColors.primary.withOpacity(0.2),
   //                       ),
   //                       FilterChip(
   //                         label: Text('Gate-in Rejected'),
   //                         selected: false,
   //                         onSelected: (bool selected) {},
-  //                         selectedColor: Colors.blue.withOpacity(0.2),
+  //                         selectedColor: AppColors.primary.withOpacity(0.2),
   //                       ),
   //                     ],
   //                   ),
@@ -1141,8 +1196,10 @@ class _ExportScreenState extends State<ExportScreen> {
                         spacing: 8.0,
                         children: [
                           FilterChip(
-                            label: const Text('Draft'),
+
+                            label: const Text('Draft', style: TextStyle(color: AppColors.primary),),
                             selected: selectedFilters.contains('DRAFT'),
+                            showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
@@ -1150,21 +1207,22 @@ class _ExportScreenState extends State<ExportScreen> {
                                     : selectedFilters.remove('DRAFT');
                               });
                             },
-                            selectedColor: Colors.blue.withOpacity(0.1),
+                            selectedColor: AppColors.primary.withOpacity(0.1),
                             backgroundColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
                                 color: selectedFilters.contains('DRAFT')
-                                    ? Colors.blue
+                                    ? AppColors.primary
                                     : Colors.transparent,
                               ),
                             ),
-                            checkmarkColor: Colors.blue,
+                            checkmarkColor: AppColors.primary,
                           ),
                           FilterChip(
-                            label: const Text('Gate-in'),
+                            label: const Text('Gate-in', style: TextStyle(color: AppColors.primary),),
                             selected: selectedFilters.contains('GATE-IN'),
+                            showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
@@ -1172,21 +1230,22 @@ class _ExportScreenState extends State<ExportScreen> {
                                     : selectedFilters.remove('GATE-IN');
                               });
                             },
-                            selectedColor: Colors.blue.withOpacity(0.1),
+                            selectedColor: AppColors.primary.withOpacity(0.1),
                             backgroundColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
                                 color: selectedFilters.contains('GATE-IN')
-                                    ? Colors.blue
+                                    ? AppColors.primary
                                     : Colors.transparent,
                               ),
                             ),
                           ),
                           FilterChip(
-                            label: const Text('Gate-in Pending'),
+                            label: const Text('Gate-in Pending', style: TextStyle(color: AppColors.primary),),
                             selected:
                                 selectedFilters.contains('Gate-in Pending'),
+                            showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
@@ -1194,22 +1253,23 @@ class _ExportScreenState extends State<ExportScreen> {
                                     : selectedFilters.remove('Gate-in Pending');
                               });
                             },
-                            selectedColor: Colors.blue.withOpacity(0.1),
+                            selectedColor: AppColors.primary.withOpacity(0.1),
                             backgroundColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
                                 color:
                                     selectedFilters.contains('Gate-in Pending')
-                                        ? Colors.blue
+                                        ? AppColors.primary
                                         : Colors.transparent,
                               ),
                             ),
                           ),
                           FilterChip(
-                            label: const Text('Gate-in Rejected'),
+                            label: const Text('Gate-in Rejected', style: TextStyle(color: AppColors.primary),),
                             selected:
                                 selectedFilters.contains('REJECT FOR GATE-IN'),
+                            showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
@@ -1218,14 +1278,14 @@ class _ExportScreenState extends State<ExportScreen> {
                                         .remove('REJECT FOR GATE-IN');
                               });
                             },
-                            selectedColor: Colors.blue.withOpacity(0.1),
+                            selectedColor: AppColors.primary.withOpacity(0.1),
                             backgroundColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
                                 color: selectedFilters
                                         .contains('REJECT FOR GATE-IN')
-                                    ? Colors.blue
+                                    ? AppColors.primary
                                     : Colors.transparent,
                               ),
                             ),
@@ -1239,37 +1299,37 @@ class _ExportScreenState extends State<ExportScreen> {
                       child: const Divider(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
-                    //  Column(
-                    //   crossAxisAlignment: CrossAxisAlignment.start,
-                    //   children: [
-                    //     const Text(
-                    //       'FILTER BY DATE',
-                    //       style: TextStyle(fontSize: 16),
-                    //     ),
-                    //     SizedBox(height: 16),
-                    //     GestureDetector(
-                    //       child: const Row(
-                    //         children: [
-                    //           Icon(Icons.calendar_today,
-                    //               color: AppColors.primary),
-                    //           SizedBox(width: 8),
-                    //           Text(
-                    //             'Slot Date',
-                    //             style: TextStyle(fontSize: 16),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       onTap: (){
-                    //         pickDate(context);
-                    //       },
-                    //     ),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 16),
-                    // Container(
-                    //   width: double.infinity,
-                    //   child: const Divider(color: Colors.grey),
-                    // ),
+                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'FILTER BY DATE',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 16),
+                        GestureDetector(
+                          child:  Row(
+                            children: [
+                              const Icon(Icons.calendar_today,
+                                  color: AppColors.primary),
+                              SizedBox(width: 8),
+                              Text(
+                                slotFilterDate,
+                                style: TextStyle(fontSize: 16,color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                          onTap: (){
+                            pickDate(context,setState);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      child: const Divider(color: Colors.grey),
+                    ),
                     const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () {
@@ -1292,7 +1352,8 @@ class _ExportScreenState extends State<ExportScreen> {
                         setState(() {
                           selectedFilters.clear();
                           isFilterApplied = false;
-                          print("$isFilterApplied-----");
+                          selectedDate=null;
+                          slotFilterDate="Slot Date";
                         });
                         Navigator.pop(context);
                         filterShipments();
@@ -1354,7 +1415,7 @@ class _ExportScreenState extends State<ExportScreen> {
 //                     child: const Text(
 //                       'RESET',
 //                       style: TextStyle(
-//                         color: Colors.blue,
+//                         color: AppColors.primary,
 //                         fontWeight: FontWeight.bold,
 //                       ),
 //                     ),
@@ -1372,25 +1433,25 @@ class _ExportScreenState extends State<ExportScreen> {
 //                       label: const Text('Draft'),
 //                       selected: true,
 //                       onSelected: (bool selected) {},
-//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                       selectedColor: AppColors.primary.withOpacity(0.2),
 //                     ),
 //                     FilterChip(
 //                       label: const Text('Gate-in'),
 //                       selected: false,
 //                       onSelected: (bool selected) {},
-//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                       selectedColor: AppColors.primary.withOpacity(0.2),
 //                     ),
 //                     FilterChip(
 //                       label: const Text('Gate-in Pending'),
 //                       selected: false,
 //                       onSelected: (bool selected) {},
-//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                       selectedColor: AppColors.primary.withOpacity(0.2),
 //                     ),
 //                     FilterChip(
 //                       label: const Text('Gate-in Rejected'),
 //                       selected: false,
 //                       onSelected: (bool selected) {},
-//                       selectedColor: Colors.blue.withOpacity(0.2),
+//                       selectedColor: AppColors.primary.withOpacity(0.2),
 //                     ),
 //                   ],
 //                 ),
@@ -1398,7 +1459,7 @@ class _ExportScreenState extends State<ExportScreen> {
 //               const SizedBox(height: 20),
 //               const Row(
 //                 children: [
-//                   Icon(Icons.calendar_today, color: Colors.blue),
+//                   Icon(Icons.calendar_today, color: AppColors.primary),
 //                   SizedBox(width: 8),
 //                   Text(
 //                     'Slot Date',
@@ -1421,13 +1482,13 @@ class _ExportScreenState extends State<ExportScreen> {
 //                       ),
 //                       backgroundColor: Colors.white,
 //                       shape: RoundedRectangleBorder(
-//                         side: const BorderSide(color: Colors.blue),
+//                         side: const BorderSide(color: AppColors.primary),
 //                         borderRadius: BorderRadius.circular(8),
 //                       ),
 //                     ),
 //                     child: const Text(
 //                       'Cancel',
-//                       style: TextStyle(color: Colors.blue),
+//                       style: TextStyle(color: AppColors.primary),
 //                     ),
 //                   ),
 //                   ElevatedButton(
@@ -2189,17 +2250,17 @@ class CustomCard extends StatelessWidget {
   //                             : selectedFilters.remove('Draft');
   //                       });
   //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     selectedColor: AppColors.primary.withOpacity(0.1),
   //                     backgroundColor: Colors.transparent,
   //                     shape: RoundedRectangleBorder(
   //                       borderRadius: BorderRadius.circular(20.0),
   //                       side: BorderSide(
   //                         color: selectedFilters.contains('Draft')
-  //                             ? Colors.blue
+  //                             ? AppColors.primary
   //                             : Colors.transparent,
   //                       ),
   //                     ),
-  //                     checkmarkColor: Colors.blue,
+  //                     checkmarkColor: AppColors.primary,
   //                   ),
   //                   FilterChip(
   //                     label: Text('Gate-in'),
@@ -2211,13 +2272,13 @@ class CustomCard extends StatelessWidget {
   //                             : selectedFilters.remove('Gate-in');
   //                       });
   //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     selectedColor: AppColors.primary.withOpacity(0.1),
   //                     backgroundColor: Colors.transparent,
   //                     shape: RoundedRectangleBorder(
   //                       borderRadius: BorderRadius.circular(20.0),
   //                       side: BorderSide(
   //                         color: selectedFilters.contains('Gate-in')
-  //                             ? Colors.blue
+  //                             ? AppColors.primary
   //                             : Colors.transparent,
   //                       ),
   //                     ),
@@ -2232,13 +2293,13 @@ class CustomCard extends StatelessWidget {
   //                             : selectedFilters.remove('Gate-in Pending');
   //                       });
   //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     selectedColor: AppColors.primary.withOpacity(0.1),
   //                     backgroundColor: Colors.transparent,
   //                     shape: RoundedRectangleBorder(
   //                       borderRadius: BorderRadius.circular(20.0),
   //                       side: BorderSide(
   //                         color: selectedFilters.contains('Gate-in Pending')
-  //                             ? Colors.blue
+  //                             ? AppColors.primary
   //                             : Colors.transparent,
   //                       ),
   //                     ),
@@ -2253,13 +2314,13 @@ class CustomCard extends StatelessWidget {
   //                             : selectedFilters.remove('Gate-in Rejected');
   //                       });
   //                     },
-  //                     selectedColor: Colors.blue.withOpacity(0.1),
+  //                     selectedColor: AppColors.primary.withOpacity(0.1),
   //                     backgroundColor: Colors.transparent,
   //                     shape: RoundedRectangleBorder(
   //                       borderRadius: BorderRadius.circular(20.0),
   //                       side: BorderSide(
   //                         color: selectedFilters.contains('Gate-in Rejected')
-  //                             ? Colors.blue
+  //                             ? AppColors.primary
   //                             : Colors.transparent,
   //                       ),
   //                     ),
@@ -2359,7 +2420,7 @@ class CustomCard extends StatelessWidget {
                     // Icon with DRAFT label
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -2428,7 +2489,7 @@ class CustomCard extends StatelessWidget {
                   child: const Text(
                     'SHOW MORE',
                     style: TextStyle(
-                      color: Colors.blue,
+                      color: AppColors.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -2436,7 +2497,7 @@ class CustomCard extends StatelessWidget {
                 ),
                 const Icon(
                   Icons.location_on,
-                  color: Colors.blue,
+                  color: AppColors.primary,
                 ),
               ],
             ),
