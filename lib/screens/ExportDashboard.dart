@@ -1239,37 +1239,37 @@ class _ExportScreenState extends State<ExportScreen> {
                       child: const Divider(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
-                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'FILTER BY DATE',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(height: 16),
-                        GestureDetector(
-                          child: const Row(
-                            children: [
-                              Icon(Icons.calendar_today,
-                                  color: AppColors.primary),
-                              SizedBox(width: 8),
-                              Text(
-                                'Slot Date',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          onTap: (){
-                            pickDate(context);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      child: const Divider(color: Colors.grey),
-                    ),
+                    //  Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     const Text(
+                    //       'FILTER BY DATE',
+                    //       style: TextStyle(fontSize: 16),
+                    //     ),
+                    //     SizedBox(height: 16),
+                    //     GestureDetector(
+                    //       child: const Row(
+                    //         children: [
+                    //           Icon(Icons.calendar_today,
+                    //               color: AppColors.primary),
+                    //           SizedBox(width: 8),
+                    //           Text(
+                    //             'Slot Date',
+                    //             style: TextStyle(fontSize: 16),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       onTap: (){
+                    //         pickDate(context);
+                    //       },
+                    //     ),
+                    //   ],
+                    // ),
+                    // const SizedBox(height: 16),
+                    // Container(
+                    //   width: double.infinity,
+                    //   child: const Divider(color: Colors.grey),
+                    // ),
                     const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () {
