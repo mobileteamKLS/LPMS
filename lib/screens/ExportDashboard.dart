@@ -26,7 +26,18 @@ class _ExportScreenState extends State<ExportScreen> {
   bool hasNoRecord = false;
   bool isFilterApplied = false;
   DateTime? selectedDate;
-  String slotFilterDate="Slot Date";
+  String slotFilterDate = "Slot Date";
+  int? selectedTerminalId;
+
+  // List of terminal data with id as int
+  final List<Map<String, dynamic>> terminals = [
+    {'id': 157, 'name': 'AKOLA'},
+    {'id': 155, 'name': 'ATTARI'},
+    {'id': 154, 'name': 'RAXAUL'},
+    {'id': 153, 'name': 'JOGBANI'},
+    {'id': 152, 'name': 'PETRAPOLE'},
+    {'id': 151, 'name': 'AGARTALA'},
+  ];
   List<ShipmentDetails> listShipmentDetails = [];
   List<ShipmentDetails> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
@@ -40,6 +51,8 @@ class _ExportScreenState extends State<ExportScreen> {
 
   late TextEditingController fromDateController;
   late TextEditingController toDateController;
+  late String startOfDayFormatted;
+  late String endOfDayFormatted;
 
   @override
   void initState() {
@@ -49,11 +62,11 @@ class _ExportScreenState extends State<ExportScreen> {
         .subtract(const Duration(days: 1))
         .toLocal()
         .copyWith(hour: 0, minute: 0, second: 0);
-    String startOfDayFormatted = startOfDay.toUtc().toIso8601String();
+    startOfDayFormatted = startOfDay.toUtc().toIso8601String();
 
     DateTime endOfDay =
         today.toLocal().copyWith(hour: 23, minute: 59, second: 59);
-    String endOfDayFormatted = endOfDay.toUtc().toIso8601String();
+    endOfDayFormatted = endOfDay.toUtc().toIso8601String();
     print('Start of Day: $startOfDayFormatted');
     print('End of Day: $endOfDayFormatted');
     getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "");
@@ -86,13 +99,59 @@ class _ExportScreenState extends State<ExportScreen> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(
-                FontAwesomeIcons.userGear,
-                size: 26,
-              ),
-              color: Colors.white,
-              onPressed: () {},
-            ),
+                icon: const Icon(
+                  FontAwesomeIcons.userGear,
+                  size: 26,
+                ),
+                color: Colors.white,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Landport'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DropdownButtonFormField<int>(
+                              decoration: InputDecoration(
+                                labelText: 'Landport Terminal',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: selectedTerminalId,
+                              items: terminals.map((terminal) {
+                                return DropdownMenuItem<int>(
+                                  value: terminal['id'],
+                                  child: Text(terminal['name'] ?? ''),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedTerminalId = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'Cancel'),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              getShipmentDetails(endOfDayFormatted,
+                                  startOfDayFormatted, "", "",
+                                  airportId: selectedTerminalId!);
+                              Navigator.pop(context, 'OK');
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }),
             IconButton(
               icon: Stack(
                 children: [
@@ -239,17 +298,17 @@ class _ExportScreenState extends State<ExportScreen> {
                             padding: const EdgeInsets.only(top: 2.0, left: 0.0),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
-                              child: (hasNoRecord)
-                                  ? const Center(child: Text("NO RECORD FOUND"))
-                                  : selectedFilters.isNotEmpty || selectedDate!=null
+                              child:
+                              // (hasNoRecord)
+                              //     ? const Center(child: Text("NO RECORD FOUND"))
+                              //     :
+                              selectedFilters.isNotEmpty ||
+                                          selectedDate != null
                                       ? ListView.builder(
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            // List<ShipmentDetails> filteredList =
-                                            //     getFilteredShipmentDetails(
-                                            //         listShipmentDetails,
-                                            //         selectedFilters);
+
                                             ShipmentDetails shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -325,7 +384,8 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
-      String bookingNo, String sbNo) async {
+      String bookingNo, String sbNo,
+      {int airportId = 151}) async {
     if (isLoading) return;
     listShipmentDetails = [];
     listShipmentDetailsBind = [];
@@ -334,7 +394,7 @@ class _ExportScreenState extends State<ExportScreen> {
     });
 
     var queryParams = {
-      "AirportId": 151,
+      "AirportId": airportId,
       "OrgProdId": 3284,
       "BookingNo": bookingNo,
       "CompanyCode": "LPAI",
@@ -836,7 +896,14 @@ class _ExportScreenState extends State<ExportScreen> {
 
       print(
           "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
-      getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
+      if (selectedTerminalId != null) {
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo,
+            airportId: selectedTerminalId!);
+      } else {
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo
+            );
+      }
+
       Navigator.pop(context);
     }
 
@@ -979,25 +1046,25 @@ class _ExportScreenState extends State<ExportScreen> {
 
   void filterShipments() {
     setState(() {
-      filteredList = getFilteredShipmentDetails(listShipmentDetails, selectedFilters, selectedDate);
+      filteredList = getFilteredShipmentDetails(
+          listShipmentDetails, selectedFilters, selectedDate);
     });
-
   }
-
 
   List<ShipmentDetails> getFilteredShipmentDetails(
       List<ShipmentDetails> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
-
     return listShipmentDetails.where((shipment) {
-      bool statusMatchFound = true;  // Default to true if no status filter is provided
-      bool dateMatchFound = true;    // Default to true if no date is provided
+      bool statusMatchFound =
+          true; // Default to true if no status filter is provided
+      bool dateMatchFound = true; // Default to true if no date is provided
 
       // Check status filters if they are not empty
       if (selectedFilters.isNotEmpty) {
         statusMatchFound = selectedFilters.any((filter) {
-          return shipment.statusDescription.trim().toUpperCase() == filter.trim().toUpperCase();
+          return shipment.statusDescription.trim().toUpperCase() ==
+              filter.trim().toUpperCase();
         });
       }
 
@@ -1005,7 +1072,8 @@ class _ExportScreenState extends State<ExportScreen> {
       if (selectedDate != null) {
         try {
           // Parse the string date into DateTime (adjust the format if needed)
-          DateFormat format = DateFormat("yyyy-MM-dd");  // Example: adjust this format if needed
+          DateFormat format =
+              DateFormat("yyyy-MM-dd"); // Example: adjust this format if needed
           DateTime shipmentDate = format.parse(shipment.bookingDt);
 
           // Compare the parsed date with the selected date
@@ -1014,7 +1082,8 @@ class _ExportScreenState extends State<ExportScreen> {
               shipmentDate.day == selectedDate.day;
         } catch (e) {
           print("Error parsing date: ${shipment.bookingDt}");
-          dateMatchFound = false;  // If date parsing fails, exclude this shipment
+          dateMatchFound =
+              false; // If date parsing fails, exclude this shipment
         }
       }
 
@@ -1023,7 +1092,6 @@ class _ExportScreenState extends State<ExportScreen> {
       return statusMatchFound && dateMatchFound;
     }).toList();
   }
-
 
 // Function to handle filtering by status and date
 //   List<ShipmentDetails> getFilteredShipmentDetails(
@@ -1060,17 +1128,18 @@ class _ExportScreenState extends State<ExportScreen> {
 //     }).toList();
 //   }
 
-
 // Helper function to check if two dates are the same
   bool isSameDate(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
 // Function to pick a date
   Future<void> pickDate(BuildContext context, StateSetter setState) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate:selectedDate ?? DateTime.now(),
+      initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
@@ -1078,11 +1147,12 @@ class _ExportScreenState extends State<ExportScreen> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        slotFilterDate=DateFormat('d MMM yyyy').format(pickedDate);
+        slotFilterDate = DateFormat('d MMM yyyy').format(pickedDate);
         print("DATE is $slotFilterDate");
       });
     }
   }
+
   //
   // void filterShipments() {
   //   setState(() {
@@ -1196,8 +1266,10 @@ class _ExportScreenState extends State<ExportScreen> {
                         spacing: 8.0,
                         children: [
                           FilterChip(
-
-                            label: const Text('Draft', style: TextStyle(color: AppColors.primary),),
+                            label: const Text(
+                              'Draft',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
                             selected: selectedFilters.contains('DRAFT'),
                             showCheckmark: false,
                             onSelected: (bool selected) {
@@ -1220,7 +1292,10 @@ class _ExportScreenState extends State<ExportScreen> {
                             checkmarkColor: AppColors.primary,
                           ),
                           FilterChip(
-                            label: const Text('Gate-in', style: TextStyle(color: AppColors.primary),),
+                            label: const Text(
+                              'Gate-in',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
                             selected: selectedFilters.contains('GATE-IN'),
                             showCheckmark: false,
                             onSelected: (bool selected) {
@@ -1242,7 +1317,10 @@ class _ExportScreenState extends State<ExportScreen> {
                             ),
                           ),
                           FilterChip(
-                            label: const Text('Gate-in Pending', style: TextStyle(color: AppColors.primary),),
+                            label: const Text(
+                              'Gate-in Pending',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
                             selected:
                                 selectedFilters.contains('Gate-in Pending'),
                             showCheckmark: false,
@@ -1266,7 +1344,10 @@ class _ExportScreenState extends State<ExportScreen> {
                             ),
                           ),
                           FilterChip(
-                            label: const Text('Gate-in Rejected', style: TextStyle(color: AppColors.primary),),
+                            label: const Text(
+                              'Gate-in Rejected',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
                             selected:
                                 selectedFilters.contains('REJECT FOR GATE-IN'),
                             showCheckmark: false,
@@ -1299,7 +1380,7 @@ class _ExportScreenState extends State<ExportScreen> {
                       child: const Divider(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
-                     Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
@@ -1308,19 +1389,20 @@ class _ExportScreenState extends State<ExportScreen> {
                         ),
                         SizedBox(height: 16),
                         GestureDetector(
-                          child:  Row(
+                          child: Row(
                             children: [
                               const Icon(Icons.calendar_today,
                                   color: AppColors.primary),
                               SizedBox(width: 8),
                               Text(
                                 slotFilterDate,
-                                style: TextStyle(fontSize: 16,color: AppColors.primary),
+                                style: TextStyle(
+                                    fontSize: 16, color: AppColors.primary),
                               ),
                             ],
                           ),
-                          onTap: (){
-                            pickDate(context,setState);
+                          onTap: () {
+                            pickDate(context, setState);
                           },
                         ),
                       ],
@@ -1336,7 +1418,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         Navigator.pop(context);
                         filterShipments();
                         setState(() {
-                          isFilterApplied=true;
+                          isFilterApplied = true;
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -1352,8 +1434,8 @@ class _ExportScreenState extends State<ExportScreen> {
                         setState(() {
                           selectedFilters.clear();
                           isFilterApplied = false;
-                          selectedDate=null;
-                          slotFilterDate="Slot Date";
+                          selectedDate = null;
+                          slotFilterDate = "Slot Date";
                         });
                         Navigator.pop(context);
                         filterShipments();
