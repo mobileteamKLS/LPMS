@@ -78,7 +78,7 @@ class AuthService {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyNzQwODMwNiwiZXhwIjoxNzI3NDQ0MzA2LCJpYXQiOjE3Mjc0MDgzMDZ9.SVo-K7fOl-NFR02PUXvmMaQZMF2gaW0Qkonu2tnrWyQ', // Use your token type (Bearer, Basic, etc.)
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyNzc1NTk0OCwiZXhwIjoxNzI3NzkxOTQ4LCJpYXQiOjE3Mjc3NTU5NDh9.HmPIdz-2RCFd4SBXDM_eer5AiHCQWnKxetYfh5CtcAw', // Use your token type (Bearer, Basic, etc.)
     };
 
     if (payload == "") {

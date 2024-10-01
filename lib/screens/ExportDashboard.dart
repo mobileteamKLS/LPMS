@@ -1,18 +1,20 @@
 import 'dart:convert';
 
+import 'package:excel/excel.dart' as ex;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/theme/app_color.dart';
-
+import 'package:path_provider/path_provider.dart';
 import '../api/auth.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_theme.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../util/Uitlity.dart';
+import 'dart:io';
+
 
 class ExportScreen extends StatefulWidget {
   const ExportScreen({super.key});
@@ -27,7 +29,7 @@ class _ExportScreenState extends State<ExportScreen> {
   bool isFilterApplied = false;
   DateTime? selectedDate;
   String slotFilterDate = "Slot Date";
-  int? selectedTerminalId;
+  int? selectedTerminalId=151;
 
   // List of terminal data with id as int
   final List<Map<String, dynamic>> terminals = [
@@ -53,7 +55,7 @@ class _ExportScreenState extends State<ExportScreen> {
   late TextEditingController toDateController;
   late String startOfDayFormatted;
   late String endOfDayFormatted;
-
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   @override
   void initState() {
     super.initState();
@@ -73,6 +75,17 @@ class _ExportScreenState extends State<ExportScreen> {
     fromDateController = TextEditingController(
         text: _formatDate(DateTime.now().subtract(const Duration(days: 2))));
     toDateController = TextEditingController(text: _formatDate(DateTime.now()));
+
+    // Initialize the notification plugin
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      // iOS: initializationSettingsIOS,
+    );
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   @override
@@ -140,6 +153,10 @@ class _ExportScreenState extends State<ExportScreen> {
                           ),
                           TextButton(
                             onPressed: () {
+
+                              fromDateController.text = _formatDate(
+                                  DateTime.now().subtract(const Duration(days: 2)));
+                              toDateController.text = _formatDate(DateTime.now());
                               getShipmentDetails(endOfDayFormatted,
                                   startOfDayFormatted, "", "",
                                   airportId: selectedTerminalId!);
@@ -259,7 +276,44 @@ class _ExportScreenState extends State<ExportScreen> {
                                 )
                               ],
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              if(filteredList.isEmpty && listShipmentDetails.isEmpty){
+                                final snackBar = SnackBar(
+                                  content: SizedBox(
+                                    height: 20,
+
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                     const Row(children: [
+                                       Icon(Icons.info, color: Colors.white),
+                                       Text('  No Data Found'),
+                                     ],),
+                                        GestureDetector(
+                                          child: Icon(Icons.close, color: Colors.white),
+                                          onTap: () {
+                                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.amber,
+                                  behavior: SnackBarBehavior.floating,
+                                  width: 200,
+
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              }
+                              if(filteredList.isNotEmpty){
+                                exportToExcel(filteredList);
+                              }
+                              else{
+                                exportToExcel(listShipmentDetails);
+                              }
+
+                            },
                           ),
                           const SizedBox(
                             width: 8,
@@ -382,6 +436,62 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
     );
   }
+
+  Future<void> showNotification(String filePath) async {
+    var androidDetails = const AndroidNotificationDetails(
+      'channelId', 'channelName',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    // var iosDetails = IOSNotificationDetails();
+
+    var platformDetails = NotificationDetails(
+      android: androidDetails,
+      // iOS: iosDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Download Complete',
+      'The file has been saved to $filePath',
+      platformDetails,
+    );
+  }
+
+  void exportToExcel(List<ShipmentDetails> shipments) async {
+    var excel = ex.Excel.createExcel();
+    ex.Sheet sheetObject = excel['Sheet1'];
+    sheetObject.appendRow([
+      ex.TextCellValue("Status"),
+      ex.TextCellValue("Booking No."),
+      ex.TextCellValue("Booking Date"),
+      ex.TextCellValue("Shipping Bill No."),
+      ex.TextCellValue("Shipping Bill Date"),
+    ]);
+    for (var shipment in shipments){
+      sheetObject.appendRow([
+        ex.TextCellValue(shipment.statusDescription),
+        ex.TextCellValue(shipment.bookingNo),
+        ex.TextCellValue(shipment.bookingDt),
+        ex.TextCellValue(shipment.sBillNo),
+        ex.TextCellValue(shipment.sBillDt),
+      ]);
+    }
+
+    final directory = await getDownloadsDirectory();
+    String filePath = '/storage/emulated/0/Download/shipments.xlsx';
+
+    // Save the excel file
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(excel.encode()!);
+
+    print('Excel file saved at $filePath');
+    showNotification("/storage/emulated/0/Download");
+  }
+
 
   getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
       String bookingNo, String sbNo,
@@ -780,9 +890,9 @@ class _ExportScreenState extends State<ExportScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                          const Row(
+                           Row(
                             children: [
-                              Column(
+                              const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
@@ -806,7 +916,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
-                                    'XYZ',
+                                    shipmentDetails.exporterImporter,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
