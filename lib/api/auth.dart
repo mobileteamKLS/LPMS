@@ -4,10 +4,10 @@ import 'dart:convert';
 import '../models/IPInfo.dart';
 
 class AuthService {
-  Future<Post> getUserAuthenticationDetails(service,payload) async {
+  Future<Post> getUserAuthenticationDetails(service,payload,headers) async {
     print("payload $payload");
     print("encoded payload ${json.encode(payload)}");
-    return fetchLoginDataPOST(service, payload);
+    return fetchLoginDataPOST(service, payload,headers);
   }
 
   Future<IpInfo> fetchIpInfo() async {
@@ -41,7 +41,7 @@ class AuthService {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization':
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyNzg3NTEzOSwiZXhwIjoxNzI3OTExMTM5LCJpYXQiOjE3Mjc4NzUxMzl9.3DrPmwnatLFq6QxZO4TSHK1IZoAyQ9z9lh-F_tfSxoY',
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyODAxNDE4MSwiZXhwIjoxNzI4MDUwMTgxLCJpYXQiOjE3MjgwMTQxODF9.DhvQLGoldkfA_9E6ffFvHNyzKDOhqoW82Q4JoBaRWoA',
       // Use your token type (Bearer, Basic, etc.)
     };
 
@@ -90,15 +90,21 @@ class AuthService {
       });
     }
   }
-  Future<Post> fetchLoginDataPOST(apiName, payload) async {
+  void printPrettyJson(String jsonString) {
+    var jsonObject = jsonDecode(jsonString);
+    var prettyString = JsonEncoder.withIndent('  ').convert(jsonObject);
+    printLongString(prettyString);  // Use the chunking function from above
+  }
+  void printLongString(String text) {
+    const int chunkSize = 1000;  // Number of characters per chunk
+    for (var i = 0; i < text.length; i += chunkSize) {
+      print(text.substring(i, i + chunkSize > text.length ? text.length : i + chunkSize));
+    }
+  }
+
+  Future<Post> fetchLoginDataPOST(apiName, payload,headers) async {
     var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
     debugPrint("fetch data for API = $newURL");
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-
-    };
-
     if (payload == "") {
       debugPrint("payload blank");
       return await http
@@ -129,7 +135,7 @@ class AuthService {
         headers: headers,
       )
           .then((http.Response response) {
-        print(response.body);
+        printPrettyJson(response.body);
         print(response.statusCode);
 
         final int statusCode = response.statusCode;

@@ -305,6 +305,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                 );
 
                                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                return;
                               }
                               if(filteredList.isNotEmpty){
                                 exportToExcel(filteredList);
@@ -411,13 +412,13 @@ class _ExportScreenState extends State<ExportScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      extendBody: true,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //
+      //   child: const Icon(Icons.add),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // extendBody: true,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.white,
         items: const [

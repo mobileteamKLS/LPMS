@@ -12,7 +12,11 @@ class IpInfo {
   factory IpInfo.fromJson(Map<String, dynamic> json) {
     return IpInfo(ip: json['ip'] ?? "",
         city: json['city'] ?? "",
-        country: json['country'] ?? "",
+        country: json['country'] == null
+            ? ""
+            : json['country'] == "IN"
+                ? "India"
+                : json['country'],
         org: json['org'] ?? "");
   }
 
