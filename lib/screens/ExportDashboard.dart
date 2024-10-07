@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:lpms/screens/BookingCreation.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'package:path_provider/path_provider.dart';
 import '../api/auth.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../util/Global.dart';
 import '../util/Uitlity.dart';
 import 'dart:io';
-
 
 class ExportScreen extends StatefulWidget {
   const ExportScreen({super.key});
@@ -29,7 +30,7 @@ class _ExportScreenState extends State<ExportScreen> {
   bool isFilterApplied = false;
   DateTime? selectedDate;
   String slotFilterDate = "Slot Date";
-  int? selectedTerminalId=151;
+  int? selectedTerminalId = 151;
 
   // List of terminal data with id as int
   final List<Map<String, dynamic>> terminals = [
@@ -56,6 +57,7 @@ class _ExportScreenState extends State<ExportScreen> {
   late String startOfDayFormatted;
   late String endOfDayFormatted;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
   @override
   void initState() {
     super.initState();
@@ -71,14 +73,15 @@ class _ExportScreenState extends State<ExportScreen> {
     endOfDayFormatted = endOfDay.toUtc().toIso8601String();
     print('Start of Day: $startOfDayFormatted');
     print('End of Day: $endOfDayFormatted');
-    getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "");
+    getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "",
+        airportId: loginMaster[0].terminalId);
     fromDateController = TextEditingController(
         text: _formatDate(DateTime.now().subtract(const Duration(days: 2))));
     toDateController = TextEditingController(text: _formatDate(DateTime.now()));
 
-    // Initialize the notification plugin
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
     // var initializationSettingsIOS = IOSInitializationSettings();
     var initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
@@ -127,7 +130,7 @@ class _ExportScreenState extends State<ExportScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DropdownButtonFormField<int>(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: 'Landport Terminal',
                                 border: OutlineInputBorder(),
                               ),
@@ -153,10 +156,11 @@ class _ExportScreenState extends State<ExportScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-
                               fromDateController.text = _formatDate(
-                                  DateTime.now().subtract(const Duration(days: 2)));
-                              toDateController.text = _formatDate(DateTime.now());
+                                  DateTime.now()
+                                      .subtract(const Duration(days: 2)));
+                              toDateController.text =
+                                  _formatDate(DateTime.now());
                               getShipmentDetails(endOfDayFormatted,
                                   startOfDayFormatted, "", "",
                                   airportId: selectedTerminalId!);
@@ -277,22 +281,28 @@ class _ExportScreenState extends State<ExportScreen> {
                               ],
                             ),
                             onTap: () {
-                              if(filteredList.isEmpty && listShipmentDetails.isEmpty){
+                              if (filteredList.isEmpty &&
+                                  listShipmentDetails.isEmpty) {
                                 final snackBar = SnackBar(
                                   content: SizedBox(
                                     height: 20,
-
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                     const Row(children: [
-                                       Icon(Icons.info, color: Colors.white),
-                                       Text('  No Data Found'),
-                                     ],),
+                                        const Row(
+                                          children: [
+                                            Icon(Icons.info,
+                                                color: Colors.white),
+                                            Text('  No Data Found'),
+                                          ],
+                                        ),
                                         GestureDetector(
-                                          child: Icon(Icons.close, color: Colors.white),
+                                          child: const Icon(Icons.close,
+                                              color: Colors.white),
                                           onTap: () {
-                                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                            ScaffoldMessenger.of(context)
+                                                .hideCurrentSnackBar();
                                           },
                                         ),
                                       ],
@@ -301,19 +311,17 @@ class _ExportScreenState extends State<ExportScreen> {
                                   backgroundColor: Colors.amber,
                                   behavior: SnackBarBehavior.floating,
                                   width: 200,
-
                                 );
 
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
                                 return;
                               }
-                              if(filteredList.isNotEmpty){
+                              if (filteredList.isNotEmpty) {
                                 exportToExcel(filteredList);
-                              }
-                              else{
+                              } else {
                                 exportToExcel(listShipmentDetails);
                               }
-
                             },
                           ),
                           const SizedBox(
@@ -354,16 +362,15 @@ class _ExportScreenState extends State<ExportScreen> {
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
                               child:
-                              // (hasNoRecord)
-                              //     ? const Center(child: Text("NO RECORD FOUND"))
-                              //     :
-                              selectedFilters.isNotEmpty ||
+                                  // (hasNoRecord)
+                                  //     ? const Center(child: Text("NO RECORD FOUND"))
+                                  //     :
+                                  selectedFilters.isNotEmpty ||
                                           selectedDate != null
                                       ? ListView.builder(
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-
                                             ShipmentDetails shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -412,42 +419,86 @@ class _ExportScreenState extends State<ExportScreen> {
           ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {},
-      //
-      //   child: const Icon(Icons.add),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // extendBody: true,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.white,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.chart_pie),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.add_box_rounded,
-              size: 42,
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.help_outline),
-            label: 'User Help',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 2) {}
-        },
+      floatingActionButton: Theme(
+        data: ThemeData(useMaterial3: false),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const BookingCreation()),
+            );
+          },
+          backgroundColor: AppColors.primary,
+          child: const Icon(Icons.add),
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      extendBody: true,
+      bottomNavigationBar: BottomAppBar(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        height: 60,
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 5,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            GestureDetector(
+              onTap: () {},
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.chart_pie),
+                  Text("Dashboard"),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.help_outline,
+                    color: AppColors.primary,
+                  ),
+                  Text(
+                    "User Help",
+                    style: TextStyle(color: AppColors.primary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: AppColors.white,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(CupertinoIcons.chart_pie),
+      //       label: 'Dashboard',
+      //     ),
+      //
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.help_outline),
+      //       label: 'User Help',
+      //     ),
+      //   ],
+      //   onTap: (index) {
+      //     if (index == 2) {}
+      //   },
+      // ),
     );
   }
 
   Future<void> showNotification(String filePath) async {
     var androidDetails = const AndroidNotificationDetails(
-      'channelId', 'channelName',
+      'channelId',
+      'channelName',
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
@@ -478,7 +529,7 @@ class _ExportScreenState extends State<ExportScreen> {
       ex.TextCellValue("Shipping Bill No."),
       ex.TextCellValue("Shipping Bill Date"),
     ]);
-    for (var shipment in shipments){
+    for (var shipment in shipments) {
       sheetObject.appendRow([
         ex.TextCellValue(shipment.statusDescription),
         ex.TextCellValue(shipment.bookingNo),
@@ -491,7 +542,6 @@ class _ExportScreenState extends State<ExportScreen> {
     final directory = await getDownloadsDirectory();
     String filePath = '/storage/emulated/0/Download/shipments.xlsx';
 
-    // Save the excel file
     File(filePath)
       ..createSync(recursive: true)
       ..writeAsBytesSync(excel.encode()!);
@@ -499,7 +549,6 @@ class _ExportScreenState extends State<ExportScreen> {
     print('Excel file saved at $filePath');
     showNotification("/storage/emulated/0/Download");
   }
-
 
   getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
       String bookingNo, String sbNo,
@@ -513,12 +562,12 @@ class _ExportScreenState extends State<ExportScreen> {
 
     var queryParams = {
       "AirportId": airportId,
-      "OrgProdId": 3284,
+      "OrgProdId": loginMaster[0].adminOrgProdId,
       "BookingNo": bookingNo,
-      "CompanyCode": "LPAI",
-      "BranchCode": "LPAI",
+      "CompanyCode": loginMaster[0].companyCode,
+      "BranchCode": loginMaster[0].branchCode,
       "SBillNo": sbNo,
-      "TimeZone": "India Standard Time",
+      "TimeZone": loginMaster[0].timeZone,
       "Todate": endOfDayFormatted,
       "Fromdate": startOfDayFormatted
     };
@@ -831,11 +880,11 @@ class _ExportScreenState extends State<ExportScreen> {
                     ),
                   ),
                   const SizedBox(width: 24),
-                  Text(
-                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
+                  // Text(
+                  //   '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
+                  //   style: const TextStyle(
+                  //       fontSize: 16, fontWeight: FontWeight.w800),
+                  // ),
                   // Container(
                   //   decoration: BoxDecoration(
                   //     color: Colors.grey.shade200,
@@ -898,7 +947,7 @@ class _ExportScreenState extends State<ExportScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                           Row(
+                          Row(
                             children: [
                               const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -915,17 +964,17 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-                              SizedBox(width: 64),
+                              const SizedBox(width: 64),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Exporter Name',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
                                     shipmentDetails.exporterImporter,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
                                   ),
@@ -1018,8 +1067,7 @@ class _ExportScreenState extends State<ExportScreen> {
         getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo,
             airportId: selectedTerminalId!);
       } else {
-        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo
-            );
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
       }
 
       Navigator.pop(context);
@@ -1505,16 +1553,16 @@ class _ExportScreenState extends State<ExportScreen> {
                           'FILTER BY DATE',
                           style: TextStyle(fontSize: 16),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         GestureDetector(
                           child: Row(
                             children: [
                               const Icon(Icons.calendar_today,
                                   color: AppColors.primary),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 slotFilterDate,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, color: AppColors.primary),
                               ),
                             ],
@@ -1578,6 +1626,8 @@ class _ExportScreenState extends State<ExportScreen> {
         );
       },
     );
+
+
   }
 
 // void showCustomBottomSheet(BuildContext context) {

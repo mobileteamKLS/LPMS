@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/IPInfo.dart';
+import '../util/Global.dart';
 
 class AuthService {
   Future<Post> getUserAuthenticationDetails(service,payload,headers) async {
@@ -41,7 +42,7 @@ class AuthService {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyODAxNDE4MSwiZXhwIjoxNzI4MDUwMTgxLCJpYXQiOjE3MjgwMTQxODF9.DhvQLGoldkfA_9E6ffFvHNyzKDOhqoW82Q4JoBaRWoA',
+          'Bearer ${loginMaster[0].token}',
       // Use your token type (Bearer, Basic, etc.)
     };
 
@@ -90,15 +91,21 @@ class AuthService {
       });
     }
   }
+
   void printPrettyJson(String jsonString) {
+    if(jsonString.isEmpty){
+      return;
+    }
     var jsonObject = jsonDecode(jsonString);
     var prettyString = JsonEncoder.withIndent('  ').convert(jsonObject);
-    printLongString(prettyString);  // Use the chunking function from above
+    printLongString(prettyString); // Use the chunking function from above
   }
+
   void printLongString(String text) {
-    const int chunkSize = 1000;  // Number of characters per chunk
+    const int chunkSize = 1000;
     for (var i = 0; i < text.length; i += chunkSize) {
-      print(text.substring(i, i + chunkSize > text.length ? text.length : i + chunkSize));
+      print(text.substring(
+          i, i + chunkSize > text.length ? text.length : i + chunkSize));
     }
   }
 

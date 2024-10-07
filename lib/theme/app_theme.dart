@@ -63,7 +63,7 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
         ),
       ),
-      iconButtonTheme: IconButtonThemeData());
+      iconButtonTheme: const IconButtonThemeData());
 }
 
 // class AppBarPainter extends CustomPainter {

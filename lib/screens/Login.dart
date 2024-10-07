@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +8,8 @@ import 'package:lpms/theme/app_color.dart';
 
 import '../api/auth.dart';
 import '../models/IPInfo.dart';
+import '../models/LoginMaster.dart';
+import '../util/Global.dart';
 import 'Encryption.dart';
 
 class LoginPage extends StatefulWidget {
@@ -31,20 +34,19 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
     debugPrint(encryptionService.encryptUsingRandomKey(
-        "Kale@123`${ipInfo.ip}", "$key"));
-    var pwd = encryptionService.encryptUsingRandomKey(
-        "Kale@123`${ipInfo.ip}", "$key");
-    debugPrint(encryptionService.decryptUsingRandomKey(pwd, "$key"));
+        "${_passwordController.text}`${ipInfo.ip}", "$key"));
+    var password = encryptionService.encryptUsingRandomKey(
+        "${_passwordController.text.trim()}`${ipInfo.ip}", "$key");
+    debugPrint(encryptionService.decryptUsingRandomKey(password, "$key"));
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     var queryParams = {
-      "LoginName": "lpaiadmin@dockerbike.com",
+      "LoginName": _usernameController.text.trim(),
       "OTPGenerationCode": "",
-      "LoginPassword": pwd
-      ,
+      "LoginPassword": password,
       "IpAddress": ipInfo.ip,
       "IpCity": ipInfo.city,
       "IpCountry": ipInfo.country,
@@ -54,10 +56,9 @@ class _LoginPageState extends State<LoginPage> {
       "BusinesslineId": "",
     };
 
-    var headers={
+    var headers = {
       'accept': 'application/json, text/plain, */*',
       'accept-language': 'en-US,en;q=0.9',
-      'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjQwMDciLCJyb2xlIjoiV2ViQXBwVXNlciIsIm5iZiI6MTcyNzkzNTc1MywiZXhwIjoxNzI3OTcxNzUzLCJpYXQiOjE3Mjc5MzU3NTN9.VIB5aDv7icxRJR2Ohi7uhGrRFyPuJghsfpKOoOW6I1M',
       'browser': 'Brave',
       'communityadminorgid': '11157',
       'content-type': 'application/json',
@@ -70,7 +71,8 @@ class _LoginPageState extends State<LoginPage> {
       'roleid': '4044',
       'screenid': 'null',
       'screenname': 'null',
-      'sec-ch-ua': '\\Chromium\\;v=\\128\\, \\Not;A=Brand\\;v=\\24\\, \\Microsoft Edge\\;v=\\128\\',
+      'sec-ch-ua':
+          '\\Chromium\\;v=\\128\\, \\Not;A=Brand\\;v=\\24\\, \\Microsoft Edge\\;v=\\128\\',
       'sec-ch-ua-mobile': '?0',
       'sec-ch-ua-platform': '\\Windows\\',
       'sec-fetch-dest': 'empty',
@@ -82,22 +84,58 @@ class _LoginPageState extends State<LoginPage> {
       'Referrer-Policy': 'strict-origin-when-cross-origin'
     };
 
-    var result = await _authService.getUserAuthenticationDetails(
-        "api_login/Login/GetUserAuthenticationDetails", queryParams, headers);
+    await _authService
+        .getUserAuthenticationDetails(
+            "api_login/Login/GetUserAuthenticationDetails",
+            queryParams,
+            headers)
+        .then((response) {
+      if (response.body.isEmpty){
+        final snackBar = SnackBar(
+          content: SizedBox(
+            height: 20,
+            child: Row(
+              mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.info,
+                        color: Colors.white),
+                    Text('  Invalid Login Details'),
+                  ],
+                ),
+                GestureDetector(
+                  child: const Icon(Icons.close,
+                      color: Colors.white),
+                  onTap: () {
+                    ScaffoldMessenger.of(context)
+                        .hideCurrentSnackBar();
+                  },
+                ),
+              ],
+            ),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          width: 230,
+        );
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(snackBar);
+        return;
+      }
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+
+      setState(() {
+        loginMaster = [LoginDetailsMaster.fromJSON(jsonData)];
+      });
+    });
 
     setState(() {
       _isLoading = false;
     });
-    print(result);
-    // if (result['success']) {
-    //   // Navigate to another screen on success
-    //   Navigator.pushReplacementNamed(context, '/home');
-    // } else {
-    //   // Show error message
-    //   setState(() {
-    //     _errorMessage = result['message'];
-    //   });
-    // }
+
   }
 
   Future<void> fetchIpInfo() async {
@@ -113,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   getUserKey() async {
+    showLoadingDialog(context);
     var queryParam = {
       "headers": {
         "normalizedNames": {},
@@ -129,13 +168,16 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     };
-    var headers={
+    var headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
 
     await authService
-        .fetchLoginDataPOST("api_login/Login/GetUserKey?loginname=lpaiadmin@dockerbike.com", queryParam, headers)
+        .fetchLoginDataPOST(
+            "api_login/Login/GetUserKey?loginname=${_usernameController.text.trim()}",
+            queryParam,
+            headers)
         .then((response) {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
@@ -144,10 +186,12 @@ class _LoginPageState extends State<LoginPage> {
         key = jsonData["Key"];
         print("KEY---$key");
         // isLoading = false;
+        hideLoadingDialog(context);
       });
+      _handleLogin();
     }).catchError((onError) {
       setState(() {
-        // isLoading = false;
+        hideLoadingDialog(context);
       });
       print(onError);
     });
@@ -157,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     fetchIpInfo();
-    getUserKey();
   }
 
   @override
@@ -310,17 +353,21 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 const Text(
                                   'Remember',
-                                  style: TextStyle(fontSize: 14,color: Colors.black),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black),
                                 )
                               ],
                             ),
                             const Text(
                               'Recover Forgot Password',
-                              style: TextStyle(fontSize: 14,color: AppColors.primary),
+                              style: TextStyle(
+                                  fontSize: 14, color: AppColors.primary),
                             )
                           ],
                         ),
-                        const SizedBox(height: 16,),
+                        const SizedBox(
+                          height: 16,
+                        ),
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
@@ -341,67 +388,99 @@ class _LoginPageState extends State<LoginPage> {
                                 ? null
                                 : () {
                                     if (_formKey.currentState!.validate()) {
-                                      _handleLogin();
+                                      getUserKey();
                                     }
                                   },
-                            child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : const Text(
+                            child: const Text(
                                     'SIGN IN',
                                     style: TextStyle(color: Colors.white),
                                   ),
                           ),
                         ),
-                        const SizedBox(height: 16,),
+                        const SizedBox(
+                          height: 16,
+                        ),
                         const Row(
                           children: [
                             Text(
                               'Read the',
-                              style: TextStyle(fontSize: 14,color: Colors.black),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black),
                             ),
                             Text(
                               ' Privacy Policy ',
-                              style: TextStyle(fontSize: 14,color: AppColors.primary),
+                              style: TextStyle(
+                                  fontSize: 14, color: AppColors.primary),
                             ),
                             Text(
                               'And',
-                              style: TextStyle(fontSize: 14,color: Colors.black),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black),
                             ),
                             Text(
                               ' Terms of Use',
-                              style: TextStyle(fontSize: 14,color: AppColors.primary),
+                              style: TextStyle(
+                                  fontSize: 14, color: AppColors.primary),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 18,),
+                        const SizedBox(
+                          height: 18,
+                        ),
                         SizedBox(
                           height: 100,
                           width: 100,
                           child: Image.asset(
-                              "assets/images/kls.jpg",
-
-                              ),
+                            "assets/images/kls.jpg",
+                          ),
                         ),
-                        const SizedBox(height: 18,),
+                        const SizedBox(
+                          height: 18,
+                        ),
                         const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'App version 1.0',
-                              style: TextStyle(fontSize: 14,color: Colors.black),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black),
                             ),
                           ],
                         ),
-
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-          )
+          ),
+          _isLoading ? BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    // semi-transparent background
+                    child: const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Loading...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox(),
         ],
       ),
     );
@@ -426,5 +505,38 @@ class _LoginPageState extends State<LoginPage> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void showLoadingDialog(BuildContext context, {String? message}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: AppColors.primary),
+              if (message != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
   }
 }
