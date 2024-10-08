@@ -3,8 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lpms/screens/ExportDashboard.dart';
 
 import 'package:lpms/theme/app_color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/auth.dart';
 import '../models/IPInfo.dart';
@@ -26,11 +28,41 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService _authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
   bool _isLoading = false;
+  bool isPasswordVisible = false;
+  bool _rememberMe = false;
   String? _errorMessage;
   late IpInfo ipInfo;
   late int key;
   bool isSwitched = false;
   final AuthService authService = AuthService();
+
+  void loadSavedCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedUsername = prefs.getString('username');
+    String? savedPassword = prefs.getString('password');
+    bool? rememberMe = prefs.getBool('remember_me') ?? false;
+
+    if (rememberMe) {
+      setState(() {
+        _usernameController.text = savedUsername ?? '';
+        _passwordController.text = savedPassword ?? '';
+        _rememberMe = rememberMe;
+      });
+    }
+  }
+
+  // Save username and password
+  void _saveCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setString('username', _usernameController.text);
+      await prefs.setString('password', _passwordController.text);
+    } else {
+      await prefs.remove('username');
+      await prefs.remove('password');
+    }
+    await prefs.setBool('remember_me', _rememberMe);
+  }
 
   Future<void> _handleLogin() async {
     debugPrint(encryptionService.encryptUsingRandomKey(
@@ -90,27 +122,23 @@ class _LoginPageState extends State<LoginPage> {
             queryParams,
             headers)
         .then((response) {
-      if (response.body.isEmpty){
+      if (response.body.isEmpty) {
         final snackBar = SnackBar(
           content: SizedBox(
             height: 20,
             child: Row(
-              mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.info,
-                        color: Colors.white),
+                    Icon(Icons.info, color: Colors.white),
                     Text('  Invalid Login Details'),
                   ],
                 ),
                 GestureDetector(
-                  child: const Icon(Icons.close,
-                      color: Colors.white),
+                  child: const Icon(Icons.close, color: Colors.white),
                   onTap: () {
-                    ScaffoldMessenger.of(context)
-                        .hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   },
                 ),
               ],
@@ -121,21 +149,23 @@ class _LoginPageState extends State<LoginPage> {
           width: 230,
         );
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
       final Map<String, dynamic> jsonData = json.decode(response.body);
-
+      _saveCredentials();
       setState(() {
         loginMaster = [LoginDetailsMaster.fromJSON(jsonData)];
       });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ExportScreen()),
+      );
     });
 
     setState(() {
       _isLoading = false;
     });
-
   }
 
   Future<void> fetchIpInfo() async {
@@ -151,7 +181,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   getUserKey() async {
-    showLoadingDialog(context);
+    // showLoadingDialog(context);
+    setState(() {
+      _isLoading = true;
+    });
+
     var queryParam = {
       "headers": {
         "normalizedNames": {},
@@ -181,17 +215,52 @@ class _LoginPageState extends State<LoginPage> {
         .then((response) {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Key"] == null) {
+        final snackBar = SnackBar(
+          content: SizedBox(
+            height: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.info, color: Colors.white),
+                    Text('  Invalid Login Details'),
+                  ],
+                ),
+                GestureDetector(
+                  child: const Icon(Icons.close, color: Colors.white),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                ),
+              ],
+            ),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          width: 230,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
       setState(() {
         key = jsonData["Key"];
         print("KEY---$key");
-        // isLoading = false;
-        hideLoadingDialog(context);
+        setState(() {
+          _isLoading = false;
+        });
       });
       _handleLogin();
     }).catchError((onError) {
       setState(() {
-        hideLoadingDialog(context);
+        setState(() {
+          _isLoading = false;
+        });
       });
       print(onError);
     });
@@ -201,6 +270,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     fetchIpInfo();
+    loadSavedCredentials();
   }
 
   @override
@@ -212,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
           Column(
             children: [
               Container(
-                height: 268.h,
+                height: MediaQuery.sizeOf(context).height*0.39,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -231,12 +301,12 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Text(
                         "Sign In to LPMS",
-                        style: TextStyle(fontSize: 24.sp, color: Colors.white),
+                        style: TextStyle(fontSize: 22.sp, color: Colors.white),
                       ),
                       Text(
                         "Registered Account",
                         style: TextStyle(
-                            fontSize: 24.sp,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
@@ -245,7 +315,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Container(
-                height: (640 - 268).h,
+                height: MediaQuery.sizeOf(context).height*0.61,
                 color: AppColors.background,
               ),
             ],
@@ -253,12 +323,12 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             alignment: Alignment.topCenter,
             padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * .27,
+                top: MediaQuery.sizeOf(context).height * .25,
                 right: 12.0,
                 left: 12.0),
-            child: Container(
-              height: 500.h,
-              width: 350.w,
+            child: SizedBox(
+              height: MediaQuery.sizeOf(context).height*0.74,
+              width: MediaQuery.sizeOf(context).width,
               child: Card(
                 color: Colors.white,
                 surfaceTintColor: Colors.white,
@@ -283,20 +353,20 @@ class _LoginPageState extends State<LoginPage> {
                               const Text(
                                 "Sign In",
                                 style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                    fontSize: 22, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
+                         SizedBox(
+                          height: MediaQuery.sizeOf(context).height*0.01,
                         ),
 
                         TextFormField(
                           controller: _usernameController,
                           keyboardType: TextInputType.text,
                           decoration: const InputDecoration(
-                              labelText: 'User Id',
+                              labelText: 'Username',
                               suffixIcon: Icon(Icons.person_2_outlined),
                               suffixIconColor: AppColors.primary),
                           validator: (value) {
@@ -306,26 +376,39 @@ class _LoginPageState extends State<LoginPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(
-                          height: 20,
+                         SizedBox(
+                          height: MediaQuery.sizeOf(context).height*0.01,
                         ),
                         TextFormField(
                           controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
+                          obscureText: isPasswordVisible,
+                          decoration:  InputDecoration(
                               labelText: 'Password',
-                              suffixIcon: Icon(Icons.remove_red_eye_outlined),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  // Based on passwordVisible state choose the icon
+                                  isPasswordVisible
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppColors.primary,
+                                ),
+                                onPressed: () {
+                                  // Update the state i.e. toogle the state of passwordVisible variable
+                                  setState(() {
+                                    isPasswordVisible = !isPasswordVisible;
+                                  });
+                                },
+                              ),
                               suffixIconColor: AppColors.primary),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             }
-
                             return null;
                           },
                         ),
 
-                        const SizedBox(height: 20),
+                         SizedBox(    height: MediaQuery.sizeOf(context).height*0.01,),
 
                         // Error message display
                         if (_errorMessage != null)
@@ -345,8 +428,12 @@ class _LoginPageState extends State<LoginPage> {
                                 Theme(
                                   data: ThemeData(useMaterial3: false),
                                   child: Switch(
-                                    onChanged: toggleSwitch,
-                                    value: isSwitched,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _rememberMe = value;
+                                      });
+                                    },
+                                    value: _rememberMe,
                                     activeColor: AppColors.primary,
                                     activeTrackColor: AppColors.secondary,
                                   ),
@@ -359,7 +446,7 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                             const Text(
-                              'Recover Forgot Password',
+                              ' Forgot Password',
                               style: TextStyle(
                                   fontSize: 14, color: AppColors.primary),
                             )
@@ -392,9 +479,9 @@ class _LoginPageState extends State<LoginPage> {
                                     }
                                   },
                             child: const Text(
-                                    'SIGN IN',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
+                              'SIGN IN',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(
@@ -428,8 +515,8 @@ class _LoginPageState extends State<LoginPage> {
                           height: 18,
                         ),
                         SizedBox(
-                          height: 100,
-                          width: 100,
+                          height: 64,
+
                           child: Image.asset(
                             "assets/images/kls.jpg",
                           ),
@@ -454,7 +541,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          _isLoading ? BackdropFilter(
+          _isLoading
+              ? BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                   child: Container(
                     color: Colors.black.withOpacity(0.5),
@@ -465,7 +553,7 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           CircularProgressIndicator(
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                                AlwaysStoppedAnimation<Color>(AppColors.primary),
                           ),
                           SizedBox(height: 20),
                           Text(
@@ -486,19 +574,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void toggleSwitch(bool value) {
-    if (isSwitched == false) {
-      setState(() {
-        isSwitched = true;
-      });
-      print('Switch Button is ON');
-    } else {
-      setState(() {
-        isSwitched = false;
-      });
-      print('Switch Button is OFF');
-    }
-  }
 
   @override
   void dispose() {

@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../theme/app_color.dart';
@@ -78,16 +81,13 @@ class _BookingCreationState extends State<BookingCreation> {
           Container(
             constraints: const BoxConstraints.expand(),
             color: AppColors.background,
-            child: const Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 16, left: 16, right: 10),
-                  child: Material(
-                    color: Colors.transparent,
-                    // Ensures background transparency
-                    child: Row(
+            child:   Padding(
+              padding: const EdgeInsets.only(top: 16,left: 12,right: 12),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Row(
                       children: [
-
                         Text(
                           'Booking Creation',
                           style: TextStyle(
@@ -95,10 +95,95 @@ class _BookingCreationState extends State<BookingCreation> {
                         ),
                       ],
                     ),
-                  ),
-                ),
+                    const SizedBox(height: 10,),
+                    Container(
+                      decoration:  BoxDecoration(
+                        gradient: const LinearGradient(colors: [
+                          AppColors.gradient1,
+                          AppColors.gradient2,
+                        ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child:   Padding(
+                        padding: const EdgeInsets.only(top: 12,left: 10,bottom: 12,right: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Text("BOOKING INFO.",style: TextStyle(color: AppColors.cardTextColor,fontSize:16,fontWeight: FontWeight.w700),),
+                              ],
+                            ),
+                            SizedBox(height: 8,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(Icons.location_on_outlined,color: AppColors.cardTextColor,),
+                                    Text(" AGA",style: TextStyle(color: AppColors.cardTextColor,fontSize:13,fontWeight: FontWeight.w400),),
+                                    Icon(Icons.arrow_forward,color: AppColors.cardTextColor,),
+                                    Text(" ALL",style: TextStyle(color: AppColors.cardTextColor,fontSize:13,fontWeight: FontWeight.w400),),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color:Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text("NEW BOOKING"),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10,),
+                    Card(
+                      color: AppColors.white,
+                      surfaceTintColor: AppColors.white,
+                      margin: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
 
-              ],
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12,horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("BASIC DETAILS",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 14),
+                            ),
+                            Row(
+
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+
+
+                  ],
+                ),
+              ),
             ),
           ),
           Positioned(

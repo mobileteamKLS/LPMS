@@ -361,11 +361,14 @@ class _ExportScreenState extends State<ExportScreen> {
                             padding: const EdgeInsets.only(top: 2.0, left: 0.0),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
-                              child:
-                                  // (hasNoRecord)
-                                  //     ? const Center(child: Text("NO RECORD FOUND"))
-                                  //     :
-                                  selectedFilters.isNotEmpty ||
+                              child: (hasNoRecord)
+                                  ? Container(
+                                height:400,
+                                      child: const Center(
+                                        child: Text("NO RECORD FOUND"),
+                                      ),
+                                    )
+                                  : selectedFilters.isNotEmpty ||
                                           selectedDate != null
                                       ? ListView.builder(
                                           physics:
@@ -1023,11 +1026,33 @@ class _ExportScreenState extends State<ExportScreen> {
         {bool isFromDate = false}) async {
       final DateTime? picked = await showDatePicker(
         context: context,
+        //initialEntryMode: DatePickerEntryMode.calendarOnly,
         initialDate: isFromDate
             ? DateTime.now().subtract(const Duration(days: 2))
             : DateTime.now(),
         firstDate: DateTime(2020),
         lastDate: DateTime(2101),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData(
+              useMaterial3: false,
+              primaryColor: AppColors.primary,
+
+              dialogBackgroundColor: Colors.white, // Change dialog background color
+              colorScheme: const ColorScheme.light(
+                primary: AppColors.primary, // Change header and button color
+                onPrimary: Colors.white, // Text color on primary (header text)
+                onSurface: Colors.black, // Body text color
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary, // Button text color
+                ),
+              ),
+            ),
+            child: child!,
+          );
+        },
       );
 
       if (picked != null) {
@@ -1308,6 +1333,27 @@ class _ExportScreenState extends State<ExportScreen> {
       initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData(
+            useMaterial3: false,
+            primaryColor: AppColors.primary,
+
+            dialogBackgroundColor: Colors.white, // Change dialog background color
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary, // Change header and button color
+              onPrimary: Colors.white, // Text color on primary (header text)
+              onSurface: Colors.black, // Body text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary, // Button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate != null && pickedDate != selectedDate) {
@@ -1626,8 +1672,6 @@ class _ExportScreenState extends State<ExportScreen> {
         );
       },
     );
-
-
   }
 
 // void showCustomBottomSheet(BuildContext context) {

@@ -63,7 +63,11 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
         ),
       ),
-      iconButtonTheme: const IconButtonThemeData());
+      iconButtonTheme: const IconButtonThemeData(),
+    datePickerTheme: DatePickerThemeData(
+
+    )
+  );
 }
 
 // class AppBarPainter extends CustomPainter {
