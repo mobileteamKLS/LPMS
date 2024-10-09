@@ -46,6 +46,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   toggle_switch: ^2.3.0
   shared_preferences: ^2.2.3
+  multi_dropdown: ^3.0.1
 
 dev_dependencies:
   flutter_test:

@@ -4,19 +4,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 
 class BookingCreation extends StatefulWidget {
   const BookingCreation({super.key});
+
   @override
   State<BookingCreation> createState() => _BookingCreationState();
 }
+
 class _BookingCreationState extends State<BookingCreation> {
+  final controller = MultiSelectController<User>();
+  var items = [
+    DropdownItem(label: 'Car', value: User(name: 'Car', id: 1)),
+    DropdownItem(label: 'Truck', value: User(name: 'Truck', id: 6)),
+    DropdownItem(label: 'Trolly', value: User(name: 'Trolly', id: 2)),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
           title: const Text(
             'Exports',
@@ -43,9 +54,7 @@ class _BookingCreationState extends State<BookingCreation> {
                   size: 26,
                 ),
                 color: Colors.white,
-                onPressed: () {
-
-                }),
+                onPressed: () {}),
             IconButton(
               icon: Stack(
                 children: [
@@ -81,8 +90,8 @@ class _BookingCreationState extends State<BookingCreation> {
           Container(
             constraints: const BoxConstraints.expand(),
             color: AppColors.background,
-            child:   Padding(
-              padding: const EdgeInsets.only(top: 16,left: 12,right: 12),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -95,15 +104,19 @@ class _BookingCreationState extends State<BookingCreation> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10,),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Container(
-                      decoration:  BoxDecoration(
-                        gradient: const LinearGradient(colors: [
-                          AppColors.gradient1,
-                          AppColors.gradient2,
-                        ],
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.gradient1,
+                            AppColors.gradient2,
+                          ],
                           begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,),
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
@@ -114,37 +127,65 @@ class _BookingCreationState extends State<BookingCreation> {
                           ),
                         ],
                       ),
-                      child:   Padding(
-                        padding: const EdgeInsets.only(top: 12,left: 10,bottom: 12,right: 10),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12, left: 10, bottom: 12, right: 10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Row(
                               children: [
-                                Text("BOOKING INFO.",style: TextStyle(color: AppColors.cardTextColor,fontSize:16,fontWeight: FontWeight.w700),),
+                                Text(
+                                  "BOOKING INFO.",
+                                  style: TextStyle(
+                                      color: AppColors.cardTextColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700),
+                                ),
                               ],
                             ),
-                            SizedBox(height: 8,),
+                            SizedBox(
+                              height: 8,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Row(
                                   children: [
-                                    Icon(Icons.location_on_outlined,color: AppColors.cardTextColor,),
-                                    Text(" AGA",style: TextStyle(color: AppColors.cardTextColor,fontSize:13,fontWeight: FontWeight.w400),),
-                                    Icon(Icons.arrow_forward,color: AppColors.cardTextColor,),
-                                    Text(" ALL",style: TextStyle(color: AppColors.cardTextColor,fontSize:13,fontWeight: FontWeight.w400),),
+                                    Icon(
+                                      Icons.location_on_outlined,
+                                      color: AppColors.cardTextColor,
+                                    ),
+                                    Text(
+                                      " AGA",
+                                      style: TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward,
+                                      color: AppColors.cardTextColor,
+                                    ),
+                                    Text(
+                                      " ALL",
+                                      style: TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Container(
                                       decoration: BoxDecoration(
-                                        color:Colors.white,
+                                        color: Colors.white,
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 8),
                                         child: Text("NEW BOOKING"),
                                       ),
                                     )
@@ -156,31 +197,173 @@ class _BookingCreationState extends State<BookingCreation> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10,),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Card(
                       color: AppColors.white,
                       surfaceTintColor: AppColors.white,
                       margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
-
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12,horizontal: 10),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("BASIC DETAILS",style: TextStyle(fontWeight: FontWeight.w700,fontSize: 14),
+                            const Text(
+                              "BASIC DETAILS",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 14),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.sizeOf(context).height * 0.01,
                             ),
                             Row(
-
+                              children: [
+                                SizedBox(
+                                  width:
+                                      MediaQuery.sizeOf(context).width * 0.89,
+                                  child: MultiDropdown<User>(
+                                    items: items,
+                                    controller: controller,
+                                    enabled: true,
+                                    searchEnabled: true,
+                                    chipDecoration: const ChipDecoration(
+                                      backgroundColor: AppColors.secondary,
+                                      wrap: true,
+                                      runSpacing: 2,
+                                      spacing: 10,
+                                    ),
+                                    fieldDecoration: FieldDecoration(
+                                      hintText: 'Types of Vehicles',
+                                      hintStyle: const TextStyle(
+                                          color: Colors.black54),
+                                      // prefixIcon: const Icon(CupertinoIcons.flag),
+                                      showClearIcon: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                        borderSide: const BorderSide(
+                                            color: Colors.grey),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                        borderSide: const BorderSide(
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    dropdownDecoration:
+                                        const DropdownDecoration(
+                                      marginTop: 2,
+                                      maxHeight: 500,
+                                      header: Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text(
+                                          'Select vehicles from the list',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    dropdownItemDecoration:
+                                        DropdownItemDecoration(
+                                      selectedIcon: const Icon(Icons.check_box,
+                                          color: Colors.green),
+                                      disabledIcon: Icon(Icons.lock,
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please select a vehicle';
+                                      }
+                                      return null;
+                                    },
+                                    onSelectionChange: (selectedItems) {
+                                      debugPrint(
+                                          "OnSelectionChange: $selectedItems");
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.sizeOf(context).height * 0.015,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      labelText: "No of Vehicles",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  child: ToggleSwitch(
+                                    minWidth:
+                                        MediaQuery.sizeOf(context).width * 0.5,
+                                    minHeight: 45.0,
+                                    fontSize: 14.0,
+                                    initialLabelIndex: 0,
+                                    activeBgColor: const [AppColors.primary],
+                                    activeFgColor: Colors.white,
+                                    inactiveBgColor: Colors.white,
+                                    inactiveFgColor: Colors.grey[900],
+                                    totalSwitches: 2,
+                                    labels: const ['FTL', 'LTL'],
+                                    cornerRadius: 0.0,
+                                    borderWidth: 0.5,
+                                    borderColor: [Colors.grey],
+                                    onToggle: (index) {
+                                      print('switched to: $index');
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.sizeOf(context).height * 0.015,
+                            ),
+                            SizedBox(
+                              height: 45,
+                              width: MediaQuery.sizeOf(context).width,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  labelText: "CHA Name*",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    )
-
-
+                    ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
                   ],
                 ),
               ),
@@ -200,7 +383,6 @@ class _BookingCreationState extends State<BookingCreation> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomAppBar(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         height: 60,
@@ -213,9 +395,7 @@ class _BookingCreationState extends State<BookingCreation> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             GestureDetector(
-              onTap: (){
-
-              },
+              onTap: () {},
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -225,21 +405,36 @@ class _BookingCreationState extends State<BookingCreation> {
               ),
             ),
             GestureDetector(
-              onTap: (){
-
-              },
+              onTap: () {},
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.help_outline,color: AppColors.primary,),
-                  Text("User Help",style: TextStyle(color: AppColors.primary),),
+                  Icon(
+                    Icons.help_outline,
+                    color: AppColors.primary,
+                  ),
+                  Text(
+                    "User Help",
+                    style: TextStyle(color: AppColors.primary),
+                  ),
                 ],
               ),
             ),
-
           ],
         ),
       ),
     );
+  }
+}
+
+class User {
+  final String name;
+  final int id;
+
+  User({required this.name, required this.id});
+
+  @override
+  String toString() {
+    return 'User(name: $name, id: $id)';
   }
 }
