@@ -15,6 +15,9 @@ class AppColors{
   static const gradient2= Color(0xffCCDFFA);
   static const cardTextColor= Color(0xff184565);
   static const textColorPrimary= Color(0xff1F2933);
+  static const textColorSecondary= Color(0xff616E7C);
+  static const containerBgColor= Color(0xffCCF1F6);
+  static const textFieldBorderColor= Color(0xff9AA5B1);
  static const MaterialColor primaryColorSwatch = MaterialColor(0xff0060e6, <int, Color>{
   50: Color(0xff0060e6),
   100: Color(0xff0060e6),

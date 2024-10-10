@@ -47,6 +47,7 @@ dependencies:
   toggle_switch: ^2.3.0
   shared_preferences: ^2.2.3
   multi_dropdown: ^3.0.1
+  expansion_tile_card: ^3.0.0
 
 dev_dependencies:
   flutter_test:

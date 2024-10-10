@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Save username and password
+
   void _saveCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
@@ -181,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   getUserKey() async {
-    // showLoadingDialog(context);
+
     setState(() {
       _isLoading = true;
     });

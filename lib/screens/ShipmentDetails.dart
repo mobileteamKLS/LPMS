@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -12,47 +13,16 @@ import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/expantion_card.dart';
 
-class BookingCreation extends StatefulWidget {
-  const BookingCreation({super.key});
+class AddShipmentDetails extends StatefulWidget {
+  const AddShipmentDetails({super.key});
 
 
   @override
-  State<BookingCreation> createState() => _BookingCreationState();
+  State<AddShipmentDetails> createState() => _AddShipmentDetailsState();
 }
 
-class _BookingCreationState extends State<BookingCreation> {
-  final controller = MultiSelectController<User>();
-  final List categoriesData = [
-    {
-      'name': 'SHIPMENT DETAILS',
-      'sub_categories': [
-        {
-          'name': 'Shipping Date & No.',
-          'sub_categories': [
-            {
-              'name': 'aaaaa',
-              'sub_categories': [],
-            }
-          ],
-        },
-        {
-          'name': 'Shipping Date & No.',
-          'sub_categories': [
-            {
-              'name': 'bbb',
-              'sub_categories': [],
-            }
-          ],
-        },
-      ],
-    },
+class _AddShipmentDetailsState extends State<AddShipmentDetails> {
 
-  ];
-  var items = [
-    DropdownItem(label: 'Car', value: User(name: 'Car', id: 1)),
-    DropdownItem(label: 'Truck', value: User(name: 'Truck', id: 6)),
-    DropdownItem(label: 'Trolly', value: User(name: 'Trolly', id: 2)),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +97,7 @@ class _BookingCreationState extends State<BookingCreation> {
                     const Row(
                       children: [
                         Text(
-                          'Booking Creation',
+                          'Shipment Details',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -214,7 +184,7 @@ class _BookingCreationState extends State<BookingCreation> {
                                       ),
                                       child: const Padding(
                                         padding:
-                                            EdgeInsets.symmetric(horizontal: 8),
+                                        EdgeInsets.symmetric(horizontal: 8),
                                         child: Text("NEW BOOKING"),
                                       ),
                                     )
@@ -230,10 +200,10 @@ class _BookingCreationState extends State<BookingCreation> {
                       height: 10,
                     ),
                     Container(
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(12.0),
-                       color: AppColors.white,
-                     ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                      ),
 
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -246,80 +216,7 @@ class _BookingCreationState extends State<BookingCreation> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 14),
                             ),
-                            SizedBox(
-                              height: MediaQuery.sizeOf(context).height * 0.01,
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width:
-                                      MediaQuery.sizeOf(context).width * 0.89,
-                                  child: MultiDropdown<User>(
-                                    items: items,
-                                    controller: controller,
-                                    enabled: true,
-                                    searchEnabled: true,
-                                    chipDecoration: const ChipDecoration(
-                                      backgroundColor: AppColors.secondary,
-                                      wrap: true,
-                                      runSpacing: 2,
-                                      spacing: 10,
-                                    ),
-                                    fieldDecoration: FieldDecoration(
-                                      hintText: 'Types of Vehicles',
-                                      hintStyle: const TextStyle(
-                                          color: Colors.black54),
-                                      // prefixIcon: const Icon(CupertinoIcons.flag),
-                                      showClearIcon: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        borderSide: const BorderSide(
-                                            color: AppColors.textFieldBorderColor),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        borderSide: const BorderSide(
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                    dropdownDecoration:
-                                        const DropdownDecoration(
-                                      marginTop: 2,
-                                      maxHeight: 500,
-                                      header: Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text(
-                                          'Select vehicles from the list',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    dropdownItemDecoration:
-                                        DropdownItemDecoration(
-                                      selectedIcon: const Icon(Icons.check_box,
-                                          color: Colors.green),
-                                      disabledIcon: Icon(Icons.lock,
-                                          color: Colors.grey.shade300),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please select a vehicle';
-                                      }
-                                      return null;
-                                    },
-                                    onSelectionChange: (selectedItems) {
-                                      debugPrint(
-                                          "OnSelectionChange: $selectedItems");
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
+
                             SizedBox(
                               height: MediaQuery.sizeOf(context).height * 0.015,
                             ),
@@ -329,7 +226,7 @@ class _BookingCreationState extends State<BookingCreation> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  MediaQuery.sizeOf(context).width * 0.42,
                                   child: TextField(
                                     decoration: InputDecoration(
                                       isDense: true,
@@ -346,10 +243,10 @@ class _BookingCreationState extends State<BookingCreation> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  MediaQuery.sizeOf(context).width * 0.42,
                                   child: ToggleSwitch(
                                     minWidth:
-                                        MediaQuery.sizeOf(context).width * 0.5,
+                                    MediaQuery.sizeOf(context).width * 0.5,
                                     minHeight: 45.0,
                                     fontSize: 14.0,
                                     initialLabelIndex: 0,
@@ -392,9 +289,7 @@ class _BookingCreationState extends State<BookingCreation> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    RecursiveDrawerItemV3(
-                      categories: categoriesData, // Pass the data here
-                    ),
+
 
                   ],
                 ),
