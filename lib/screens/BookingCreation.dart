@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -8,13 +9,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+import '../api/auth.dart';
+import '../models/SelectionModel.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/expantion_card.dart';
+import 'Encryption.dart';
 
 class BookingCreation extends StatefulWidget {
   const BookingCreation({super.key});
-
 
   @override
   State<BookingCreation> createState() => _BookingCreationState();
@@ -26,33 +29,78 @@ class _BookingCreationState extends State<BookingCreation> {
     {
       'name': 'SHIPMENT DETAILS',
       'sub_categories': [
-        {
-          'name': 'Shipping Date & No.',
-          'sub_categories': [
-            {
-              'name': 'aaaaa',
-              'sub_categories': [],
-            }
-          ],
-        },
-        {
-          'name': 'Shipping Date & No.',
-          'sub_categories': [
-            {
-              'name': 'bbb',
-              'sub_categories': [],
-            }
-          ],
-        },
+
       ],
     },
-
   ];
+  bool _isLoading = false;
+  final AuthService authService = AuthService();
+  final EncryptionService encryptionService = EncryptionService();
   var items = [
-    DropdownItem(label: 'Car', value: User(name: 'Car', id: 1)),
-    DropdownItem(label: 'Truck', value: User(name: 'Truck', id: 6)),
-    DropdownItem(label: 'Trolly', value: User(name: 'Trolly', id: 2)),
+    DropdownItem(label: 'Truck', value: User(name: 'Truck', id: 1)),
+    DropdownItem(label: 'Chassis', value: User(name: 'Chassis', id: 6)),
+    DropdownItem(
+        label: '6 Wheeler Truck', value: User(name: '6 Wheeler Truck', id: 2)),
   ];
+
+  List<SelectionModels> vehicleTypes = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadVehicleTypes();
+  }
+
+  Future<void> loadVehicleTypes() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final mdl = SelectionModels(
+      whereCondition: "Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=1",
+      referenceId: "VehicleType",
+      isAll: true,
+    );
+    if (mdl.topRecord == null || mdl.topRecord == 10) {
+      mdl.topRecord = 999;
+    }
+
+    SelectionQuery body = SelectionQuery();
+    print(mdl.toString());
+    body.query = await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toString());
+    mdl.query = body.query;
+    var headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    await authService
+        .fetchLoginDataPOST(
+            "/api/GenericDropDown/GetAllVehicleType", mdl, headers)
+        .then((response) {
+      print("data received ");
+      if(response.body.isNotEmpty) {
+        json.decode(response.body);
+        print(json.decode(response.body));
+      }
+      else{
+        print("response is empty");
+      }
+      setState(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+      print(onError);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,11 +278,10 @@ class _BookingCreationState extends State<BookingCreation> {
                       height: 10,
                     ),
                     Container(
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(12.0),
-                       color: AppColors.white,
-                     ),
-
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 14, horizontal: 10),
@@ -274,7 +321,8 @@ class _BookingCreationState extends State<BookingCreation> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(4),
                                         borderSide: const BorderSide(
-                                            color: AppColors.textFieldBorderColor),
+                                            color:
+                                                AppColors.textFieldBorderColor),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(4),
@@ -395,7 +443,12 @@ class _BookingCreationState extends State<BookingCreation> {
                     AddShipmentDetailsList(
                       categories: categoriesData, // Pass the data here
                     ),
-
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+                    AddVehicleDetailsList(
+                      categories: categoriesData, // Pass the data here
+                    ),
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lpms/screens/ExportDashboard.dart';
 
@@ -28,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService _authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
   bool _isLoading = false;
-  bool isPasswordVisible = false;
+  bool isPasswordVisible = true;
   bool _rememberMe = false;
   String? _errorMessage;
   late IpInfo ipInfo;
@@ -55,8 +56,8 @@ class _LoginPageState extends State<LoginPage> {
   void _saveCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
-      await prefs.setString('username', _usernameController.text);
-      await prefs.setString('password', _passwordController.text);
+      await prefs.setString('username', _usernameController.text.trim());
+      await prefs.setString('password', _passwordController.text.trim());
     } else {
       await prefs.remove('username');
       await prefs.remove('password');
@@ -124,17 +125,24 @@ class _LoginPageState extends State<LoginPage> {
         .then((response) {
       if (response.body.isEmpty) {
         final snackBar = SnackBar(
-          content: SizedBox(
-            height: 20,
+          content: Container(
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            margin:   EdgeInsets.symmetric(horizontal: 48),
+            decoration: const BoxDecoration(
+              color: Colors.red, // Background color for the snackbar content
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Row(
                   children: [
                     Icon(Icons.info, color: Colors.white),
-                    Text('  Invalid Login Details'),
+                    SizedBox(width: 8),
+                    Text(' Invalid Login Details ', style: TextStyle(color: Colors.white)),
                   ],
                 ),
+                SizedBox(width: 8),
                 GestureDetector(
                   child: const Icon(Icons.close, color: Colors.white),
                   onTap: () {
@@ -144,11 +152,10 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          width: 230,
+          behavior: SnackBarBehavior.floating, // Makes it float
+          backgroundColor: Colors.transparent, // Make background transparent to avoid default background
+          elevation: 0, // Remove shadow
         );
-
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
@@ -157,6 +164,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         loginMaster = [LoginDetailsMaster.fromJSON(jsonData)];
       });
+      _usernameController.clear();
+      _passwordController.clear();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ExportScreen()),
@@ -217,17 +226,25 @@ class _LoginPageState extends State<LoginPage> {
       Map<String, dynamic> jsonData = json.decode(response.body);
       if (jsonData["Key"] == null) {
         final snackBar = SnackBar(
-          content: SizedBox(
-            height: 20,
+          content: Container(
+            height: 40,
+
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            margin:   EdgeInsets.symmetric(horizontal: 48),
+            decoration: const BoxDecoration(
+              color: Colors.red, // Background color for the snackbar content
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Row(
                   children: [
                     Icon(Icons.info, color: Colors.white),
-                    Text('  Invalid Login Details'),
+                    SizedBox(width: 8),
+                    Text(' Invalid Login Details ', style: TextStyle(color: Colors.white)),
                   ],
                 ),
+                SizedBox(width: 8),
                 GestureDetector(
                   child: const Icon(Icons.close, color: Colors.white),
                   onTap: () {
@@ -237,9 +254,9 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          width: 230,
+          behavior: SnackBarBehavior.floating, // Makes it float
+          backgroundColor: Colors.transparent, // Make background transparent to avoid default background
+          elevation: 0, // Remove shadow
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         setState(() {
@@ -371,7 +388,7 @@ class _LoginPageState extends State<LoginPage> {
                               suffixIconColor: AppColors.primary),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your username';
+                              return 'Username Required.';
                             }
                             return null;
                           },
@@ -388,8 +405,8 @@ class _LoginPageState extends State<LoginPage> {
                                 icon: Icon(
                                   // Based on passwordVisible state choose the icon
                                   isPasswordVisible
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
+                                      ? Icons.visibility_off_outlined
+                                      :Icons.visibility_outlined ,
                                   color: AppColors.primary,
                                 ),
                                 onPressed: () {
@@ -402,7 +419,7 @@ class _LoginPageState extends State<LoginPage> {
                               suffixIconColor: AppColors.primary),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return 'Password Required.';
                             }
                             return null;
                           },
@@ -428,8 +445,10 @@ class _LoginPageState extends State<LoginPage> {
                                 Theme(
                                   data: ThemeData(useMaterial3: false),
                                   child: Switch(
-                                    onChanged: (value) {
-                                      setState(() {
+                                    onChanged: (value) async{
+                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      await prefs.setBool('remember_me', value);
+                                      setState(()  {
                                         _rememberMe = value;
                                       });
                                     },

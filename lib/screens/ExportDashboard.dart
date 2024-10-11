@@ -256,7 +256,7 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 2, left: 10, right: 10),
+                  padding: const EdgeInsets.only(top: 2, left: 10, right: 10,bottom: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -358,7 +358,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     : Expanded(
                         child: SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 2.0, left: 0.0),
+                            padding: const EdgeInsets.only(top: 8.0, left: 0.0,bottom: 60),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
                               child: (hasNoRecord)
@@ -435,6 +435,7 @@ class _ExportScreenState extends State<ExportScreen> {
           child: const Icon(Icons.add),
         ),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       extendBody: true,
       bottomNavigationBar: BottomAppBar(
@@ -1021,7 +1022,7 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  Future<void> showShipmentSearchDialog(BuildContext context) async {
+  Future<void> showShipmentSearchDialog(BuildContext outerContext) async {
     TextEditingController bookingNoController = TextEditingController();
     TextEditingController shippingBillNoController = TextEditingController();
 
@@ -1081,7 +1082,7 @@ class _ExportScreenState extends State<ExportScreen> {
       DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
 
       if (fromDateTime.isAfter(toDateTime)) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(outerContext).showSnackBar(
           const SnackBar(content: Text("From Date should not exceed To Date")),
         );
         return;
@@ -1111,7 +1112,7 @@ class _ExportScreenState extends State<ExportScreen> {
           insetPadding: const EdgeInsets.all(0),
           child: Container(
             color: Colors.white,
-            height: MediaQuery.of(context).size.height,
+            height: MediaQuery.of(context).size.height*0.8,
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -1175,7 +1176,7 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 150),
+                   SizedBox(height: MediaQuery.sizeOf(context).height*0.09),
                   const SizedBox(
                     width: double.infinity,
                     child: Divider(color: Colors.grey),
@@ -1509,16 +1510,16 @@ class _ExportScreenState extends State<ExportScreen> {
                           ),
                           FilterChip(
                             label: const Text(
-                              'Gate-in',
+                              'Gated-in',
                               style: TextStyle(color: AppColors.primary),
                             ),
-                            selected: selectedFilters.contains('GATE-IN'),
+                            selected: selectedFilters.contains('GATED-IN'),
                             showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
-                                    ? selectedFilters.add('GATE-IN')
-                                    : selectedFilters.remove('GATE-IN');
+                                    ? selectedFilters.add('GATED-IN')
+                                    : selectedFilters.remove('GATED-IN');
                               });
                             },
                             selectedColor: AppColors.primary.withOpacity(0.1),
@@ -1526,7 +1527,7 @@ class _ExportScreenState extends State<ExportScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
-                                color: selectedFilters.contains('GATE-IN')
+                                color: selectedFilters.contains('GATED-IN')
                                     ? AppColors.primary
                                     : Colors.transparent,
                               ),
@@ -1538,13 +1539,13 @@ class _ExportScreenState extends State<ExportScreen> {
                               style: TextStyle(color: AppColors.primary),
                             ),
                             selected:
-                                selectedFilters.contains('Gate-in Pending'),
+                                selectedFilters.contains('PENDING FOR GATE-IN'),
                             showCheckmark: false,
                             onSelected: (bool selected) {
                               setState(() {
                                 selected
-                                    ? selectedFilters.add('Gate-in Pending')
-                                    : selectedFilters.remove('Gate-in Pending');
+                                    ? selectedFilters.add('PENDING FOR GATE-IN')
+                                    : selectedFilters.remove('PENDING FOR GATE-IN');
                               });
                             },
                             selectedColor: AppColors.primary.withOpacity(0.1),
@@ -1553,7 +1554,7 @@ class _ExportScreenState extends State<ExportScreen> {
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
                                 color:
-                                    selectedFilters.contains('Gate-in Pending')
+                                    selectedFilters.contains('PENDING FOR GATE-IN')
                                         ? AppColors.primary
                                         : Colors.transparent,
                               ),

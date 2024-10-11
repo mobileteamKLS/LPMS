@@ -6,6 +6,7 @@ import 'package:lpms/theme/app_color.dart';
 
 import '../../models/ShippingList.dart';
 import '../../screens/ShipmentDetails.dart';
+import '../../screens/VehicleDetails.dart';
 import '../../util/Global.dart';
 
 // class RecursiveDrawerItem extends StatelessWidget {
@@ -158,10 +159,10 @@ class AddShipmentDetailsList extends StatefulWidget {
   const AddShipmentDetailsList({super.key, required this.categories});
 
   @override
-  _RecursiveDrawerItemStateV3 createState() => _RecursiveDrawerItemStateV3();
+  _AddShipmentDetailsList createState() => _AddShipmentDetailsList();
 }
 
-class _RecursiveDrawerItemStateV3 extends State<AddShipmentDetailsList> {
+class _AddShipmentDetailsList extends State<AddShipmentDetailsList> {
   // Tracks the expansion state of categories
   List<bool> expanded = [];
 
@@ -288,7 +289,165 @@ class _RecursiveDrawerItemStateV3 extends State<AddShipmentDetailsList> {
                         ),
                         child: const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text("4"),
+                          child: Text("0"),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                ],
+              ),
+            ),
+            if (expanded[index])
+              SizedBox(
+                child: RecursiveDrawerItemV2(
+                  categories: category['sub_categories'],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class AddVehicleDetailsList extends StatefulWidget {
+  final List categories;
+
+  const AddVehicleDetailsList({super.key, required this.categories});
+
+  @override
+  _AddVehicleDetailsList createState() => _AddVehicleDetailsList();
+}
+
+class _AddVehicleDetailsList extends State<AddVehicleDetailsList> {
+  // Tracks the expansion state of categories
+  List<bool> expanded = [];
+
+  @override
+  void initState() {
+    super.initState();
+    expanded = List.generate(widget.categories.length, (index) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      separatorBuilder: (context, index) => Divider(color: Colors.grey),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: widget.categories.length,
+      itemBuilder: (BuildContext context, int index) {
+        final category = widget.categories[index];
+        final hasSubCategories = category['sub_categories'].isNotEmpty;
+
+        return Column(
+          children: [
+            Container(
+              padding:
+              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+              decoration:  BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft:(!expanded[index])? const Radius.circular(12): const Radius.circular(0),
+                  bottomRight: (!expanded[index])? const Radius.circular(12): const Radius.circular(0),
+                ),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.background, // Border color
+                    width: 4.0, // Border width
+                  ),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "VEHICLE DETAILS",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 14,
+                            color: AppColors.textColorPrimary
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              final result = await Navigator.push<ShipmentDetails>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddVehicleDetails(),
+                                ),
+                              );
+
+                              if (result != null) {
+                                setState(() {
+                                  shipmentList.add(result); // Add the ShipmentDetails object
+                                });
+                              }
+                            },
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                margin: const EdgeInsets.symmetric(horizontal: 8),
+                                child: const Icon(
+                                    size: 28,
+                                    Icons.add,
+                                    color: AppColors.primary)),
+                          ),
+
+                          GestureDetector(
+                            onTap: () {
+                              if (hasSubCategories) {
+                                setState(() {
+                                  expanded[index] = !expanded[index];
+                                });
+                              }
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: AppColors.gradient1
+                              ),
+                              child: Icon(
+                                size: 28,
+                                expanded[index]
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          // Expand/Collapse icon
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        "Total Count  ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textColorSecondary
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.containerBgColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text("0"),
                         ),
                       )
                     ],

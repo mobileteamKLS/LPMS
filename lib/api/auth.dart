@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/IPInfo.dart';
+import '../models/SelectionModel.dart';
 import '../util/Global.dart';
 
 class AuthService {
@@ -112,6 +113,7 @@ class AuthService {
   Future<Post> fetchLoginDataPOST(apiName, payload,headers) async {
     var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
     debugPrint("fetch data for API = $newURL");
+    printPrettyJson(json.encode(payload.toString()));
     if (payload == "") {
       debugPrint("payload blank");
       return await http
@@ -179,6 +181,31 @@ class AuthService {
       print("sending data to post");
       return Post.fromJson(response.body, statusCode);
     });
+  }
+
+  Future<List<SelectionModels>> fetchVehicleTypes(SelectionModels mdl, {bool isRefresh = false}) async {
+    var newURL = "https://acsintapigateway.kalelogistics.com/api/GenericDropDown/GetAllVehicleType";
+    mdl.topRecord ??= 999;
+    String query = jsonEncode(mdl.toJson());
+    query=mdl.query;
+    try {
+      final response = await http.post(
+        Uri.parse(newURL),
+        headers: {'Content-Type': 'application/json'},
+        body: query,
+      );
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => SelectionModels.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load vehicle types');
+      }
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to fetch vehicle types');
+    }
   }
 }
 
