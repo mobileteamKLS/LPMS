@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/expantion_card.dart';
@@ -22,7 +23,18 @@ class AddShipmentDetails extends StatefulWidget {
 }
 
 class _AddShipmentDetailsState extends State<AddShipmentDetails> {
-
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController billNoController = TextEditingController();
+  final TextEditingController billDateController = TextEditingController();
+  final TextEditingController exporterNameController = TextEditingController();
+  final TextEditingController hsnCodeController = TextEditingController();
+  final TextEditingController cargoTypeController = TextEditingController();
+  final TextEditingController cargoDescriptionController = TextEditingController();
+  final TextEditingController qualityController = TextEditingController();
+  final TextEditingController weightController = TextEditingController();
+  final TextEditingController valueController = TextEditingController();
+  double fieldHeight = 45;
+  bool isValid = true;
 
   @override
   Widget build(BuildContext context) {
@@ -102,99 +114,6 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
                       ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            AppColors.gradient1,
-                            AppColors.gradient2,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 2,
-                            blurRadius: 8,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 12, left: 10, bottom: 12, right: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Row(
-                              children: [
-                                Text(
-                                  "BOOKING INFO.",
-                                  style: TextStyle(
-                                      color: AppColors.cardTextColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on_outlined,
-                                      color: AppColors.cardTextColor,
-                                    ),
-                                    Text(
-                                      " AGA",
-                                      style: TextStyle(
-                                          color: AppColors.cardTextColor,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward,
-                                      color: AppColors.cardTextColor,
-                                    ),
-                                    Text(
-                                      " ALL",
-                                      style: TextStyle(
-                                          color: AppColors.cardTextColor,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: const Padding(
-                                        padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text("NEW BOOKING"),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                     const SizedBox(
                       height: 10,
@@ -289,7 +208,256 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                      ),
 
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 10),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              SizedBox(
+                                height: fieldHeight,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+
+                                  controller: billNoController,
+                                  validator: (value){
+                                    if (value == null || value.isEmpty) {
+                                      setState(() {
+                                        fieldHeight = 65; // Increase height when validation fails
+                                      });
+                                      return 'Enter Bill No';
+                                    } else {
+                                      setState(() {
+                                        fieldHeight = 45; // Reset to original height when valid
+                                      });
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15), // Adjust vertical padding to center the text
+                                    errorStyle: const TextStyle(height: 0),
+                                    labelText: "Shipping Bill No.",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: billDateController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "Shipping Bill Date",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: exporterNameController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "Name of Exporter",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: hsnCodeController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "HSN Code",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: cargoTypeController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "Cargo Type",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: cargoDescriptionController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "Cargo Description",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                    MediaQuery.sizeOf(context).width * 0.43,
+                                    child: TextFormField(
+                                      controller: qualityController,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        labelText: "Quantity",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                    MediaQuery.sizeOf(context).width * 0.43,
+                                    child:TextFormField(
+                                      controller: weightController,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        labelText: "Cargo Weight",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                    ) ,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                height: 45,
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TextFormField(
+                                  controller: valueController,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    labelText: "Cargo Value",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                      ),
+
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                  MediaQuery.sizeOf(context).width * 0.42,
+                                  child: OutlinedButton(onPressed: () {  }, child: const Text("Cancel"),),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                  MediaQuery.sizeOf(context).width * 0.42,
+                                  child: ElevatedButton(onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+
+                                      final newShipment = ShipmentDetails(
+                                        billNo: billNoController.text,
+                                        billDate: billDateController.text,
+                                        exporterName: exporterNameController.text,
+                                        hsnCode: hsnCodeController.text,
+                                        cargoType: cargoTypeController.text,
+                                        cargoDescription: cargoDescriptionController.text,
+                                        quality: qualityController.text,
+                                        cargoWeight: weightController.text,
+                                        cargoValue: valueController.text,
+                                      );
+                                      Navigator.pop(context, newShipment); // Pass the object back
+                                    }
+                                  }, child: const Text("Save",style: TextStyle(color: Colors.white),),),
+                                ),
+                              ],
+                            ),
+
+
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
 
                   ],
                 ),

@@ -4,6 +4,10 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lpms/theme/app_color.dart';
 
+import '../../models/ShippingList.dart';
+import '../../screens/ShipmentDetails.dart';
+import '../../util/Global.dart';
+
 // class RecursiveDrawerItem extends StatelessWidget {
 //   final List categories;
 //
@@ -148,16 +152,16 @@ class _RecursiveDrawerItemStateV2 extends State<RecursiveDrawerItemV2> {
   }
 }
 
-class RecursiveDrawerItemV3 extends StatefulWidget {
+class AddShipmentDetailsList extends StatefulWidget {
   final List categories;
 
-  const RecursiveDrawerItemV3({super.key, required this.categories});
+  const AddShipmentDetailsList({super.key, required this.categories});
 
   @override
   _RecursiveDrawerItemStateV3 createState() => _RecursiveDrawerItemStateV3();
 }
 
-class _RecursiveDrawerItemStateV3 extends State<RecursiveDrawerItemV3> {
+class _RecursiveDrawerItemStateV3 extends State<AddShipmentDetailsList> {
   // Tracks the expansion state of categories
   List<bool> expanded = [];
 
@@ -215,8 +219,19 @@ class _RecursiveDrawerItemStateV3 extends State<RecursiveDrawerItemV3> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: (){
-                              
+                            onTap: () async {
+                              final result = await Navigator.push<ShipmentDetails>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddShipmentDetails(),
+                                ),
+                              );
+
+                              if (result != null) {
+                                setState(() {
+                                  shipmentList.add(result); // Add the ShipmentDetails object
+                                });
+                              }
                             },
                             child: Container(
                                 decoration: BoxDecoration(

@@ -253,7 +253,7 @@ class _BookingCreationState extends State<BookingCreation> {
                               children: [
                                 SizedBox(
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.89,
+                                      MediaQuery.sizeOf(context).width * 0.88,
                                   child: MultiDropdown<User>(
                                     items: items,
                                     controller: controller,
@@ -392,7 +392,7 @@ class _BookingCreationState extends State<BookingCreation> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    RecursiveDrawerItemV3(
+                    AddShipmentDetailsList(
                       categories: categoriesData, // Pass the data here
                     ),
 

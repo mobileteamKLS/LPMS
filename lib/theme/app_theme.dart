@@ -28,7 +28,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.primary,
           textStyle: const TextStyle(
             fontSize: 18,
             color: Colors.white,

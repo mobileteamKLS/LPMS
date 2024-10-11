@@ -41,12 +41,12 @@ class _ExportScreenState extends State<ExportScreen> {
     {'id': 152, 'name': 'PETRAPOLE'},
     {'id': 151, 'name': 'AGARTALA'},
   ];
-  List<ShipmentDetails> listShipmentDetails = [];
-  List<ShipmentDetails> listShipmentDetailsBind = [];
+  List<SlotBookingShipmentDetailsExport> listShipmentDetails = [];
+  List<SlotBookingShipmentDetailsExport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
-  List<ShipmentDetails> filteredList = [];
+  List<SlotBookingShipmentDetailsExport> filteredList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
@@ -374,7 +374,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            ShipmentDetails shipmentDetails =
+                                            SlotBookingShipmentDetailsExport shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
                                                 shipmentDetails, index);
@@ -391,7 +391,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            ShipmentDetails shipmentDetails =
+                                            SlotBookingShipmentDetailsExport shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -522,7 +522,7 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  void exportToExcel(List<ShipmentDetails> shipments) async {
+  void exportToExcel(List<SlotBookingShipmentDetailsExport> shipments) async {
     var excel = ex.Excel.createExcel();
     ex.Sheet sheetObject = excel['Sheet1'];
     sheetObject.appendRow([
@@ -588,7 +588,7 @@ class _ExportScreenState extends State<ExportScreen> {
         });
       }
       listShipmentDetailsBind =
-          jsonData.map((json) => ShipmentDetails.fromJSON(json)).toList();
+          jsonData.map((json) => SlotBookingShipmentDetailsExport.fromJSON(json)).toList();
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
@@ -604,7 +604,7 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  Widget buildShipmentDetailsCard(ShipmentDetails shipmentDetails, int index) {
+  Widget buildShipmentDetailsCard(SlotBookingShipmentDetailsExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -773,17 +773,18 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Widget buildShipmentDetailsCardV2(
-      ShipmentDetails shipmentDetails, int index) {
+      SlotBookingShipmentDetailsExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
+
       surfaceTintColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ? 240 : 140,
+        height: isExpanded ? 230 : 130,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -911,10 +912,11 @@ class _ExportScreenState extends State<ExportScreen> {
               isExpanded
                   ? Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -931,27 +933,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 64),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'S. Bill Date',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
+                              const SizedBox(height: 10),
                               const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -967,7 +949,29 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 64),
+
+                            ],
+                          ),
+                          const SizedBox(width: 64),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'S. Bill Date',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1242,8 +1246,8 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  List<ShipmentDetails> getFilteredShipmentDetails(
-      List<ShipmentDetails> listShipmentDetails,
+  List<SlotBookingShipmentDetailsExport> getFilteredShipmentDetails(
+      List<SlotBookingShipmentDetailsExport> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {
@@ -1817,987 +1821,4 @@ class _ExportScreenState extends State<ExportScreen> {
 // }
 }
 
-class ExpandableCard extends StatefulWidget {
-  const ExpandableCard({super.key});
 
-  @override
-  _ExpandableCardState createState() => _ExpandableCardState();
-}
-
-class _ExpandableCardState extends State<ExpandableCard> {
-  bool _isExpanded1 = false;
-  bool _isExpanded2 = false;
-  bool _isExpanded3 = false;
-  bool _isExpanded4 = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Card(
-          color: AppColors.white,
-          surfaceTintColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 3,
-          child: SizedBox(
-            height: _isExpanded1 ? 180 : 120,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Icon with DRAFT label
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.draft,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.local_shipping_outlined,
-                              size: 18,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'DRAFT',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Three dots icon
-                      const Icon(
-                        Icons.more_vert,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: [
-                      const Text(
-                        'EXP/AGA/20240822/00001',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.black26),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        child: const Text(
-                          'GEN',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _isExpanded1
-                      ? const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'WERE44213  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 24),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '22 AUG 2024  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_month_outlined,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Text(
-                                    '22 AUG 2024 10:56  ',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month_outlined,
-                                    size: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                  const SizedBox(height: 8),
-                  // Show More with expandable content
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isExpanded1 = !_isExpanded1;
-                          });
-                        },
-                        child: Text(
-                          _isExpanded1 ? 'SHOW LESS' : 'SHOW MORE',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  // Expanded content
-                ],
-              ),
-            ),
-          ),
-        ),
-        Card(
-          color: AppColors.white,
-          surfaceTintColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 3,
-          child: SizedBox(
-            height: _isExpanded2 ? 180 : 120,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Icon with DRAFT label
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.gateInYellow,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.access_time_outlined,
-                              size: 18,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'GATE-IN',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Three dots icon
-                      const Icon(
-                        Icons.more_vert,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // EXP/AGA/20240822/00001 and GEN labels below DRAFT
-                  Row(
-                    children: [
-                      const Text(
-                        'EXP/AGA/20240822/00001',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.black26),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        child: const Text(
-                          'GEN',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _isExpanded2
-                      ? const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'WERE44213  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 24),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '22 AUG 2024  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_month_outlined,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Text(
-                                    '22 AUG 2024 10:56  ',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month_outlined,
-                                    size: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                  const SizedBox(height: 8),
-                  // Show More with expandable content
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isExpanded2 = !_isExpanded2;
-                          });
-                        },
-                        child: Text(
-                          _isExpanded2 ? 'SHOW LESS' : 'SHOW MORE',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  // Expanded content
-                ],
-              ),
-            ),
-          ),
-        ),
-        Card(
-          color: AppColors.white,
-          surfaceTintColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 3,
-          child: SizedBox(
-            height: _isExpanded3 ? 180 : 120,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Icon with DRAFT label
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.gatedIn,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.flag_outlined,
-                              size: 18,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'GATED-IN',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Three dots icon
-                      const Icon(
-                        Icons.more_vert,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // EXP/AGA/20240822/00001 and GEN labels below DRAFT
-                  Row(
-                    children: [
-                      const Text(
-                        'EXP/AGA/20240822/00001',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.black26),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        child: const Text(
-                          'GEN',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _isExpanded3
-                      ? const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'WERE44213  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 24),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '22 AUG 2024  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_month_outlined,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Text(
-                                    '22 AUG 2024 10:56  ',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month_outlined,
-                                    size: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                  const SizedBox(height: 8),
-                  // Show More with expandable content
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isExpanded3 = !_isExpanded3;
-                          });
-                        },
-                        child: Text(
-                          _isExpanded3 ? 'SHOW LESS' : 'SHOW MORE',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  // Expanded content
-                ],
-              ),
-            ),
-          ),
-        ),
-        Card(
-          color: AppColors.white,
-          surfaceTintColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          elevation: 3,
-          child: SizedBox(
-            height: _isExpanded4 ? 180 : 120,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Icon with DRAFT label
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.gateInRed,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.cancel_outlined,
-                              size: 18,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'GATE-IN',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Three dots icon
-                      const Icon(
-                        Icons.more_vert,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // EXP/AGA/20240822/00001 and GEN labels below DRAFT
-                  Row(
-                    children: [
-                      const Text(
-                        'EXP/AGA/20240822/00001',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.black26),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 2),
-                        child: const Text(
-                          'GEN',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _isExpanded4
-                      ? const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'WERE44213  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.info_outline_rounded,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(width: 24),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '22 AUG 2024  ',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Icon(
-                                        Icons.calendar_month_outlined,
-                                        size: 18,
-                                        color: AppColors.primary,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Text(
-                                    '22 AUG 2024 10:56  ',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Icon(
-                                    Icons.calendar_month_outlined,
-                                    size: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                  const SizedBox(height: 8),
-                  // Show More with expandable content
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isExpanded4 = !_isExpanded4;
-                          });
-                        },
-                        child: Text(
-                          _isExpanded4 ? 'SHOW LESS' : 'SHOW MORE',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                  ),
-                  // Expanded content
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class CustomCard extends StatelessWidget {
-  const CustomCard({super.key});
-
-  // void showShipmentSearchBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     builder: (BuildContext context) {
-  //       return Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: SingleChildScrollView(
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               const Text("Filter",
-  //                   style:
-  //                       TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-  //               const Divider(color: Colors.grey),
-  //               const SizedBox(height: 16),
-  //               const Text('SORT BY STATUS',style:
-  //               TextStyle(fontSize: 16, )),
-  //               const SizedBox(height: 16),
-  //             SizedBox(
-  //               width: MediaQuery.of(context).size.width,
-  //               child: Wrap(
-  //                 spacing: 8.0,
-  //                 children: [
-  //                   FilterChip(
-  //                     label: Text('Draft'),
-  //                     selected: selectedFilters.contains('Draft'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Draft')
-  //                             : selectedFilters.remove('Draft');
-  //                       });
-  //                     },
-  //                     selectedColor: AppColors.primary.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Draft')
-  //                             ? AppColors.primary
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                     checkmarkColor: AppColors.primary,
-  //                   ),
-  //                   FilterChip(
-  //                     label: Text('Gate-in'),
-  //                     selected: selectedFilters.contains('Gate-in'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in')
-  //                             : selectedFilters.remove('Gate-in');
-  //                       });
-  //                     },
-  //                     selectedColor: AppColors.primary.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in')
-  //                             ? AppColors.primary
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   FilterChip(
-  //                     label: Text('Gate-in Pending'),
-  //                     selected: selectedFilters.contains('Gate-in Pending'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in Pending')
-  //                             : selectedFilters.remove('Gate-in Pending');
-  //                       });
-  //                     },
-  //                     selectedColor: AppColors.primary.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in Pending')
-  //                             ? AppColors.primary
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   FilterChip(
-  //                     label: const Text('Gate-in Rejected'),
-  //                     selected: selectedFilters.contains('Gate-in Rejected'),
-  //                     onSelected: (bool selected) {
-  //                       setState(() {
-  //                         selected
-  //                             ? selectedFilters.add('Gate-in Rejected')
-  //                             : selectedFilters.remove('Gate-in Rejected');
-  //                       });
-  //                     },
-  //                     selectedColor: AppColors.primary.withOpacity(0.1),
-  //                     backgroundColor: Colors.transparent,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(20.0),
-  //                       side: BorderSide(
-  //                         color: selectedFilters.contains('Gate-in Rejected')
-  //                             ? AppColors.primary
-  //                             : Colors.transparent,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //
-  //               const SizedBox(height: 8),
-  //               Container(
-  //                 width: double.infinity,
-  //                 child: Divider(color: Colors.grey),
-  //               ),
-  //               const SizedBox(height: 4),
-  //               const Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     'FILTER BY DATE',
-  //                     style: TextStyle(fontSize: 16),),
-  //                   const SizedBox(height: 16),
-  //                   Row(
-  //                     children: [
-  //                       Icon(Icons.calendar_today, color: AppColors.primary),
-  //                       SizedBox(width: 8),
-  //                       Text(
-  //                         'Slot Date',
-  //                         style: TextStyle(fontSize: 16),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Container(
-  //                 width: double.infinity,
-  //                 child: Divider(color: Colors.grey),
-  //               ),
-  //               SizedBox(height: 8),
-  //
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //
-  //                   // Navigator.pop(context); // Close dialog after search
-  //                 },
-  //                 style: ElevatedButton.styleFrom(
-  //                   backgroundColor: AppColors.primary,
-  //                   minimumSize: Size.fromHeight(50),
-  //                 ),
-  //                 child:
-  //                 Text("SEARCH", style: TextStyle(color: Colors.white)),
-  //               ),
-  //               SizedBox(height: 16), // Space between buttons
-  //               // Reset button
-  //               OutlinedButton(
-  //                 onPressed: () {
-  //
-  //                 },
-  //                 style: OutlinedButton.styleFrom(
-  //                   side: BorderSide(color: AppColors.primary),
-  //                   minimumSize: Size.fromHeight(50),
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //                 child: const Text(
-  //                   "RESET",
-  //                   style: TextStyle(color: AppColors.primary), // Blue text
-  //                 ),
-  //               ),
-  //
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    // Icon with DRAFT label
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: const Row(
-                        children: [
-                          Icon(
-                            Icons.local_shipping,
-                            // You can change to a truck icon
-                            size: 16,
-                            color: Colors.black54,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'DRAFT',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Text: EXP/AGA/20240822/00001
-                    const Text(
-                      'EXP/AGA/20240822/00001',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Label with GEN
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: const Text(
-                        'GEN',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Three dots icon
-                const Icon(
-                  Icons.more_vert,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-            const SizedBox(height: 0),
-            // "SHOW MORE" link with the location icon
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'SHOW MORE',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const Icon(
-                  Icons.location_on,
-                  color: AppColors.primary,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

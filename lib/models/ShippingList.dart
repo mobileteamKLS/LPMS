@@ -1,4 +1,4 @@
-class ShipmentDetails {
+class SlotBookingShipmentDetailsExport {
   int bookingId;
   String bookingDt;
   String bookingNo;
@@ -9,7 +9,7 @@ class ShipmentDetails {
   String cargoTypeName;
   String statusDescription;
 
-  ShipmentDetails({
+  SlotBookingShipmentDetailsExport({
     required this.bookingId,
     required this.bookingDt,
     required this.bookingNo,
@@ -21,7 +21,7 @@ class ShipmentDetails {
     required this.statusDescription,
   });
 
-  factory ShipmentDetails.fromJSON(Map<String, dynamic> json) => ShipmentDetails(
+  factory SlotBookingShipmentDetailsExport.fromJSON(Map<String, dynamic> json) => SlotBookingShipmentDetailsExport(
     bookingId: json["BookingId"]??0,
     bookingDt: json["BookingDt"]??"",
     bookingNo: json["BookingNo"]??"",
@@ -44,4 +44,58 @@ class ShipmentDetails {
     "CargoTypeName": cargoTypeName,
     "StatusDescription": statusDescription,
   };
+}
+
+class ShipmentDetails {
+  final String billNo;
+  final String billDate;
+  final String exporterName;
+  final String hsnCode;
+  final String cargoType;
+  final String cargoDescription;
+  final String quality;
+  final String cargoWeight;
+  final String cargoValue;
+
+  ShipmentDetails({
+    required this.billNo,
+    required this.billDate,
+    required this.exporterName,
+    required this.hsnCode,
+    required this.cargoType,
+    required this.cargoDescription,
+    required this.quality,
+    required this.cargoWeight,
+    required this.cargoValue,
+  });
+
+
+  factory ShipmentDetails.fromMap(Map<String, dynamic> data) {
+    return ShipmentDetails(
+      billNo: data['billNo'],
+      billDate: data['billDate'],
+      exporterName: data['exporterName'],
+      hsnCode: data['hsnCode'],
+      cargoType: data['cargoType'],
+      cargoDescription: data['cargoDescription'],
+      quality: data['quality'],
+      cargoWeight: data['cargoWeight'],
+      cargoValue: data['cargoValue'],
+    );
+  }
+
+
+  Map<String, dynamic> toMap() {
+    return {
+      'billNo': billNo,
+      'billDate': billDate,
+      'exporterName': exporterName,
+      'hsnCode': hsnCode,
+      'cargoType': cargoType,
+      'cargoDescription': cargoDescription,
+      'quality': quality,
+      'cargoWeight': cargoWeight,
+      'cargoValue': cargoValue,
+    };
+  }
 }
