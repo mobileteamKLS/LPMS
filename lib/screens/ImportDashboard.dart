@@ -14,6 +14,7 @@ import '../models/ShippingList.dart';
 import '../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../ui/widgest/AppDrawer.dart';
+import '../ui/widgest/CustomTextField.dart';
 import '../util/Global.dart';
 import '../util/Uitlity.dart';
 import 'dart:io';
@@ -32,6 +33,7 @@ class _ImportScreenState extends State<ImportScreen> {
   DateTime? selectedDate;
   String slotFilterDate = "Slot Date";
   int? selectedTerminalId = 151;
+  final _formKey = GlobalKey<FormState>();
 
   // List of terminal data with id as int
   final List<Map<String, dynamic>> terminals = [
@@ -306,7 +308,7 @@ class _ImportScreenState extends State<ImportScreen> {
                                       ],
                                     ),
                                   ),
-                                  backgroundColor: Colors.amber,
+                                  backgroundColor: AppColors.warningColor,
                                   behavior: SnackBarBehavior.floating,
                                   width: 200,
                                 );
@@ -1075,17 +1077,31 @@ class _ImportScreenState extends State<ImportScreen> {
 
       if (fromDate.isEmpty || toDate.isEmpty) {
         await Future.delayed(const Duration(milliseconds: 100));
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill in all fields")),
-        );
+        await Future.delayed(const Duration(milliseconds: 100));
+        CustomSnackBar.show(context,
+            message: "Please fill in all fields",
+            backgroundColor: AppColors.warningColor);
         return;
       }
       DateTime fromDateTime = DateFormat('d MMM yyyy').parse(fromDate);
       DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
 
       if (fromDateTime.isAfter(toDateTime)) {
-        ScaffoldMessenger.of(outerContext).showSnackBar(
-          const SnackBar(content: Text("From Date should not exceed To Date")),
+        fromDateController.text='';
+        CustomSnackBar.show(
+          context,
+          message: "From Date should be less than To Date",
+          backgroundColor: AppColors.warningColor,
+        );
+        return;
+      }
+      if (toDateTime.isBefore(fromDateTime)) {
+        toDateController.text ='';
+
+        CustomSnackBar.show(
+          context,
+          message: "To Date should be greater than From Date",
+          backgroundColor: AppColors.warningColor,
         );
         return;
       }
@@ -1107,133 +1123,145 @@ class _ImportScreenState extends State<ImportScreen> {
 
     return showDialog(
       context: context,
+      barrierColor: const Color(0x01000000),
       builder: (BuildContext context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          insetPadding: const EdgeInsets.all(0),
-          child: Container(
-            color: Colors.white,
-            height: MediaQuery.of(context).size.height * 0.8,
+        return Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.75,
             width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Shipment Search",
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  const SizedBox(
-                    width: double.infinity,
-                    child: Divider(color: Colors.grey),
-                  ), // Gray horizontal line
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: bookingNoController,
-                    decoration: InputDecoration(
-                      labelText: "Booking No.",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: boeNoController,
-                    decoration: InputDecoration(
-                      labelText: "BOE No.",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: fromDateController,
-                    decoration: InputDecoration(
-                      labelText: "From Date",
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: () => _selectDate(
-                            context, fromDateController,
-                            isFromDate: true),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: toDateController,
-                    decoration: InputDecoration(
-                      labelText: "To Date",
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: () => _selectDate(context, toDateController),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.09),
-                  const SizedBox(
-                    width: double.infinity,
-                    child: Divider(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              insetPadding: const EdgeInsets.all(0),
+              child: Container(
 
-                  ElevatedButton(
-                    onPressed: () {
-                      search();
-                      // Navigator.pop(context); // Close dialog after search
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    child: const Text("SEARCH",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                  const SizedBox(height: 16), // Space between buttons
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.textFieldBorderColor),
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Shipment Search",
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold)),
+                        const SizedBox(
+                          width: double.infinity,
+                          child: Divider(color: Colors.grey),
+                        ), // Gray horizontal line
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          controller: bookingNoController,
+                          labelText: "Booking No.",
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          controller: boeNoController,
+                          labelText: "BOE No.",
+                          isValidationRequired: false,
+                        ),
 
-                  OutlinedButton(
-                    onPressed: () {
-                      bookingNoController.clear();
-                      boeNoController.clear();
-                      fromDateController.text = _formatDate(
-                          DateTime.now().subtract(const Duration(days: 2)));
-                      toDateController.text = _formatDate(DateTime.now());
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.primary),
-                      minimumSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      "RESET",
-                      style: TextStyle(color: AppColors.primary), // Blue text
+                        const SizedBox(height: 16),
+                        CustomDatePicker(
+                          controller: fromDateController,
+                          labelText: 'From Date',
+                          isFromDate: true,
+                          otherDateController: toDateController,
+                        ),
+                        // TextField(
+                        //   controller: fromDateController,
+                        //   decoration: InputDecoration(
+                        //     labelText: "From Date",
+                        //     suffixIcon: IconButton(
+                        //       icon: const Icon(Icons.calendar_today),
+                        //       onPressed: () => _selectDate(
+                        //           context, fromDateController,
+                        //           isFromDate: true),
+                        //     ),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(6),
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(height: 16),
+                        CustomDatePicker(
+                          controller: toDateController,
+                          labelText: 'To Date',
+                          otherDateController: fromDateController,
+                        ),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.09),
+                        const SizedBox(
+                          width: double.infinity,
+                          child: Divider(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()){
+                              search();
+                            }
+                            // Navigator.pop(context); // Close dialog after search
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            minimumSize: const Size.fromHeight(50),
+                          ),
+                          child: const Text("SEARCH",
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                        const SizedBox(height: 16), // Space between buttons
+
+                        OutlinedButton(
+                          onPressed: () {
+                            bookingNoController.clear();
+                            boeNoController.clear();
+                            fromDateController.text = _formatDate(DateTime.now()
+                                .subtract(const Duration(days: 2)));
+                            toDateController.text = _formatDate(DateTime.now());
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primary),
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            "RESET",
+                            style: TextStyle(
+                                color: AppColors.primary), // Blue text
+                          ),
+                        ),
+                        const SizedBox(height: 16), // Space between buttons
+                        // Cancel button
+                        TextButton(
+                          onPressed: () {
+                            bookingNoController.clear();
+                            boeNoController.clear();
+                            fromDateController.text = _formatDate(DateTime.now()
+                                .subtract(const Duration(days: 2)));
+                            toDateController.text = _formatDate(DateTime.now());
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                          ),
+                          child: const Text(
+                            "CANCEL",
+                            style: TextStyle(color: AppColors.primary),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16), // Space between buttons
-                  // Cancel button
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    child: const Text(
-                      "CANCEL",
-                      style: TextStyle(color: AppColors.primary),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -1254,10 +1282,8 @@ class _ImportScreenState extends State<ImportScreen> {
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {
-      bool statusMatchFound =
-          true;
+      bool statusMatchFound = true;
       bool dateMatchFound = true;
-
 
       if (selectedFilters.isNotEmpty) {
         statusMatchFound = selectedFilters.any((filter) {
@@ -1266,22 +1292,17 @@ class _ImportScreenState extends State<ImportScreen> {
         });
       }
 
-
       if (selectedDate != null) {
         try {
-
-          DateFormat format =
-              DateFormat("yyyy-MM-dd");
+          DateFormat format = DateFormat("yyyy-MM-dd");
           DateTime shipmentDate = format.parse(shipment.bookingDt);
-
 
           dateMatchFound = shipmentDate.year == selectedDate.year &&
               shipmentDate.month == selectedDate.month &&
               shipmentDate.day == selectedDate.day;
         } catch (e) {
           print("Error parsing date: ${shipment.bookingDt}");
-          dateMatchFound =
-              false;
+          dateMatchFound = false;
         }
       }
       return statusMatchFound && dateMatchFound;
@@ -1330,7 +1351,6 @@ class _ImportScreenState extends State<ImportScreen> {
         date1.day == date2.day;
   }
 
-
   Future<void> pickDate(BuildContext context, StateSetter setState) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -1342,9 +1362,7 @@ class _ImportScreenState extends State<ImportScreen> {
           data: ThemeData(
             useMaterial3: false,
             primaryColor: AppColors.primary,
-
             dialogBackgroundColor: Colors.white,
-
             colorScheme: const ColorScheme.light(
               primary: AppColors.primary,
               onPrimary: Colors.white,

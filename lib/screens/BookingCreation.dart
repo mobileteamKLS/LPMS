@@ -12,6 +12,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../api/auth.dart';
 import '../models/SelectionModel.dart';
+import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/expantion_card.dart';
@@ -32,6 +33,41 @@ class _BookingCreationState extends State<BookingCreation> {
       'name': 'SHIPMENT DETAILS',
       'sub_categories': [],
     },
+  ];
+  List<ShipmentDetails> shipmentList1 = [
+    ShipmentDetails(
+      billNo: "SBN001",
+      billDate: "2024-10-01",
+      exporterName: "Global Exports Ltd",
+      hsnCode: "123456",
+      cargoType: "Electronics",
+      cargoDescription: "Smartphones and accessories",
+      quality: "High",
+      cargoWeight: "500kg",
+      cargoValue: "\$50,000",
+    ),
+    ShipmentDetails(
+      billNo: "SBN002",
+      billDate: "2024-10-02",
+      exporterName: "Oceanic Cargo Pvt Ltd",
+      hsnCode: "654321",
+      cargoType: "Textiles",
+      cargoDescription: "Cotton Fabrics",
+      quality: "Medium",
+      cargoWeight: "1200kg",
+      cargoValue: "\$30,000",
+    ),
+    ShipmentDetails(
+      billNo: "SBN003",
+      billDate: "2024-10-03",
+      exporterName: "Sky High Logistics",
+      hsnCode: "789012",
+      cargoType: "Machinery",
+      cargoDescription: "Industrial Machinery",
+      quality: "Premium",
+      cargoWeight: "2000kg",
+      cargoValue: "\$100,000",
+    ),
   ];
   bool _isLoading = false;
   final AuthService authService = AuthService();
@@ -72,7 +108,7 @@ class _BookingCreationState extends State<BookingCreation> {
     });
 
     final mdl = SelectionModels(
-      whereCondition: "Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=1",
+      whereCondition: " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
       referenceId: "VehicleType",
       isAll: true,
     );
@@ -83,23 +119,26 @@ class _BookingCreationState extends State<BookingCreation> {
     SelectionQuery body = SelectionQuery();
 
     body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(transformJson(mdl.toJson()));
     print("-----Normal-----");
     print(mdl.toJson());
     print("-----Decipher==0-----");
     var q="LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK";
     print(encryptionService.decryptUsingRandomKeyPrivateKey(q));
     print("-----Decipher==1-----");
-    print(encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
+    Utils.printPrettyJson(encryptionService.decryptUsingRandomKeyPrivateKey((body.query)));
     mdl.query = body.query;
     var headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
+      'Content-Type': 'multipart/form-data',
+      'Accept': 'text/plain',
 
+    };
+var query={
+  "Query":"${body.query}"
+};
     await authService
         .fetchLoginDataPOST(
-            "/api/GenericDropDown/GetAllVehicleType", mdl, headers)
+            "api/GenericDropDown/GetAllVehicleType", query, headers)
         .then((response) {
       print("data received ");
       if (response.body.isNotEmpty) {
@@ -461,8 +500,8 @@ class _BookingCreationState extends State<BookingCreation> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddShipmentDetailsList(
-                    categories: categoriesData,shipmentDetailsList: shipmentList,
+                    AddShipmentDetailsListNew(
+                   shipmentDetailsList: shipmentList1,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -470,6 +509,59 @@ class _BookingCreationState extends State<BookingCreation> {
                     AddVehicleDetailsList(
                       categories: categoriesData,
                     ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                  MediaQuery.sizeOf(context).width * 0.42,
+                                  child: OutlinedButton(
+                                    onPressed: () {},
+                                    child: const Text("Cancel"),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                SizedBox(
+                                  height: 45,
+                                  width:
+                                  MediaQuery.sizeOf(context).width * 0.42,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    child: const Text(
+                                      "Save",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+
                   ],
                 ),
               ),

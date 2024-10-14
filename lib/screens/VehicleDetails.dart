@@ -311,7 +311,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                               CustomDatePicker(
                                 controller: driverDOBController,
                                 labelText: "Driver DOB",
-                                allowPastDates: false,
+                                allowPastDates: true,
                               ),
                               SizedBox(
                                 height:

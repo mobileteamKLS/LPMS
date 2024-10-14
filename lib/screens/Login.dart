@@ -164,8 +164,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         loginMaster = [LoginDetailsMaster.fromJSON(jsonData)];
       });
-      _usernameController.clear();
-      _passwordController.clear();
+      // _usernameController.clear();
+      // _passwordController.clear();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ExportScreen()),

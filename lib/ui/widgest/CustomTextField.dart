@@ -14,6 +14,7 @@ class CustomTextField extends StatefulWidget {
   final RegExp? validationPattern;
   final String patternErrorMessage;
   final double? customWidth;
+  final bool isValidationRequired; // New flag for validation
 
   const CustomTextField({
     Key? key,
@@ -26,7 +27,8 @@ class CustomTextField extends StatefulWidget {
     this.inputFormatters,
     this.validationPattern,
     this.patternErrorMessage = 'Invalid input',
-    this.customWidth, // Width passed optionally
+    this.customWidth, // Optional custom width
+    this.isValidationRequired = true, // Default: validation is required
   }) : super(key: key);
 
   @override
@@ -53,26 +55,31 @@ class _CustomTextFieldState extends State<CustomTextField> {
         controller: widget.controller,
         keyboardType: widget.inputType,
         inputFormatters: widget.inputFormatters,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            setState(() {
-              fieldHeight = widget.errorHeight;
-            });
-            return widget.validationMessage;
-          }
-          if (widget.validationPattern != null && !widget.validationPattern!.hasMatch(value)) {
-            setState(() {
-              fieldHeight = widget.errorHeight;
-            });
-            return widget.patternErrorMessage;
-          }
-          setState(() {
-            fieldHeight = widget.initialHeight;
-          });
-          return null;
-        },
+        validator: widget.isValidationRequired
+            ? (value) {
+                if (value == null || value.isEmpty) {
+                  setState(() {
+                    fieldHeight = widget.errorHeight;
+                  });
+                  return widget.validationMessage;
+                }
+                if (widget.validationPattern != null &&
+                    !widget.validationPattern!.hasMatch(value)) {
+                  setState(() {
+                    fieldHeight = widget.errorHeight;
+                  });
+                  return widget.patternErrorMessage;
+                }
+                setState(() {
+                  fieldHeight = widget.initialHeight;
+                });
+                return null;
+              }
+            : null,
+        // Skip validation if not required
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
           labelText: widget.labelText,
           border: OutlineInputBorder(
@@ -83,13 +90,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
+
 class DecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
 
   DecimalTextInputFormatter({this.decimalRange = 2});
 
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     String newText = newValue.text;
     // Allow only digits and a single decimal point
     if (newText == '') {
@@ -107,25 +116,30 @@ class DecimalTextInputFormatter extends TextInputFormatter {
   }
 }
 
-
 class CustomDatePicker extends StatefulWidget {
   final TextEditingController controller;
+  final TextEditingController? otherDateController; // For comparison
   final String labelText;
   final double initialHeight;
   final double errorHeight;
   final String validationMessage;
   final double? customWidth;
-  final bool allowPastDates; // New parameter to allow/disallow past dates
+  final bool allowPastDates;
+  final bool isRequiredField;
+  final bool isFromDate;
 
   const CustomDatePicker({
     Key? key,
     required this.controller,
+    this.otherDateController, // New: optional controller for validation
     required this.labelText,
     this.initialHeight = 45,
     this.errorHeight = 65,
-    this.validationMessage = 'Please select a date',
+    this.validationMessage = 'Required',
     this.customWidth,
-    this.allowPastDates = true, // Default: allow past dates
+    this.allowPastDates = true,
+    this.isRequiredField = true,
+    this.isFromDate = false,
   }) : super(key: key);
 
   @override
@@ -134,6 +148,8 @@ class CustomDatePicker extends StatefulWidget {
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
   late double fieldHeight;
+  bool _isFirstCall = true;
+  String? validationMessage;
 
   @override
   void initState() {
@@ -143,10 +159,26 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime currentDate = DateTime.now();
+    DateTime initialDate;
+
+    if (widget.controller.text.isNotEmpty) {
+      try {
+        initialDate = DateFormat('d MMM yyyy').parse(widget.controller.text);
+      } catch (e) {
+        initialDate = currentDate;
+      }
+    } else {
+      if (_isFirstCall && widget.isFromDate) {
+        initialDate = currentDate.subtract(const Duration(days: 2));
+        _isFirstCall = false;
+      } else {
+        initialDate = currentDate;
+      }
+    }
 
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: currentDate,
+      initialDate: initialDate,
       firstDate: widget.allowPastDates ? DateTime(2000) : currentDate,
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
@@ -154,7 +186,6 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
           data: ThemeData(
             useMaterial3: false,
             primaryColor: AppColors.primary,
-
             dialogBackgroundColor: Colors.white,
             colorScheme: const ColorScheme.light(
               primary: AppColors.primary,
@@ -174,10 +205,66 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
 
     if (pickedDate != null) {
       String formattedDate = DateFormat('d MMM yyyy').format(pickedDate);
-      setState(() {
-        widget.controller.text = formattedDate;
-      });
+      widget.controller.text = formattedDate;
+      _validateDate(pickedDate, context);
     }
+  }
+
+  void _validateDate(DateTime selectedDate, BuildContext context) {
+    if (widget.otherDateController != null &&
+        widget.otherDateController!.text.isNotEmpty) {
+      DateTime otherDate = DateFormat('d MMM yyyy').parse(widget.otherDateController!.text);
+
+      if (widget.isFromDate && selectedDate.isAfter(otherDate)) {
+        _showSnackBar(context, 'From Date should be less than To Date');
+        _clearController();
+      } else if (!widget.isFromDate && selectedDate.isBefore(otherDate)) {
+        _showSnackBar(context, 'To Date should be greater than From Date');
+        _clearController();
+      } else {
+        setState(() {
+          fieldHeight = widget.initialHeight;
+          validationMessage = null;
+        });
+      }
+    }
+  }
+
+  void _clearController() {
+    setState(() {
+      widget.controller.clear();
+    });
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    // Display the SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: SizedBox(
+          height: 20,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.info, color: Colors.white),
+                  Text('  $message'),
+                ],
+              ),
+              GestureDetector(
+                child: const Icon(Icons.close, color: Colors.white),
+                onTap: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: AppColors.warningColor,
+        behavior: SnackBarBehavior.floating,
+
+      )
+    );
   }
 
   @override
@@ -189,35 +276,70 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       width: width,
       child: TextFormField(
         controller: widget.controller,
-        validator: (value) {
+        validator: widget.isRequiredField
+            ? (value) {
           if (value == null || value.isEmpty) {
-            setState(() {
-              fieldHeight = widget.errorHeight;
-            });
             return widget.validationMessage;
           }
-          setState(() {
-            fieldHeight = widget.initialHeight;
-          });
           return null;
-        },
+        }
+            : null,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+          contentPadding:
+          const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
           labelText: widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
           ),
-          suffixIcon: GestureDetector(
-            onTap: () => _selectDate(context),
-            child: const Icon(Icons.calendar_today,color: AppColors.primary,),
+          suffixIcon: IconButton(
+            onPressed: () => _selectDate(context),
+            icon: const Icon(Icons.calendar_today,
+                color: AppColors.primary),
           ),
         ),
-        onTap: () => _selectDate(context),
-        readOnly: true,
+        readOnly: true, // Prevent manual text input
       ),
     );
   }
 }
 
+
+
+
+class CustomSnackBar {
+  static void show(
+      BuildContext context, {
+        required String message,
+        Color backgroundColor = Colors.amber,
+      }) {
+    final snackBar = SnackBar(
+      content: SizedBox(
+        height: 20,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.info, color: Colors.white),
+                Text('  $message'),
+              ],
+            ),
+            GestureDetector(
+              child: const Icon(Icons.close, color: Colors.white),
+              onTap: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
 
