@@ -113,7 +113,7 @@ class AuthService {
   Future<Post> fetchLoginDataPOST(apiName, payload,headers) async {
     var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
     debugPrint("fetch data for API = $newURL");
-    printPrettyJson(json.encode(payload.toString()));
+    printPrettyJson("${json.encode(payload)}");
     if (payload == "") {
       debugPrint("payload blank");
       return await http
@@ -136,7 +136,8 @@ class AuthService {
         print("sending data to post");
         return Post.fromJson(response.body, statusCode);
       });
-    } else {
+    }
+    else {
       return await http
           .post(
         Uri.parse(newURL),

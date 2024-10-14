@@ -153,10 +153,13 @@ class _RecursiveDrawerItemStateV2 extends State<RecursiveDrawerItemV2> {
   }
 }
 
+
+
 class AddShipmentDetailsList extends StatefulWidget {
   final List categories;
+  final List<ShipmentDetails> shipmentDetailsList;
 
-  const AddShipmentDetailsList({super.key, required this.categories});
+  const AddShipmentDetailsList({super.key, required this.categories, required this.shipmentDetailsList});
 
   @override
   _AddShipmentDetailsList createState() => _AddShipmentDetailsList();
@@ -174,11 +177,120 @@ class _AddShipmentDetailsList extends State<AddShipmentDetailsList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
+    if (widget.shipmentDetailsList.isEmpty) {
+      return Container(
+        padding:
+        const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+        decoration:  const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(12),
+            bottomLeft:Radius.circular(12),
+            bottomRight:Radius.circular(12),
+          ),
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.background, // Border color
+              width: 4.0, // Border width
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "SHIPMENT DETAILS",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 14,
+                      color: AppColors.textColorPrimary
+                  ),
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final result = await Navigator.push<ShipmentDetails>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddShipmentDetails(),
+                          ),
+                        );
+
+                        if (result != null) {
+                          setState(() {
+                            shipmentList.add(result); // Add the ShipmentDetails object
+                          });
+                        }
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          child: const Icon(
+                              size: 28,
+                              Icons.add,
+                              color: AppColors.primary)),
+                    ),
+
+                    GestureDetector(
+                      onTap: () {
+
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: AppColors.gradient1
+                        ),
+                        child: const Icon(
+                          size: 28,
+                           Icons.keyboard_arrow_down,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    // Expand/Collapse icon
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text(
+                  "Total Count  ",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textColorSecondary
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.containerBgColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text("0"),
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      );
+    } else {
+      return ListView.separated(
       separatorBuilder: (context, index) => Divider(color: Colors.grey),
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: widget.categories.length,
+      itemCount: widget.shipmentDetailsList.length,
       itemBuilder: (BuildContext context, int index) {
         final category = widget.categories[index];
         final hasSubCategories = category['sub_categories'].isNotEmpty;
@@ -294,7 +406,7 @@ class _AddShipmentDetailsList extends State<AddShipmentDetailsList> {
                       )
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -308,6 +420,7 @@ class _AddShipmentDetailsList extends State<AddShipmentDetailsList> {
         );
       },
     );
+    }
   }
 }
 

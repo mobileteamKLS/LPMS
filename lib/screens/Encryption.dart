@@ -46,6 +46,25 @@ class EncryptionService {
     }
   }
 
+  String decryptUsingRandomKeyPrivateKey(String? value) {
+    if (value == null || value.isEmpty) {
+      return '';
+    }
+
+    final key = encrypt.Key.fromUtf8(keys); // AES key
+    final iv = encrypt.IV.fromUtf8(keys);   // IV (Initialization Vector)
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.ecb, padding: 'PKCS7'));
+
+    try {
+      // Decrypt the value
+      final decrypted = encrypter.decrypt64(value, iv: iv);
+      return decrypted;
+    } catch (e) {
+
+      return '';
+    }
+  }
+
   // String encryptUsingRandomKey(String value, String userKey) {
   //
   //   String key1 = keys.substring(0, keys.length - 2) + userKey;

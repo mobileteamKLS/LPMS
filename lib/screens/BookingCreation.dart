@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -14,6 +15,7 @@ import '../models/SelectionModel.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/expantion_card.dart';
+import '../util/Global.dart';
 import 'Encryption.dart';
 
 class BookingCreation extends StatefulWidget {
@@ -28,9 +30,7 @@ class _BookingCreationState extends State<BookingCreation> {
   final List categoriesData = [
     {
       'name': 'SHIPMENT DETAILS',
-      'sub_categories': [
-
-      ],
+      'sub_categories': [],
     },
   ];
   bool _isLoading = false;
@@ -51,6 +51,20 @@ class _BookingCreationState extends State<BookingCreation> {
     super.initState();
     loadVehicleTypes();
   }
+  Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
+    return {
+      "jointablename": secondJson["jointablename"] ?? "",
+      "jointablecondition": secondJson["jointablecondition"] ?? "",
+      "toprecord": secondJson["toprecord"] ?? 999,
+      "AllRecord": secondJson["AllRecord"] ?? false,
+      "Istariff": secondJson["Istariff"] ?? false,
+      "IsDisabled": secondJson["IsDisabled"] ?? false,
+      "wherecondition": secondJson["wherecondition"] ?? "",
+      "ReferenceId": secondJson["ReferenceId"] ?? "VehicleType",
+      "IsAll": secondJson["IsAll"] ?? true,
+    };
+  }
+
 
   Future<void> loadVehicleTypes() async {
     setState(() {
@@ -67,8 +81,16 @@ class _BookingCreationState extends State<BookingCreation> {
     }
 
     SelectionQuery body = SelectionQuery();
-    print(mdl.toString());
-    body.query = await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toString());
+
+    body.query =
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    print("-----Normal-----");
+    print(mdl.toJson());
+    print("-----Decipher==0-----");
+    var q="LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK";
+    print(encryptionService.decryptUsingRandomKeyPrivateKey(q));
+    print("-----Decipher==1-----");
+    print(encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
     mdl.query = body.query;
     var headers = {
       'Content-Type': 'application/json',
@@ -80,11 +102,10 @@ class _BookingCreationState extends State<BookingCreation> {
             "/api/GenericDropDown/GetAllVehicleType", mdl, headers)
         .then((response) {
       print("data received ");
-      if(response.body.isNotEmpty) {
+      if (response.body.isNotEmpty) {
         json.decode(response.body);
         print(json.decode(response.body));
-      }
-      else{
+      } else {
         print("response is empty");
       }
       setState(() {
@@ -200,7 +221,7 @@ class _BookingCreationState extends State<BookingCreation> {
                             color: Colors.black.withOpacity(0.1),
                             spreadRadius: 2,
                             blurRadius: 8,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -441,13 +462,13 @@ class _BookingCreationState extends State<BookingCreation> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsList(
-                      categories: categoriesData, // Pass the data here
+                    categories: categoriesData,shipmentDetailsList: shipmentList,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsList(
-                      categories: categoriesData, // Pass the data here
+                      categories: categoriesData,
                     ),
                   ],
                 ),

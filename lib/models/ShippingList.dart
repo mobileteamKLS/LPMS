@@ -46,6 +46,55 @@ class SlotBookingShipmentDetailsExport {
   };
 }
 
+class SlotBookingShipmentDetailsImport {
+  String boeDt;
+  String boeNo;
+  String bookingDt;
+  int bookingId;
+  String bookingNo;
+  int cargoTypeId;
+  String cargoTypeName;
+  String exporterImporter;
+  String statusDescription;
+
+  SlotBookingShipmentDetailsImport({
+    required this.boeDt,
+    required this.boeNo,
+    required this.bookingDt,
+    required this.bookingId,
+    required this.bookingNo,
+    required this.cargoTypeId,
+    required this.cargoTypeName,
+    required this.exporterImporter,
+    required this.statusDescription,
+  });
+
+  factory SlotBookingShipmentDetailsImport.fromJSON(Map<String, dynamic> json) => SlotBookingShipmentDetailsImport(
+    boeDt: json["BOEDt"]??"",
+    boeNo: json["BOENo"]??"",
+    bookingDt:json["BookingDt"]??"",
+    bookingId: json["BookingId"]??0,
+    bookingNo: json["BookingNo"]??"",
+    cargoTypeId: json["CargoTypeId"]??0,
+    cargoTypeName: json["CargoTypeName"]??"",
+    exporterImporter: json["Exporter_Importer"]??"",
+    statusDescription: (json["StatusDescription"]??"").toUpperCase(),
+  );
+
+  Map<String, dynamic> toMap() => {
+    "BOEDt": boeDt,
+    "BOENo": boeNo,
+    "BookingDt": bookingDt,
+    "BookingId": bookingId,
+    "BookingNo": bookingNo,
+    "CargoTypeId": cargoTypeId,
+    "CargoTypeName": cargoTypeName,
+    "Exporter_Importer": exporterImporter,
+    "StatusDescription": statusDescription,
+  };
+}
+
+
 class ShipmentDetails {
   final String billNo;
   final String billDate;
@@ -72,15 +121,15 @@ class ShipmentDetails {
 
   factory ShipmentDetails.fromMap(Map<String, dynamic> data) {
     return ShipmentDetails(
-      billNo: data['billNo'],
-      billDate: data['billDate'],
-      exporterName: data['exporterName'],
-      hsnCode: data['hsnCode'],
-      cargoType: data['cargoType'],
-      cargoDescription: data['cargoDescription'],
-      quality: data['quality'],
-      cargoWeight: data['cargoWeight'],
-      cargoValue: data['cargoValue'],
+      billNo: data["billNo"],
+      billDate: data["billDate"],
+      exporterName: data["exporterName"],
+      hsnCode: data["hsnCode"],
+      cargoType: data["cargoType"],
+      cargoDescription: data["cargoDescription"],
+      quality: data["quality"],
+      cargoWeight: data["cargoWeight"],
+      cargoValue: data["cargoValue"],
     );
   }
 

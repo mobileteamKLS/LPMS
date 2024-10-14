@@ -18,14 +18,14 @@ import '../util/Global.dart';
 import '../util/Uitlity.dart';
 import 'dart:io';
 
-class ExportScreen extends StatefulWidget {
-  const ExportScreen({super.key});
+class ImportScreen extends StatefulWidget {
+  const ImportScreen({super.key});
 
   @override
-  State<ExportScreen> createState() => _ExportScreenState();
+  State<ImportScreen> createState() => _ImportScreenState();
 }
 
-class _ExportScreenState extends State<ExportScreen> {
+class _ImportScreenState extends State<ImportScreen> {
   bool isLoading = false;
   bool hasNoRecord = false;
   bool isFilterApplied = false;
@@ -42,12 +42,12 @@ class _ExportScreenState extends State<ExportScreen> {
     {'id': 152, 'name': 'PETRAPOLE'},
     {'id': 151, 'name': 'AGARTALA'},
   ];
-  List<SlotBookingShipmentDetailsExport> listShipmentDetails = [];
-  List<SlotBookingShipmentDetailsExport> listShipmentDetailsBind = [];
+  List<SlotBookingShipmentDetailsImport> listShipmentDetails = [];
+  List<SlotBookingShipmentDetailsImport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
-  List<SlotBookingShipmentDetailsExport> filteredList = [];
+  List<SlotBookingShipmentDetailsImport> filteredList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
@@ -97,7 +97,7 @@ class _ExportScreenState extends State<ExportScreen> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Imports',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
@@ -188,7 +188,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
-                        color: Colors.orange, // Notification dot color
+                        color: Colors.orange,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -199,7 +199,7 @@ class _ExportScreenState extends State<ExportScreen> {
               onPressed: () {},
             ),
           ]),
-      drawer: AppDrawer(selectedScreen: "Export"),
+      drawer: AppDrawer(selectedScreen: "Import"),
       body: Stack(
         children: [
           Container(
@@ -253,7 +253,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 2, left: 10, right: 10,bottom: 4),
+                  padding: const EdgeInsets.only(
+                      top: 2, left: 10, right: 10, bottom: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -355,12 +356,13 @@ class _ExportScreenState extends State<ExportScreen> {
                     : Expanded(
                         child: SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 0.0,bottom: 60),
+                            padding: const EdgeInsets.only(
+                                top: 8.0, left: 0.0, bottom: 60),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
                               child: (hasNoRecord)
                                   ? Container(
-                                height:400,
+                                      height: 400,
                                       child: const Center(
                                         child: Text("NO RECORD FOUND"),
                                       ),
@@ -371,7 +373,8 @@ class _ExportScreenState extends State<ExportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            SlotBookingShipmentDetailsExport shipmentDetails =
+                                            SlotBookingShipmentDetailsImport
+                                                shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
                                                 shipmentDetails, index);
@@ -388,7 +391,8 @@ class _ExportScreenState extends State<ExportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            SlotBookingShipmentDetailsExport shipmentDetails =
+                                            SlotBookingShipmentDetailsImport
+                                                shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -520,23 +524,23 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  void exportToExcel(List<SlotBookingShipmentDetailsExport> shipments) async {
+  void exportToExcel(List<SlotBookingShipmentDetailsImport> shipments) async {
     var excel = ex.Excel.createExcel();
     ex.Sheet sheetObject = excel['Sheet1'];
     sheetObject.appendRow([
       ex.TextCellValue("Status"),
       ex.TextCellValue("Booking No."),
       ex.TextCellValue("Booking Date"),
-      ex.TextCellValue("Shipping Bill No."),
-      ex.TextCellValue("Shipping Bill Date"),
+      ex.TextCellValue("BOE No."),
+      ex.TextCellValue("BOE Date"),
     ]);
     for (var shipment in shipments) {
       sheetObject.appendRow([
         ex.TextCellValue(shipment.statusDescription),
         ex.TextCellValue(shipment.bookingNo),
         ex.TextCellValue(shipment.bookingDt),
-        ex.TextCellValue(shipment.sBillNo),
-        ex.TextCellValue(shipment.sBillDt),
+        ex.TextCellValue(shipment.boeNo),
+        ex.TextCellValue(shipment.boeDt),
       ]);
     }
 
@@ -552,7 +556,7 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
-      String bookingNo, String sbNo,
+      String bookingNo, String boeNo,
       {int airportId = 151}) async {
     if (isLoading) return;
     listShipmentDetails = [];
@@ -567,14 +571,14 @@ class _ExportScreenState extends State<ExportScreen> {
       "BookingNo": bookingNo,
       "CompanyCode": loginMaster[0].companyCode,
       "BranchCode": loginMaster[0].branchCode,
-      "SBillNo": sbNo,
+      "BOENo": boeNo,
       "TimeZone": loginMaster[0].timeZone,
       "Todate": endOfDayFormatted,
       "Fromdate": startOfDayFormatted
     };
     await authService
         .postData(
-      "api_pcs/ShipmentMaster/GetAll",
+      "api_pcs/ImpShipment/GetAll",
       queryParams,
     )
         .then((response) {
@@ -585,8 +589,9 @@ class _ExportScreenState extends State<ExportScreen> {
           hasNoRecord = true;
         });
       }
-      listShipmentDetailsBind =
-          jsonData.map((json) => SlotBookingShipmentDetailsExport.fromJSON(json)).toList();
+      listShipmentDetailsBind = jsonData
+          .map((json) => SlotBookingShipmentDetailsImport.fromJSON(json))
+          .toList();
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
@@ -602,7 +607,8 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  Widget buildShipmentDetailsCard(SlotBookingShipmentDetailsExport shipmentDetails, int index) {
+  Widget buildShipmentDetailsCard(
+      SlotBookingShipmentDetailsExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -771,11 +777,10 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Widget buildShipmentDetailsCardV2(
-      SlotBookingShipmentDetailsExport shipmentDetails, int index) {
+      SlotBookingShipmentDetailsImport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
-
       surfaceTintColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -920,11 +925,11 @@ class _ExportScreenState extends State<ExportScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'S. Bill No.',
+                                    'BOE No.',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
-                                    '${shipmentDetails.sBillNo}  ',
+                                    '${shipmentDetails.boeNo}  ',
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
@@ -947,7 +952,6 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-
                             ],
                           ),
                           const SizedBox(width: 64),
@@ -958,11 +962,11 @@ class _ExportScreenState extends State<ExportScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'S. Bill Date',
+                                    'BOE Date',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
-                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
+                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.boeDt))}  ',
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
@@ -1021,7 +1025,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
   Future<void> showShipmentSearchDialog(BuildContext outerContext) async {
     TextEditingController bookingNoController = TextEditingController();
-    TextEditingController shippingBillNoController = TextEditingController();
+    TextEditingController boeNoController = TextEditingController();
 
     Future<void> _selectDate(
         BuildContext context, TextEditingController controller,
@@ -1040,7 +1044,8 @@ class _ExportScreenState extends State<ExportScreen> {
               useMaterial3: false,
               primaryColor: AppColors.primary,
 
-              dialogBackgroundColor: Colors.white, // Change dialog background color
+              dialogBackgroundColor: Colors.white,
+              // Change dialog background color
               colorScheme: const ColorScheme.light(
                 primary: AppColors.primary, // Change header and button color
                 onPrimary: Colors.white, // Text color on primary (header text)
@@ -1064,7 +1069,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
     void search() async {
       String bookingNo = bookingNoController.text.trim();
-      String shippingBillNo = shippingBillNoController.text.trim();
+      String boeNo = boeNoController.text.trim();
       String fromDate = fromDateController.text.trim();
       String toDate = toDateController.text.trim();
 
@@ -1089,12 +1094,12 @@ class _ExportScreenState extends State<ExportScreen> {
       String toDateISO = toDateTime.toIso8601String();
 
       print(
-          "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+          "Booking No: $bookingNo, Shipping Bill No: $boeNo, From Date: $fromDateISO, To Date: $toDateISO");
       if (selectedTerminalId != null) {
-        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo,
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo,
             airportId: selectedTerminalId!);
       } else {
-        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo);
       }
 
       Navigator.pop(context);
@@ -1109,7 +1114,7 @@ class _ExportScreenState extends State<ExportScreen> {
           insetPadding: const EdgeInsets.all(0),
           child: Container(
             color: Colors.white,
-            height: MediaQuery.of(context).size.height*0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -1135,9 +1140,9 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: shippingBillNoController,
+                    controller: boeNoController,
                     decoration: InputDecoration(
-                      labelText: "Shipping Bill No.",
+                      labelText: "BOE No.",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -1173,7 +1178,7 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ),
                   ),
-                   SizedBox(height: MediaQuery.sizeOf(context).height*0.09),
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.09),
                   const SizedBox(
                     width: double.infinity,
                     child: Divider(color: Colors.grey),
@@ -1197,7 +1202,7 @@ class _ExportScreenState extends State<ExportScreen> {
                   OutlinedButton(
                     onPressed: () {
                       bookingNoController.clear();
-                      shippingBillNoController.clear();
+                      boeNoController.clear();
                       fromDateController.text = _formatDate(
                           DateTime.now().subtract(const Duration(days: 2)));
                       toDateController.text = _formatDate(DateTime.now());
@@ -1244,16 +1249,16 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  List<SlotBookingShipmentDetailsExport> getFilteredShipmentDetails(
-      List<SlotBookingShipmentDetailsExport> listShipmentDetails,
+  List<SlotBookingShipmentDetailsImport> getFilteredShipmentDetails(
+      List<SlotBookingShipmentDetailsImport> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {
       bool statusMatchFound =
-          true; // Default to true if no status filter is provided
-      bool dateMatchFound = true; // Default to true if no date is provided
+          true;
+      bool dateMatchFound = true;
 
-      // Check status filters if they are not empty
+
       if (selectedFilters.isNotEmpty) {
         statusMatchFound = selectedFilters.any((filter) {
           return shipment.statusDescription.trim().toUpperCase() ==
@@ -1261,27 +1266,24 @@ class _ExportScreenState extends State<ExportScreen> {
         });
       }
 
-      // Check date if a date is selected
+
       if (selectedDate != null) {
         try {
-          // Parse the string date into DateTime (adjust the format if needed)
+
           DateFormat format =
-              DateFormat("yyyy-MM-dd"); // Example: adjust this format if needed
+              DateFormat("yyyy-MM-dd");
           DateTime shipmentDate = format.parse(shipment.bookingDt);
 
-          // Compare the parsed date with the selected date
+
           dateMatchFound = shipmentDate.year == selectedDate.year &&
               shipmentDate.month == selectedDate.month &&
               shipmentDate.day == selectedDate.day;
         } catch (e) {
           print("Error parsing date: ${shipment.bookingDt}");
           dateMatchFound =
-              false; // If date parsing fails, exclude this shipment
+              false;
         }
       }
-
-      // If no status filters are selected, only date is considered
-      // If no date is selected, only status is considered
       return statusMatchFound && dateMatchFound;
     }).toList();
   }
@@ -1328,7 +1330,7 @@ class _ExportScreenState extends State<ExportScreen> {
         date1.day == date2.day;
   }
 
-// Function to pick a date
+
   Future<void> pickDate(BuildContext context, StateSetter setState) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -1341,15 +1343,16 @@ class _ExportScreenState extends State<ExportScreen> {
             useMaterial3: false,
             primaryColor: AppColors.primary,
 
-            dialogBackgroundColor: Colors.white, // Change dialog background color
+            dialogBackgroundColor: Colors.white,
+
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary, // Change header and button color
-              onPrimary: Colors.white, // Text color on primary (header text)
-              onSurface: Colors.black, // Body text color
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary, // Button text color
+                foregroundColor: AppColors.primary,
               ),
             ),
           ),
@@ -1542,7 +1545,8 @@ class _ExportScreenState extends State<ExportScreen> {
                               setState(() {
                                 selected
                                     ? selectedFilters.add('PENDING FOR GATE-IN')
-                                    : selectedFilters.remove('PENDING FOR GATE-IN');
+                                    : selectedFilters
+                                        .remove('PENDING FOR GATE-IN');
                               });
                             },
                             selectedColor: AppColors.primary.withOpacity(0.1),
@@ -1550,10 +1554,10 @@ class _ExportScreenState extends State<ExportScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
-                                color:
-                                    selectedFilters.contains('PENDING FOR GATE-IN')
-                                        ? AppColors.primary
-                                        : Colors.transparent,
+                                color: selectedFilters
+                                        .contains('PENDING FOR GATE-IN')
+                                    ? AppColors.primary
+                                    : Colors.transparent,
                               ),
                             ),
                           ),
@@ -1675,148 +1679,4 @@ class _ExportScreenState extends State<ExportScreen> {
       },
     );
   }
-
-// void showCustomBottomSheet(BuildContext context) {
-//   showModalBottomSheet(
-//     context: context,
-//     // shape: RoundedRectangleBorder(
-//     //   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//     // ),
-//     isScrollControlled: true,
-//     builder: (BuildContext context) {
-//       // return DraggableScrollableSheet(
-//       //   expand: false,
-//       //   builder: (context, scrollController) {
-//       return SingleChildScrollView(
-//         // controller: scrollController,
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   const Text(
-//                     'Filter/Sort',
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   TextButton(
-//                     onPressed: () {
-//                       // Add your reset logic here
-//                     },
-//                     child: const Text(
-//                       'RESET',
-//                       style: TextStyle(
-//                         color: AppColors.primary,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//               const Text('Sort by Status'),
-//               SizedBox(
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Wrap(
-//                   spacing: 8.0,
-//                   children: [
-//                     FilterChip(
-//                       label: const Text('Draft'),
-//                       selected: true,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in Pending'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in Rejected'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-//               const Row(
-//                 children: [
-//                   Icon(Icons.calendar_today, color: AppColors.primary),
-//                   SizedBox(width: 8),
-//                   Text(
-//                     'Slot Date',
-//                     style: TextStyle(fontSize: 16),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   TextButton(
-//                     onPressed: () {
-//                       Navigator.pop(context);
-//                     },
-//                     style: TextButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(
-//                         vertical: 12,
-//                         horizontal: 32,
-//                       ),
-//                       backgroundColor: Colors.white,
-//                       shape: RoundedRectangleBorder(
-//                         side: const BorderSide(color: AppColors.primary),
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                     ),
-//                     child: const Text(
-//                       'Cancel',
-//                       style: TextStyle(color: AppColors.primary),
-//                     ),
-//                   ),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       // Add apply logic here
-//                     },
-//                     style: ElevatedButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(
-//                         vertical: 12,
-//                         horizontal: 32,
-//                       ),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                     ),
-//                     child: const Text(
-//                       'Apply',
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//             ],
-//           ),
-//         ),
-//       );
-//       //   },
-//       // );
-//     },
-//   );
-// }
 }
-
-

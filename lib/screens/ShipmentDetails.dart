@@ -435,7 +435,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           cargoValue: valueController.text,
                                         );
                                         Navigator.pop(context,
-                                            newShipment); // Pass the object back
+                                            newShipment);
                                       }
                                     },
                                     child: const Text(

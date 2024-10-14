@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
  class Utils{
@@ -35,5 +37,27 @@ import '../theme/app_color.dart';
         return AppColors.gateInYellow;
     }
   }
+
+  static printPrettyJson(String jsonString) {
+    if(jsonString.isEmpty){
+      return;
+    }
+    var jsonObject = jsonDecode(jsonString);
+    var prettyString = const JsonEncoder.withIndent('  ').convert(jsonObject);
+    const int chunkSize = 1000;
+    for (var i = 0; i < prettyString.length; i += chunkSize) {
+      print(prettyString.substring(
+          i, i + chunkSize > prettyString.length ? prettyString.length : i + chunkSize));
+    }
+    // printLongString(prettyString);
+  }
+
+  // static void printLongString(String text) {
+  //   const int chunkSize = 1000;
+  //   for (var i = 0; i < text.length; i += chunkSize) {
+  //     print(text.substring(
+  //         i, i + chunkSize > text.length ? text.length : i + chunkSize));
+  //   }
+  // }
 
 }
