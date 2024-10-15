@@ -8,8 +8,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/screens/BookingCreation.dart';
 import 'package:lpms/theme/app_color.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:path_provider/path_provider.dart';
 import '../api/auth.dart';
+import '../models/SelectionModel.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,6 +20,8 @@ import '../ui/widgest/CustomTextField.dart';
 import '../util/Global.dart';
 import '../util/Uitlity.dart';
 import 'dart:io';
+
+import 'Encryption.dart';
 
 class ExportScreen extends StatefulWidget {
   const ExportScreen({super.key});
@@ -46,6 +50,7 @@ class _ExportScreenState extends State<ExportScreen> {
   List<SlotBookingShipmentDetailsExport> listShipmentDetails = [];
   List<SlotBookingShipmentDetailsExport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
+  final EncryptionService encryptionService = EncryptionService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
   List<SlotBookingShipmentDetailsExport> filteredList = [];
@@ -91,6 +96,7 @@ class _ExportScreenState extends State<ExportScreen> {
     );
 
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    loadVehicleTypes();
   }
 
   @override
@@ -495,6 +501,98 @@ class _ExportScreenState extends State<ExportScreen> {
       //   },
       // ),
     );
+  }
+
+  Future<void> loadVehicleTypes() async {
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      isLoading = true;
+    });
+    vehicleTypeList=[];
+    final mdl = SelectionModels(
+      whereCondition:
+      " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
+      referenceId: "VehicleType",
+      isAll: true,
+    );
+    if (mdl.topRecord == null || mdl.topRecord == 10) {
+      mdl.topRecord = 999;
+    }
+
+    SelectionQuery body = SelectionQuery();
+
+    body.query =
+    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    mdl.query = body.query;
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api/GenericDropDown/GetAllVehicleType")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+
+        print("-----Vehicle Types-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          vehicleTypeList =
+              jsonData.map((json) => AllVehicleTypes.fromJSON(json)).toList();
+          vehicleTypeList.forEach((element) {
+            items.add(DropdownItem(label: element.name, value: Vehicle(id: element.value, name: element.name)));
+
+          });
+          print("object  $items");
+
+        });
+        print("-----Vehicle Type Lenght=${vehicleTypeList.length}-----");
+      } else {
+        print("response is empty");
+      }
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    });
+    // await authService
+    //     .fetchLoginDataPOST(
+    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
+    //     .then((response) {
+    //   print("data received ");
+    //   if (response.body.isNotEmpty) {
+    //     json.decode(response.body);
+    //     print(json.decode(response.body));
+    //   } else {
+    //     print("response is empty");
+    //   }
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    // }).catchError((onError) {
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    //   print(onError);
+    // });
   }
 
   Future<void> showNotification(String filePath) async {

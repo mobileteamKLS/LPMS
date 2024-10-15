@@ -27,7 +27,7 @@ class BookingCreation extends StatefulWidget {
 }
 
 class _BookingCreationState extends State<BookingCreation> {
-  final controller = MultiSelectController<User>();
+  final controller = MultiSelectController<Vehicle>();
   final List categoriesData = [
     {
       'name': 'SHIPMENT DETAILS',
@@ -72,12 +72,6 @@ class _BookingCreationState extends State<BookingCreation> {
   bool _isLoading = false;
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
-  var items = [
-    DropdownItem(label: 'Truck', value: User(name: 'Truck', id: 1)),
-    DropdownItem(label: 'Chassis', value: User(name: 'Chassis', id: 6)),
-    DropdownItem(
-        label: '6 Wheeler Truck', value: User(name: '6 Wheeler Truck', id: 2)),
-  ];
 
   List<SelectionModels> vehicleTypes = [];
   bool isLoading = false;
@@ -85,33 +79,55 @@ class _BookingCreationState extends State<BookingCreation> {
   @override
   void initState() {
     super.initState();
-    loadVehicleTypes();
-  }
-  Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
-    return {
-      "jointablename": secondJson["jointablename"] ?? "",
-      "jointablecondition": secondJson["jointablecondition"] ?? "",
-      "toprecord": secondJson["toprecord"] ?? 999,
-      "AllRecord": secondJson["AllRecord"] ?? false,
-      "Istariff": secondJson["Istariff"] ?? false,
-      "IsDisabled": secondJson["IsDisabled"] ?? false,
-      "wherecondition": secondJson["wherecondition"] ?? "",
-      "ReferenceId": secondJson["ReferenceId"] ?? "VehicleType",
-      "IsAll": secondJson["IsAll"] ?? true,
-    };
+    callAllApis();
   }
 
+  Future<void> callAllApis() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-  Future<void> loadVehicleTypes() async {
+      await Future.wait([
+
+        loadCargoTypes(),
+        loadCHAExporterNames('Agent'),
+        loadCHAExporterNames('Exporter'),
+      ]);
+
+    } catch (e) {
+
+      print("Error calling APIs: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
+  //   return {
+  //     "jointablename": secondJson["jointablename"] ?? "",
+  //     "jointablecondition": secondJson["jointablecondition"] ?? "",
+  //     "toprecord": secondJson["toprecord"] ?? 999,
+  //     "AllRecord": secondJson["AllRecord"] ?? false,
+  //     "Istariff": secondJson["Istariff"] ?? false,
+  //     "IsDisabled": secondJson["IsDisabled"] ?? false,
+  //     "wherecondition": secondJson["wherecondition"] ?? "",
+  //     "ReferenceId": secondJson["ReferenceId"] ?? "VehicleType",
+  //     "IsAll": secondJson["IsAll"] ?? true,
+  //   };
+  // }
+
+
+
+  Future<void> loadCargoTypes() async {
+    await Future.delayed(const Duration(seconds: 2));
     setState(() {
       isLoading = true;
     });
 
-    final mdl = SelectionModels(
-      whereCondition: " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
-      referenceId: "VehicleType",
-      isAll: true,
-    );
+    final mdl = SelectionModels();
     if (mdl.topRecord == null || mdl.topRecord == 10) {
       mdl.topRecord = 999;
     }
@@ -119,14 +135,7 @@ class _BookingCreationState extends State<BookingCreation> {
     SelectionQuery body = SelectionQuery();
 
     body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(transformJson(mdl.toJson()));
-    print("-----Normal-----");
-    print(mdl.toJson());
-    print("-----Decipher==0-----");
-    var q="LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK";
-    print(encryptionService.decryptUsingRandomKeyPrivateKey(q));
-    print("-----Decipher==1-----");
-    Utils.printPrettyJson(encryptionService.decryptUsingRandomKeyPrivateKey((body.query)));
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
     var headers = {
       'Accept': 'text/plain',
@@ -136,8 +145,138 @@ class _BookingCreationState extends State<BookingCreation> {
       'Query': '${body.query}',
     };
 
-    await  authService
-        .sendMultipartRequest(headers: headers, fields: fields, endPoint:"api/GenericDropDown/GetAllVehicleType");
+    await authService
+        .sendMultipartRequest(
+            headers: headers,
+            fields: fields,
+            endPoint: "api/GenericDropDown/GetAllClientListOfValues")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        json.decode(response.body);
+        print("-----Cargo Types-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          cargoTypeList =
+              jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+        });
+        print("-----Cargo Types Length= ${cargoTypeList.length}-----");
+      } else {
+        print("response is empty");
+      }
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    });
+    // await authService
+    //     .fetchLoginDataPOST(
+    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
+    //     .then((response) {
+    //   print("data received ");
+    //   if (response.body.isNotEmpty) {
+    //     json.decode(response.body);
+    //     print(json.decode(response.body));
+    //   } else {
+    //     print("response is empty");
+    //   }
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    // }).catchError((onError) {
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    //   print(onError);
+    // });
+  }
+
+  Future<void> loadCHAExporterNames(basedOnPrevious) async {
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      isLoading = true;
+    });
+
+    final mdl = SelectionModels();
+    mdl.jointableName = 'Organization_Businessline OB ';
+    mdl.allRecord = true;
+    mdl.jointableCondition =
+        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
+    if (basedOnPrevious != null) {
+      mdl.whereCondition =
+          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
+    } else {
+      mdl.whereCondition =
+          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
+    }
+    SelectionQuery body = SelectionQuery();
+    body.query =
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+
+    mdl.query = body.query;
+    Utils.printPrettyJson(
+        encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
+
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+            headers: headers,
+            fields: fields,
+            endPoint: "api/GenericDropDown/GetAllOrganizations")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        json.decode(response.body);
+        print("-----$basedOnPrevious-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        if(basedOnPrevious=="Exporter"){
+          setState(() {
+            exporterList =
+                jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+          });
+          print("-----$basedOnPrevious Length= ${exporterList.length}-----");
+        }
+        else if(basedOnPrevious=="Agent"){
+          setState(() {
+            chaAgentList =
+                jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+          });
+          print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
+        }
+
+      } else {
+        print("response is empty");
+      }
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          isLoading = false;
+        });
+      });
+    });
     // await authService
     //     .fetchLoginDataPOST(
     //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
@@ -262,7 +401,8 @@ class _BookingCreationState extends State<BookingCreation> {
                             color: Colors.black.withOpacity(0.1),
                             spreadRadius: 2,
                             blurRadius: 8,
-                            offset: const Offset(0, 3), // changes position of shadow
+                            offset: const Offset(
+                                0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -363,7 +503,7 @@ class _BookingCreationState extends State<BookingCreation> {
                                 SizedBox(
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.88,
-                                  child: MultiDropdown<User>(
+                                  child: MultiDropdown<Vehicle>(
                                     items: items,
                                     controller: controller,
                                     enabled: true,
@@ -503,7 +643,7 @@ class _BookingCreationState extends State<BookingCreation> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                   shipmentDetailsList: shipmentList1,
+                      shipmentDetailsList: shipmentList1,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -531,7 +671,7 @@ class _BookingCreationState extends State<BookingCreation> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery.sizeOf(context).width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
                                     onPressed: () {},
                                     child: const Text("Cancel"),
@@ -543,11 +683,9 @@ class _BookingCreationState extends State<BookingCreation> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery.sizeOf(context).width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
-                                    onPressed: () {
-
-                                    },
+                                    onPressed: () {},
                                     child: const Text(
                                       "Save",
                                       style: TextStyle(color: Colors.white),
@@ -563,7 +701,6 @@ class _BookingCreationState extends State<BookingCreation> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-
                   ],
                 ),
               ),
@@ -627,11 +764,11 @@ class _BookingCreationState extends State<BookingCreation> {
   }
 }
 
-class User {
+class Vehicle {
   final String name;
-  final int id;
+  final String id;
 
-  User({required this.name, required this.id});
+  Vehicle({required this.name, required this.id});
 
   @override
   String toString() {

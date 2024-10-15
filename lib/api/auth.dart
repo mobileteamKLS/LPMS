@@ -166,8 +166,6 @@ class AuthService {
     }
   }
 
-
-
   Future<Post> sendMultipartRequest({
     required String endPoint,
     required Map<String, String> headers,
@@ -193,7 +191,7 @@ class AuthService {
     final int statusCode = response.statusCode;
     final String responseBody = await response.stream.bytesToString();
 
-    print('Response: $responseBody');
+    print('Response:Successful');
     print('Status code: $statusCode');
 
 

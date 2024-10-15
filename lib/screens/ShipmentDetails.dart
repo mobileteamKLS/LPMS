@@ -282,7 +282,8 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               CustomDatePicker(
                                 controller: billDateController,
                                 labelText: 'Shipping Bill Date',
-                                allowPastDates: false,
+                                allowFutureDates: false,
+
                               ),
                               SizedBox(
                                 height:

@@ -1,6 +1,7 @@
 
 class LoginDetailsMaster {
   int adminOrgProdId;
+  int adminOrgId;
   String branchCode;
   String branchName;
   String companyCode;
@@ -11,6 +12,7 @@ class LoginDetailsMaster {
 
   LoginDetailsMaster({
     required this.adminOrgProdId,
+    required this.adminOrgId,
     required this.branchCode,
     required this.branchName,
     required this.companyCode,
@@ -21,7 +23,8 @@ class LoginDetailsMaster {
   });
 
   factory LoginDetailsMaster.fromJSON(Map<String, dynamic> json) => LoginDetailsMaster(
-    adminOrgProdId: json["Admin_OrgProdId"]??"",
+    adminOrgProdId: json["Admin_OrgProdId"]??0,
+    adminOrgId:json["Admin_OrgId"]??0,
     branchCode: json["BranchCode"]??"",
     branchName: json["BranchName"]??"",
     companyCode: json["CompanyCode"]??"",
@@ -33,6 +36,7 @@ class LoginDetailsMaster {
 
   Map<String, dynamic> toMap() => {
     "Admin_OrgProdId": adminOrgProdId,
+    "Admin_OrgId":adminOrgId,
     "BranchCode": branchCode,
     "BranchName": branchName,
     "CompanyCode": companyCode,

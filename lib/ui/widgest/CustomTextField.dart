@@ -125,19 +125,21 @@ class CustomDatePicker extends StatefulWidget {
   final String validationMessage;
   final double? customWidth;
   final bool allowPastDates;
+  final bool allowFutureDates; // New parameter to allow/disallow future dates
   final bool isRequiredField;
   final bool isFromDate;
 
   const CustomDatePicker({
     Key? key,
     required this.controller,
-    this.otherDateController, // New: optional controller for validation
+    this.otherDateController,
     required this.labelText,
     this.initialHeight = 45,
     this.errorHeight = 65,
     this.validationMessage = 'Required',
     this.customWidth,
     this.allowPastDates = true,
+    this.allowFutureDates = true,
     this.isRequiredField = true,
     this.isFromDate = false,
   }) : super(key: key);
@@ -145,6 +147,7 @@ class CustomDatePicker extends StatefulWidget {
   @override
   _CustomDatePickerState createState() => _CustomDatePickerState();
 }
+
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
   late double fieldHeight;
@@ -180,7 +183,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       context: context,
       initialDate: initialDate,
       firstDate: widget.allowPastDates ? DateTime(2000) : currentDate,
-      lastDate: DateTime(2100),
+      lastDate: widget.allowFutureDates ? DateTime(2100) : currentDate, // Control future dates based on new parameter
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData(
@@ -209,6 +212,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       _validateDate(pickedDate, context);
     }
   }
+
 
   void _validateDate(DateTime selectedDate, BuildContext context) {
     if (widget.otherDateController != null &&
@@ -239,31 +243,31 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   void _showSnackBar(BuildContext context, String message) {
     // Display the SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: SizedBox(
-          height: 20,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.info, color: Colors.white),
-                  Text('  $message'),
-                ],
-              ),
-              GestureDetector(
-                child: const Icon(Icons.close, color: Colors.white),
-                onTap: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                },
-              ),
-            ],
+        SnackBar(
+          content: SizedBox(
+            height: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.info, color: Colors.white),
+                    Text('  $message'),
+                  ],
+                ),
+                GestureDetector(
+                  child: const Icon(Icons.close, color: Colors.white),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-        backgroundColor: AppColors.warningColor,
-        behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.warningColor,
+          behavior: SnackBarBehavior.floating,
 
-      )
+        )
     );
   }
 
