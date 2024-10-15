@@ -9,6 +9,7 @@ import '../../models/ShippingList.dart';
 import '../../screens/ShipmentDetails.dart';
 import '../../screens/VehicleDetails.dart';
 import '../../util/Global.dart';
+import 'CustomTextField.dart';
 
 // class RecursiveDrawerItem extends StatelessWidget {
 //   final List categories;
@@ -197,7 +198,7 @@ class _RecursiveDrawerItemStateV2 extends State<RecursiveDrawerItemV2> {
               },
               child: Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,10 +261,12 @@ class _RecursiveDrawerItemStateV2 extends State<RecursiveDrawerItemV2> {
 class RecursiveDrawerItemV2New extends StatefulWidget {
   final List<ShipmentDetails> shipmentDetailsList;
 
-  const RecursiveDrawerItemV2New({super.key, required this.shipmentDetailsList});
+  const RecursiveDrawerItemV2New(
+      {super.key, required this.shipmentDetailsList});
 
   @override
-  _RecursiveDrawerItemStateV2New createState() => _RecursiveDrawerItemStateV2New();
+  _RecursiveDrawerItemStateV2New createState() =>
+      _RecursiveDrawerItemStateV2New();
 }
 
 class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
@@ -272,7 +275,8 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
   @override
   void initState() {
     super.initState();
-    expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+    expanded =
+        List.generate(widget.shipmentDetailsList.length, (index) => false);
   }
 
   @override
@@ -288,14 +292,15 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
         return Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                    Column(
-                      mainAxisAlignment:MainAxisAlignment.start ,
-                     children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
                       const Text(
                         "Shipping Bill No/ Date",
                         style: TextStyle(
@@ -311,7 +316,7 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
                             fontSize: 15),
                       ),
                     ],
-                   ),
+                  ),
                   Column(
                     children: [
                       Row(
@@ -321,9 +326,8 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(Icons.edit, size: 28,
-                                  color: AppColors.primary)),
-
+                              child: const Icon(Icons.edit,
+                                  size: 28, color: AppColors.primary)),
                           GestureDetector(
                             onTap: () {
                               setState(() {
@@ -355,192 +359,48 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
             if (expanded[index])
               Container(
                 width: MediaQuery.sizeOf(context).width,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Exporter Name",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.exporterName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "HSN Code",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.hsnCode,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    ShipmentInfoRow(
+                      header1: "Exporter Name",
+                      value1: shipmentDetails.exporterName,
+                      header2: "HSN Code",
+                      value2: shipmentDetails.hsnCode,
                     ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Cargo Type",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.cargoType,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Cargo Description",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.cargoDescription,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    const SizedBox(
+                      height: 10,
                     ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Quantity",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.quality,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Cargo Weight",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.cargoWeight,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    ShipmentInfoRow(
+                      header1: "Cargo Type",
+                      value1: shipmentDetails.cargoType,
+                      header2: "Cargo Description",
+                      value2: shipmentDetails.cargoDescription,
                     ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Cargo Value",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColorSecondary,
-                                ),
-                              ),
-                              Text(
-                                shipmentDetails.cargoValue,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textColorPrimary,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.43,
-
-                        ),
-                      ],
+                    const SizedBox(
+                      height: 10,
                     ),
-
-
+                    ShipmentInfoRow(
+                      header1: "Quantity",
+                      value1: shipmentDetails.quality,
+                      header2: "Cargo Weight",
+                      value2: shipmentDetails.cargoWeight,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ShipmentInfoRow(
+                      header1: "Cargo Value",
+                      value1: shipmentDetails.cargoValue,
+                      header2: "",
+                      value2: "",
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
                   ],
                 ),
               ),
@@ -550,7 +410,6 @@ class _RecursiveDrawerItemStateV2New extends State<RecursiveDrawerItemV2New> {
     );
   }
 }
-
 
 class AddShipmentDetailsListNew extends StatefulWidget {
   final List<ShipmentDetails> shipmentDetailsList;
@@ -565,9 +424,8 @@ class AddShipmentDetailsListNew extends StatefulWidget {
 }
 
 class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
-  // Tracks the expansion state of shipment details
   List<bool> expanded = [];
-  bool isExpanded=false;
+  bool isExpanded = false;
 
   @override
   void initState() {
@@ -579,7 +437,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
 
   @override
   Widget build(BuildContext context) {
-    // Check if the shipmentDetailsList is empty
+
     if (widget.shipmentDetailsList.isEmpty) {
       return _buildEmptyShipmentDetails();
     } else {
@@ -587,7 +445,6 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
     }
   }
 
-  // Method to build the widget when shipmentDetailsList is empty
   Widget _buildEmptyShipmentDetails() {
     return Container(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
@@ -629,7 +486,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                       if (result != null) {
                         setState(() {
                           widget.shipmentDetailsList
-                              .add(result); // Add the ShipmentDetails object
+                              .add(result);
                         });
                       }
                     },

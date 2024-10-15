@@ -304,9 +304,6 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   }
 }
 
-
-
-
 class CustomSnackBar {
   static void show(
       BuildContext context, {
@@ -342,4 +339,71 @@ class CustomSnackBar {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
+
+
+class ShipmentInfoRow extends StatelessWidget {
+  final String header1;
+  final String header2;
+  final String value1;
+  final String value2;
+
+  const ShipmentInfoRow({
+    super.key,
+    required this.value1,
+    required this.value2, required this.header1, required this.header2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.42,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               Text(
+                header1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textColorSecondary,
+                ),
+              ),
+              Text(
+                value1,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textColorPrimary,
+                    fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.42,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               Text(
+                 header2,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textColorSecondary,
+                ),
+              ),
+              Text(
+                value2,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textColorPrimary,
+                    fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 

@@ -119,7 +119,7 @@ class ShipmentDetails {
   });
 
 
-  factory ShipmentDetails.fromMap(Map<String, dynamic> data) {
+  factory ShipmentDetails.fromJSON(Map<String, dynamic> data) {
     return ShipmentDetails(
       billNo: data["billNo"],
       billDate: data["billDate"],
@@ -148,3 +148,52 @@ class ShipmentDetails {
     };
   }
 }
+
+class VehicleDetails {
+  String billDate;
+  String vehicleType;
+  String vehicle;
+  String driverLicenseNo;
+  String driverMobNo;
+  String driverDOB;
+  String driverName;
+  String remark;
+
+  VehicleDetails({
+    required this.billDate,
+    required this.vehicleType,
+    required this.vehicle,
+    required this.driverLicenseNo,
+    required this.driverMobNo,
+    required this.driverDOB,
+    required this.driverName,
+    required this.remark,
+  });
+
+  factory VehicleDetails.fromJSON(Map<String, dynamic> map) {
+    return VehicleDetails(
+      billDate: map['billDate'] ?? '',
+      vehicleType: map['vehicleType'] ?? '',
+      vehicle: map['vehicle'] ?? '',
+      driverLicenseNo: map['driverLicenseNo'] ?? '',
+      driverMobNo: map['driverMobNo'] ?? '',
+      driverDOB: map['driverDOB'] ?? '',
+      driverName: map['driverName'] ?? '',
+      remark: map['remark'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'billDate': billDate,
+      'vehicleType': vehicleType,
+      'vehicle': vehicle,
+      'driverLicenseNo': driverLicenseNo,
+      'driverMobNo': driverMobNo,
+      'driverDOB': driverDOB,
+      'driverName': driverName,
+      'remark': remark,
+    };
+  }
+}
+

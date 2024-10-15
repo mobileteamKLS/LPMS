@@ -129,37 +129,39 @@ class _BookingCreationState extends State<BookingCreation> {
     Utils.printPrettyJson(encryptionService.decryptUsingRandomKeyPrivateKey((body.query)));
     mdl.query = body.query;
     var headers = {
-      'Content-Type': 'multipart/form-data',
       'Accept': 'text/plain',
-
+      'Content-Type': 'multipart/form-data',
     };
-var query={
-  "Query":"${body.query}"
-};
-    await authService
-        .fetchLoginDataPOST(
-            "api/GenericDropDown/GetAllVehicleType", query, headers)
-        .then((response) {
-      print("data received ");
-      if (response.body.isNotEmpty) {
-        json.decode(response.body);
-        print(json.decode(response.body));
-      } else {
-        print("response is empty");
-      }
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-      print(onError);
-    });
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await  authService
+        .sendMultipartRequest(headers: headers, fields: fields, endPoint:"api/GenericDropDown/GetAllVehicleType");
+    // await authService
+    //     .fetchLoginDataPOST(
+    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
+    //     .then((response) {
+    //   print("data received ");
+    //   if (response.body.isNotEmpty) {
+    //     json.decode(response.body);
+    //     print(json.decode(response.body));
+    //   } else {
+    //     print("response is empty");
+    //   }
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    // }).catchError((onError) {
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    //   print(onError);
+    // });
   }
 
   @override
