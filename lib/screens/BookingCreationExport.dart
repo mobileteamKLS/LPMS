@@ -4,7 +4,9 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
@@ -15,19 +17,31 @@ import '../models/SelectionModel.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
+import '../ui/widgest/AutoSuggest.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'Encryption.dart';
+import 'ShipmentDetails.dart';
 
-class BookingCreation extends StatefulWidget {
-  const BookingCreation({super.key});
+class BookingCreationExport extends StatefulWidget {
+  const BookingCreationExport({super.key});
 
   @override
-  State<BookingCreation> createState() => _BookingCreationState();
+  State<BookingCreationExport> createState() => _BookingCreationExportState();
 }
 
-class _BookingCreationState extends State<BookingCreation> {
-  final controller = MultiSelectController<Vehicle>();
+class _BookingCreationExportState extends State<BookingCreationExport> {
+  final multiSelectController = MultiSelectController<Vehicle>();
+  final TextEditingController chaController = TextEditingController();
+  final TextEditingController noOfVehiclesController = TextEditingController();
+  bool enableVehicleNo = true;
+  final FocusNode _cityFocusNode = FocusNode();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  int modeSelected = 0;
+  double _textFieldHeight = 45; // Default initial height
+  double _textFieldHeight2 = 45; // Default initial height
+  final double initialHeight = 45;
+  final double errorHeight = 65;
   final List categoriesData = [
     {
       'name': 'SHIPMENT DETAILS',
@@ -69,6 +83,39 @@ class _BookingCreationState extends State<BookingCreation> {
       cargoValue: "\$100,000",
     ),
   ];
+  List<VehicleDetails> dummyVehicleDetailsList = [
+    VehicleDetails(
+      billDate: "2024-01-25",
+      vehicleType: "6 Wheeler Truck",
+      vehicle: "LMN789",
+      driverLicenseNo: "DL-654321987",
+      driverMobNo: "9876543230",
+      driverDOB: "1988-12-14",
+      driverName: "David Brown",
+      remark: "Damaged goods",
+    ),
+    VehicleDetails(
+      billDate: "2024-02-01",
+      vehicleType: "Truck",
+      vehicle: "PQR101",
+      driverLicenseNo: "DL-789456123",
+      driverMobNo: "9876543240",
+      driverDOB: "1992-07-08",
+      driverName: "Robert Johnson",
+      remark: "Smooth operation",
+    ),
+    VehicleDetails(
+      billDate: "2024-02-05",
+      vehicleType: "Chassis",
+      vehicle: "DEF234",
+      driverLicenseNo: "DL-321654987",
+      driverMobNo: "9876543250",
+      driverDOB: "1989-03-18",
+      driverName: "James Williams",
+      remark: "Late departure",
+    ),
+  ];
+
   bool _isLoading = false;
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
@@ -76,12 +123,31 @@ class _BookingCreationState extends State<BookingCreation> {
   List<SelectionModels> vehicleTypes = [];
   bool isLoading = false;
 
+  void _updateTextField() {
+    if (modeSelected == 1) {
+      noOfVehiclesController.text = '1';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    callAllApis();
+    // callAllApis();
+    noOfVehiclesController.text = "1";
   }
-
+  Future<ShipmentDetails?> validateAndNavigate() async {
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<ShipmentDetails>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddShipmentDetails(),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
   Future<void> callAllApis() async {
     try {
       setState(() {
@@ -89,14 +155,11 @@ class _BookingCreationState extends State<BookingCreation> {
       });
 
       await Future.wait([
-
         loadCargoTypes(),
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Exporter'),
       ]);
-
     } catch (e) {
-
       print("Error calling APIs: $e");
     } finally {
       setState(() {
@@ -118,8 +181,6 @@ class _BookingCreationState extends State<BookingCreation> {
   //     "IsAll": secondJson["IsAll"] ?? true,
   //   };
   // }
-
-
 
   Future<void> loadCargoTypes() async {
     await Future.delayed(const Duration(seconds: 2));
@@ -157,8 +218,9 @@ class _BookingCreationState extends State<BookingCreation> {
         print(json.decode(response.body));
         List<dynamic> jsonData = json.decode(response.body);
         setState(() {
-          cargoTypeList =
-              jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+          cargoTypeList = jsonData
+              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+              .toList();
         });
         print("-----Cargo Types Length= ${cargoTypeList.length}-----");
       } else {
@@ -176,30 +238,7 @@ class _BookingCreationState extends State<BookingCreation> {
         });
       });
     });
-    // await authService
-    //     .fetchLoginDataPOST(
-    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
-    //     .then((response) {
-    //   print("data received ");
-    //   if (response.body.isNotEmpty) {
-    //     json.decode(response.body);
-    //     print(json.decode(response.body));
-    //   } else {
-    //     print("response is empty");
-    //   }
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    // }).catchError((onError) {
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    //   print(onError);
-    // });
+
   }
 
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
@@ -247,21 +286,21 @@ class _BookingCreationState extends State<BookingCreation> {
         print("-----$basedOnPrevious-----");
         print(json.decode(response.body));
         List<dynamic> jsonData = json.decode(response.body);
-        if(basedOnPrevious=="Exporter"){
+        if (basedOnPrevious == "Exporter") {
           setState(() {
-            exporterList =
-                jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+            exporterList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
           });
           print("-----$basedOnPrevious Length= ${exporterList.length}-----");
-        }
-        else if(basedOnPrevious=="Agent"){
+        } else if (basedOnPrevious == "Agent") {
           setState(() {
-            chaAgentList =
-                jsonData.map((json) => CargoTypeExporterImporterAgent.fromJSON(json)).toList();
+            chaAgentList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
           });
           print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
         }
-
       } else {
         print("response is empty");
       }
@@ -487,155 +526,273 @@ class _BookingCreationState extends State<BookingCreation> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 14, horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "BASIC DETAILS",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 14),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.sizeOf(context).height * 0.01,
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width:
-                                      MediaQuery.sizeOf(context).width * 0.88,
-                                  child: MultiDropdown<Vehicle>(
-                                    items: items,
-                                    controller: controller,
-                                    enabled: true,
-                                    searchEnabled: true,
-                                    chipDecoration: const ChipDecoration(
-                                      backgroundColor: AppColors.secondary,
-                                      wrap: true,
-                                      runSpacing: 2,
-                                      spacing: 10,
-                                    ),
-                                    fieldDecoration: FieldDecoration(
-                                      hintText: 'Types of Vehicles',
-                                      hintStyle: const TextStyle(
-                                          color: Colors.black54),
-                                      // prefixIcon: const Icon(CupertinoIcons.flag),
-                                      showClearIcon: true,
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        borderSide: const BorderSide(
-                                            color:
-                                                AppColors.textFieldBorderColor),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "BASIC DETAILS",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 14),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.01,
+                              ),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.88,
+                                    child: MultiDropdown<Vehicle>(
+                                      items: items,
+                                      controller: multiSelectController,
+                                      enabled: true,
+                                      searchEnabled: false,
+                                      chipDecoration: const ChipDecoration(
+                                        backgroundColor: AppColors.secondary,
+                                        wrap: false,
+                                        runSpacing: 4,
+                                        spacing: 4,
                                       ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        borderSide: const BorderSide(
-                                          color: Colors.black87,
+                                      fieldDecoration: FieldDecoration(
+                                        hintText: 'Types of Vehicles',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.black54),
+                                        // prefixIcon: const Icon(CupertinoIcons.flag),
+                                        showClearIcon: true,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                          borderSide: const BorderSide(
+                                              color:
+                                                  AppColors.textFieldBorderColor),
                                         ),
-                                      ),
-                                    ),
-                                    dropdownDecoration:
-                                        const DropdownDecoration(
-                                      marginTop: 2,
-                                      maxHeight: 500,
-                                      header: Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text(
-                                          'Select vehicles from the list',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                          borderSide: const BorderSide(
+                                            color: Colors.black87,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    dropdownItemDecoration:
-                                        DropdownItemDecoration(
-                                      selectedIcon: const Icon(Icons.check_box,
-                                          color: Colors.green),
-                                      disabledIcon: Icon(Icons.lock,
-                                          color: Colors.grey.shade300),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please select a vehicle';
-                                      }
-                                      return null;
-                                    },
-                                    onSelectionChange: (selectedItems) {
-                                      debugPrint(
-                                          "OnSelectionChange: $selectedItems");
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: MediaQuery.sizeOf(context).height * 0.015,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  height: 45,
-                                  width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      labelText: "No of Vehicles",
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(4),
+                                      dropdownDecoration:
+                                          const DropdownDecoration(
+                                        marginTop: 2,
+                                        maxHeight: 400,
+                                        header: Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text(
+                                            'Select vehicles from the list',
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
                                       ),
+                                      dropdownItemDecoration:
+                                          DropdownItemDecoration(
+                                        selectedIcon: const Icon(Icons.check_box,
+                                            color: Colors.green),
+                                        disabledIcon: Icon(Icons.lock,
+                                            color: Colors.grey.shade300),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Required';
+                                        }
+                                        return null;
+                                      },
+                                      onSelectionChange: (selectedItems) {
+                                        debugPrint(
+                                            "OnSelectionChange: $selectedItems");
+                                      },
                                     ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  height: 45,
-                                  width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
-                                  child: ToggleSwitch(
-                                    minWidth:
-                                        MediaQuery.sizeOf(context).width * 0.5,
-                                    minHeight: 45.0,
-                                    fontSize: 14.0,
-                                    initialLabelIndex: 0,
-                                    activeBgColor: const [AppColors.primary],
-                                    activeFgColor: Colors.white,
-                                    inactiveBgColor: Colors.white,
-                                    inactiveFgColor: Colors.grey[900],
-                                    totalSwitches: 2,
-                                    labels: const ['FTL', 'LTL'],
-                                    cornerRadius: 0.0,
-                                    borderWidth: 0.5,
-                                    borderColor: [Colors.grey],
-                                    onToggle: (index) {
-                                      print('switched to: $index');
-                                    },
+                                ],
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: _textFieldHeight2,
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.42,
+                                    child: TextFormField(
+                                      controller: noOfVehiclesController,
+                                      enabled: modeSelected == 1 ? false : true,
+                                      // Disable based on switch state
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        labelText: "No of Vehicles",
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(2),
+                                      ],
+                                      validator: (value) {
+
+                                        if (modeSelected != 1 && (value == null || value.isEmpty)) {
+                                          setState(() {
+                                            _textFieldHeight2=65;
+                                          });
+                                          return 'Required';
+                                        }
+                                        setState(() {
+                                          _textFieldHeight2=45;
+                                        });
+                                        return null; // No error
+                                      },
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: MediaQuery.sizeOf(context).height * 0.015,
-                            ),
-                            SizedBox(
-                              height: 45,
-                              width: MediaQuery.sizeOf(context).width,
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  labelText: "CHA Name*",
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(4),
+                                  const SizedBox(
+                                    width: 10,
                                   ),
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.42,
+                                    child: ToggleSwitch(
+                                      minWidth:
+                                          MediaQuery.sizeOf(context).width * 0.5,
+                                      minHeight: 45.0,
+                                      fontSize: 14.0,
+                                      initialLabelIndex: modeSelected,
+                                      activeBgColor: const [AppColors.primary],
+                                      activeFgColor: Colors.white,
+                                      inactiveBgColor: Colors.white,
+                                      inactiveFgColor: Colors.grey[900],
+                                      totalSwitches: 2,
+                                      labels: const ['FTL', 'LTL'],
+                                      cornerRadius: 0.0,
+                                      borderWidth: 0.5,
+                                      borderColor: [Colors.grey],
+                                      onToggle: (index) {
+                                        print('switched to: $index');
+
+                                        setState(() {
+                                          modeSelected = index!;
+                                        });
+                                        _updateTextField();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width,
+                                child: FormField<String>(
+                                  validator: (value) {
+                                    if (chaController.text.isEmpty) {
+                                      setState(() {
+                                        _textFieldHeight = 45;
+                                      });
+                                      return 'Required';
+                                    }
+                                    setState(() {
+                                      _textFieldHeight =
+                                          initialHeight; // Reset to initial height if valid
+                                    });
+                                    return null; // Valid input
+                                  },
+                                  builder: (formFieldState) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          height: _textFieldHeight,
+                                          // Dynamic height based on validation
+                                          child: TypeAheadField<
+                                              CargoTypeExporterImporterAgent>(
+                                            textFieldConfiguration:
+                                                TextFieldConfiguration(
+                                              controller: chaController,
+                                              focusNode: _cityFocusNode,
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        vertical: 12.0,
+                                                        horizontal: 10.0),
+                                                border: OutlineInputBorder(),
+                                                labelText: 'CHA Name',
+                                              ),
+                                            ),
+                                            suggestionsCallback: (search) =>
+                                                CHAAgentService.find(search),
+                                            itemBuilder: (context, city) {
+                                              return Container(
+                                                decoration: const BoxDecoration(
+                                                  border: Border(
+                                                    top: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    left: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    right: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    bottom: BorderSide
+                                                        .none, // No border on the bottom
+                                                  ),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    Text(city.code.toUpperCase()),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(city.description
+                                                        .toUpperCase()),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            onSuggestionSelected: (city) {
+                                              chaController.text =
+                                                  city.description.toUpperCase();
+                                              formFieldState
+                                                  .didChange(chaController.text);
+                                            },
+                                            noItemsFoundBuilder: (context) =>
+                                                const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text('No CHA Found'),
+                                            ),
+                                          ),
+                                        ),
+                                        if (formFieldState.hasError)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: Text(
+                                              formFieldState.errorText ?? '',
+                                              style: const TextStyle(
+                                                  color: Colors.red),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -643,13 +800,13 @@ class _BookingCreationState extends State<BookingCreation> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentList1,
+                      shipmentDetailsList: shipmentList,validateAndNavigate: validateAndNavigate,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddVehicleDetailsList(
-                      categories: categoriesData,
+                    AddVehicleDetailsListNew(
+                      shipmentDetailsList: shipmentList,validateAndNavigate: validateAndNavigate,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -685,7 +842,15 @@ class _BookingCreationState extends State<BookingCreation> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      print(multiSelectController.toString());
+                                      if (_formKey.currentState!.validate()) {
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Form submitted successfully!')),
+                                        );
+                                      }
+                                    },
                                     child: const Text(
                                       "Save",
                                       style: TextStyle(color: Colors.white),
@@ -762,7 +927,9 @@ class _BookingCreationState extends State<BookingCreation> {
       ),
     );
   }
+
 }
+
 
 class Vehicle {
   final String name;

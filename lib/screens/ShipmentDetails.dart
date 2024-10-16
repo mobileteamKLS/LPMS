@@ -118,147 +118,147 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: AppColors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Type of Vehicle",
-                                        style: TextStyle(
-                                            color: AppColors.textColorSecondary,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height *
-                                                0.003,
-                                      ),
-                                      const Text(
-                                        "Truck",
-                                        style: TextStyle(
-                                            color: AppColors.textColorPrimary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "No. of Vehicle",
-                                        style: TextStyle(
-                                            color: AppColors.textColorSecondary,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height *
-                                                0.003,
-                                      ),
-                                      const Text(
-                                        "2",
-                                        style: TextStyle(
-                                            color: AppColors.textColorPrimary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "FTL/LTL",
-                                        style: TextStyle(
-                                            color: AppColors.textColorSecondary,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height *
-                                                0.003,
-                                      ),
-                                      const Text(
-                                        "FTL",
-                                        style: TextStyle(
-                                            color: AppColors.textColorPrimary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: MediaQuery.sizeOf(context).height * 0.015,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "CHA Name",
-                                        style: TextStyle(
-                                            color: AppColors.textColorSecondary,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height *
-                                                0.003,
-                                      ),
-                                      const Text(
-                                        "ABC CHA",
-                                        style: TextStyle(
-                                            color: AppColors.textColorPrimary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.015,
-                    ),
+                    // Container(
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(12.0),
+                    //     color: AppColors.white,
+                    //   ),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         vertical: 14, horizontal: 10),
+                    //     child: Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         Row(
+                    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //           children: [
+                    //             SizedBox(
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   const Text(
+                    //                     "Type of Vehicle",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorSecondary,
+                    //                         fontSize: 14),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height:
+                    //                         MediaQuery.sizeOf(context).height *
+                    //                             0.003,
+                    //                   ),
+                    //                   const Text(
+                    //                     "Truck",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorPrimary,
+                    //                         fontSize: 16,
+                    //                         fontWeight: FontWeight.w700),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //             const SizedBox(
+                    //               width: 10,
+                    //             ),
+                    //             SizedBox(
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   const Text(
+                    //                     "No. of Vehicle",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorSecondary,
+                    //                         fontSize: 14),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height:
+                    //                         MediaQuery.sizeOf(context).height *
+                    //                             0.003,
+                    //                   ),
+                    //                   const Text(
+                    //                     "2",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorPrimary,
+                    //                         fontSize: 16,
+                    //                         fontWeight: FontWeight.w700),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //             const SizedBox(
+                    //               width: 10,
+                    //             ),
+                    //             SizedBox(
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   const Text(
+                    //                     "FTL/LTL",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorSecondary,
+                    //                         fontSize: 14),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height:
+                    //                         MediaQuery.sizeOf(context).height *
+                    //                             0.003,
+                    //                   ),
+                    //                   const Text(
+                    //                     "FTL",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorPrimary,
+                    //                         fontSize: 16,
+                    //                         fontWeight: FontWeight.w700),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //         SizedBox(
+                    //           height: MediaQuery.sizeOf(context).height * 0.015,
+                    //         ),
+                    //         Row(
+                    //           mainAxisAlignment: MainAxisAlignment.start,
+                    //           children: [
+                    //             SizedBox(
+                    //               child: Column(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   const Text(
+                    //                     "CHA Name",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorSecondary,
+                    //                         fontSize: 14),
+                    //                   ),
+                    //                   SizedBox(
+                    //                     height:
+                    //                         MediaQuery.sizeOf(context).height *
+                    //                             0.003,
+                    //                   ),
+                    //                   const Text(
+                    //                     "ABC CHA",
+                    //                     style: TextStyle(
+                    //                         color: AppColors.textColorPrimary,
+                    //                         fontSize: 16,
+                    //                         fontWeight: FontWeight.w700),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: MediaQuery.sizeOf(context).height * 0.015,
+                    // ),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
@@ -283,7 +283,8 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 controller: billDateController,
                                 labelText: 'Shipping Bill Date',
                                 allowFutureDates: false,
-
+                                initialHeight: 45,
+                                errorHeight: 65,
                               ),
                               SizedBox(
                                 height:
@@ -351,10 +352,12 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                         MediaQuery.of(context).size.width *
                                             0.43,
                                     inputType: TextInputType.number,
+                                    isValidationRequired:false,
                                   ),
                                   CustomTextField(
                                     controller: weightController,
                                     labelText: 'Cargo Weight',
+                                    isValidationRequired:false,
                                     customWidth:
                                         MediaQuery.of(context).size.width *
                                             0.43,

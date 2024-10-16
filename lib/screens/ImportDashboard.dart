@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:lpms/screens/BookingCreation.dart';
+import 'package:lpms/screens/BookingCreationExport.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'package:path_provider/path_provider.dart';
 import '../api/auth.dart';
@@ -18,6 +18,8 @@ import '../ui/widgest/CustomTextField.dart';
 import '../util/Global.dart';
 import '../util/Uitlity.dart';
 import 'dart:io';
+
+import 'BookingCreationImport.dart';
 
 class ImportScreen extends StatefulWidget {
   const ImportScreen({super.key});
@@ -431,7 +433,7 @@ class _ImportScreenState extends State<ImportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BookingCreation()),
+              MaterialPageRoute(builder: (context) => const BookingCreationImport()),
             );
           },
           backgroundColor: AppColors.primary,

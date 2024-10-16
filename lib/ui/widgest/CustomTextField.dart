@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/theme/app_color.dart';
 
@@ -165,12 +166,14 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
     DateTime initialDate;
 
     if (widget.controller.text.isNotEmpty) {
+
       try {
         initialDate = DateFormat('d MMM yyyy').parse(widget.controller.text);
       } catch (e) {
         initialDate = currentDate;
       }
     } else {
+
       if (_isFirstCall && widget.isFromDate) {
         initialDate = currentDate.subtract(const Duration(days: 2));
         _isFirstCall = false;
@@ -283,8 +286,14 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
         validator: widget.isRequiredField
             ? (value) {
           if (value == null || value.isEmpty) {
+            setState(() {
+              fieldHeight = widget.errorHeight;
+            });
             return widget.validationMessage;
           }
+          setState(() {
+            fieldHeight = widget.initialHeight;
+          });
           return null;
         }
             : null,
@@ -409,5 +418,115 @@ class ShipmentInfoRow extends StatelessWidget {
     );
   }
 }
+
+// City model class
+class City {
+  final String name;
+  final String country;
+
+  City({required this.name, required this.country});
+}
+
+// City Service to simulate fetching city data
+class CityService {
+  static final List<City> _cities = [
+    City(name: 'New York', country: 'USA'),
+    City(name: 'Los Angeles', country: 'USA'),
+    City(name: 'London', country: 'UK'),
+    City(name: 'Paris', country: 'France'),
+    City(name: 'Tokyo', country: 'Japan'),
+  ];
+
+  // Method to find cities based on search
+  static List<City> find(String search) {
+    return _cities.where((city) => city.name.toLowerCase().contains(search.toLowerCase())).toList();
+  }
+
+  // Method to check if the input matches a city exactly
+  static bool isValidCity(String input) {
+    return _cities.any((city) => '${city.name}, ${city.country}'.toLowerCase() == input.toLowerCase());
+  }
+}
+
+
+
+class AutoSuggestCity extends StatefulWidget {
+  @override
+  _AutoSuggestCityState createState() => _AutoSuggestCityState();
+}
+
+class _AutoSuggestCityState extends State<AutoSuggestCity> {
+  final TextEditingController _cityController = TextEditingController();
+  final FocusNode _cityFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _cityFocusNode.addListener(() {
+      if (!_cityFocusNode.hasFocus) {
+
+        if (!CityService.isValidCity(_cityController.text)) {
+          _cityController.clear();
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _cityController.dispose();
+    _cityFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('City Auto Suggest')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TypeAheadField<City>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: _cityController,
+                focusNode: _cityFocusNode,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.only(left: 8),
+                  labelText: 'City and Country',
+                ),
+              ),
+              suggestionsCallback: (search) => CityService.find(search),
+              itemBuilder: (context, city) {
+                return ListTile(
+                  title: Text(city.name),
+                  subtitle: Text(city.country),
+                );
+              },
+              onSuggestionSelected: (city) {
+                // Set the selected city's name and country in the TextField
+                _cityController.text = '${city.name}, ${city.country}';
+              },
+              noItemsFoundBuilder: (context) => Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('No Cities Found'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: AutoSuggestCity(),
+  ));
+}
+
+
 
 

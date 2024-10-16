@@ -48,6 +48,7 @@ dependencies:
   shared_preferences: ^2.2.3
   multi_dropdown: ^3.0.1
   expansion_tile_card: ^3.0.0
+  flutter_typeahead: ^4.3.0
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +74,7 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/icons/
+#    - assets/icons/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

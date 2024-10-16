@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:lpms/screens/BookingCreation.dart';
+import 'package:lpms/screens/BookingCreationExport.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:path_provider/path_provider.dart';
@@ -432,7 +432,7 @@ class _ExportScreenState extends State<ExportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BookingCreation()),
+              MaterialPageRoute(builder: (context) => const BookingCreationExport()),
             );
           },
           backgroundColor: AppColors.primary,
