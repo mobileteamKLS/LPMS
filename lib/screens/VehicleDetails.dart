@@ -13,7 +13,8 @@ import '../theme/app_theme.dart';
 
 
 class AddVehicleDetails extends StatefulWidget {
-  const AddVehicleDetails({super.key});
+  final VehicleDetails? vehicleDetails;
+  const AddVehicleDetails({super.key, this.vehicleDetails});
 
   @override
   State<AddVehicleDetails> createState() => _AddVehicleDetailsState();
@@ -21,19 +22,35 @@ class AddVehicleDetails extends StatefulWidget {
 
 class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController billDateController = TextEditingController();
-  final TextEditingController vehicleTypeController = TextEditingController();
-  final TextEditingController vehicleController = TextEditingController();
-  final TextEditingController driverLicenseNoController = TextEditingController();
-  final TextEditingController driverMobNoController =
+  late TextEditingController billDateController = TextEditingController();
+  late TextEditingController vehicleTypeController = TextEditingController();
+  late TextEditingController vehicleNoController = TextEditingController();
+  late TextEditingController driverLicenseNoController = TextEditingController();
+  late TextEditingController driverMobNoController =
   TextEditingController();
-  final TextEditingController driverDOBController = TextEditingController();
-  final TextEditingController driverNameController = TextEditingController();
-  final TextEditingController remarkController = TextEditingController();
+  late TextEditingController driverDOBController = TextEditingController();
+  late TextEditingController driverNameController = TextEditingController();
+  late TextEditingController remarkController = TextEditingController();
   double fieldHeight = 45;
   bool isValid = true;
-  final RegExp hsnPattern = RegExp(r'^\d{6,8}$');
-  final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
+  late RegExp hsnPattern = RegExp(r'^\d{6,8}$');
+  late RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
+
+
+  @override
+  void initState() {
+    super.initState();
+    billDateController = TextEditingController(text: widget.vehicleDetails?.billDate ?? '');
+    vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleType ?? '');
+    vehicleNoController = TextEditingController(text: widget.vehicleDetails?.vehicleNo ?? '');
+    driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.driverLicenseNo ?? '');
+    driverDOBController = TextEditingController(text: widget.vehicleDetails?.driverDOB ?? '');
+    driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverMobNo ?? '');
+    driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
+    remarkController = TextEditingController(text: widget.vehicleDetails?.remark ?? '');
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +308,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
-                                controller: vehicleController,
+                                controller: vehicleNoController,
                                 labelText: "Vehicle No.",
                                 inputType: TextInputType.text,
                               ),
@@ -367,7 +384,11 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                   width:
                                   MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pop(
+                                        context,
+                                      );
+                                    },
                                     child: const Text("Cancel"),
                                   ),
                                 ),
@@ -381,21 +402,18 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
-                                        // final newShipment = ShipmentDetails(
-                                        //   billNo: billNoController.text,
-                                        //   billDate: billDateController.text,
-                                        //   exporterName:
-                                        //   exporterNameController.text,
-                                        //   hsnCode: hsnCodeController.text,
-                                        //   cargoType: cargoTypeController.text,
-                                        //   cargoDescription:
-                                        //   driverMobNoController.text,
-                                        //   quality: qualityController.text,
-                                        //   cargoWeight: weightController.text,
-                                        //   cargoValue: remarkController.text,
-                                        // );
-                                        // Navigator.pop(context,
-                                        //     newShipment); // Pass the object back
+                                        final newVehicle = VehicleDetails(
+                                          billDate: billDateController.text,
+                                          vehicleType: vehicleTypeController.text,
+                                          vehicleNo: vehicleNoController.text,
+                                          driverLicenseNo: driverLicenseNoController.text,
+                                          driverMobNo: driverMobNoController.text,
+                                          driverDOB: driverDOBController.text,
+                                          driverName:driverNameController.text,
+                                          remark:remarkController.text,
+                                        );
+                                        Navigator.pop(context,
+                                            newVehicle); // Pass the object back
                                       }
                                     },
                                     child: const Text(

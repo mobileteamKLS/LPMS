@@ -23,6 +23,7 @@ import '../util/Global.dart';
 import 'BookingCreationExport.dart';
 import 'Encryption.dart';
 import 'ShipmentDetails.dart';
+import 'VehicleDetails.dart';
 
 class BookingCreationImport extends StatefulWidget {
   const BookingCreationImport({super.key});
@@ -88,7 +89,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
     VehicleDetails(
       billDate: "2024-01-25",
       vehicleType: "6 Wheeler Truck",
-      vehicle: "LMN789",
+      vehicleNo: "LMN789",
       driverLicenseNo: "DL-654321987",
       driverMobNo: "9876543230",
       driverDOB: "1988-12-14",
@@ -98,7 +99,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
     VehicleDetails(
       billDate: "2024-02-01",
       vehicleType: "Truck",
-      vehicle: "PQR101",
+      vehicleNo: "PQR101",
       driverLicenseNo: "DL-789456123",
       driverMobNo: "9876543240",
       driverDOB: "1992-07-08",
@@ -108,7 +109,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
     VehicleDetails(
       billDate: "2024-02-05",
       vehicleType: "Chassis",
-      vehicle: "DEF234",
+      vehicleNo: "DEF234",
       driverLicenseNo: "DL-321654987",
       driverMobNo: "9876543250",
       driverDOB: "1989-03-18",
@@ -133,7 +134,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
   @override
   void initState() {
     super.initState();
-    // callAllApis();
+    callAllApis();
     noOfVehiclesController.text = "1";
   }
   Future<ShipmentDetails?> validateAndNavigate() async {
@@ -142,6 +143,20 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
         context,
         MaterialPageRoute(
           builder: (context) => const AddShipmentDetails(),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<VehicleDetails?> validateAndNavigateV2() async {
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<VehicleDetails>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddVehicleDetails(),
         ),
       );
     } else {
@@ -476,7 +491,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " AGA",
+                                      " bangladesh",
                                       style: TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
@@ -487,7 +502,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " ALL",
+                                      " india",
                                       style: TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
@@ -807,7 +822,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      shipmentDetailsList: shipmentList,validateAndNavigate: validateAndNavigate,
+                      vehicleDetailsList: dummyVehicleDetailsList,validateAndNavigate: validateAndNavigateV2,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,

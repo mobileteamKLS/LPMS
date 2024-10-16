@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_color.dart';
  class Utils{
 
@@ -50,6 +51,9 @@ import '../theme/app_color.dart';
           i, i + chunkSize > prettyString.length ? prettyString.length : i + chunkSize));
     }
     // printLongString(prettyString);
+  }
+  static String formatDate(DateTime date) {
+    return DateFormat('d MMM yyyy').format(date);
   }
 
   // static void printLongString(String text) {

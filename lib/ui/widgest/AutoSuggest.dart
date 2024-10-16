@@ -34,16 +34,32 @@ class CityService {
 }
 
 class CHAAgentService {
-
-
-
   static List<CargoTypeExporterImporterAgent> find(String search) {
     return chaAgentList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
   }
 
-
   static bool isValidAgent(String input) {
     return chaAgentList.any((agent) => agent.name.toLowerCase() == input.toLowerCase());
+  }
+}
+
+class ExporterService {
+  static List<CargoTypeExporterImporterAgent> find(String search) {
+    return exporterList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    return exporterList.any((agent) => agent.name.toLowerCase() == input.toLowerCase());
+  }
+}
+
+class CargoTypeService {
+  static List<CargoTypeExporterImporterAgent> find(String search) {
+    return cargoTypeList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    return cargoTypeList.any((agent) => agent.name.toLowerCase() == input.toLowerCase());
   }
 }
 

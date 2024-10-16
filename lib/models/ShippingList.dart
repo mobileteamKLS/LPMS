@@ -152,7 +152,7 @@ class ShipmentDetails {
 class VehicleDetails {
   String billDate;
   String vehicleType;
-  String vehicle;
+  String vehicleNo;
   String driverLicenseNo;
   String driverMobNo;
   String driverDOB;
@@ -162,7 +162,7 @@ class VehicleDetails {
   VehicleDetails({
     required this.billDate,
     required this.vehicleType,
-    required this.vehicle,
+    required this.vehicleNo,
     required this.driverLicenseNo,
     required this.driverMobNo,
     required this.driverDOB,
@@ -174,7 +174,7 @@ class VehicleDetails {
     return VehicleDetails(
       billDate: map['billDate'] ?? '',
       vehicleType: map['vehicleType'] ?? '',
-      vehicle: map['vehicle'] ?? '',
+      vehicleNo: map['vehicle'] ?? '',
       driverLicenseNo: map['driverLicenseNo'] ?? '',
       driverMobNo: map['driverMobNo'] ?? '',
       driverDOB: map['driverDOB'] ?? '',
@@ -187,7 +187,7 @@ class VehicleDetails {
     return {
       'billDate': billDate,
       'vehicleType': vehicleType,
-      'vehicle': vehicle,
+      'vehicle': vehicleNo,
       'driverLicenseNo': driverLicenseNo,
       'driverMobNo': driverMobNo,
       'driverDOB': driverDOB,
@@ -195,6 +195,46 @@ class VehicleDetails {
       'remark': remark,
     };
   }
+}
+
+class SlotDetails {
+  dynamic assignDockId;
+  int availableSlots;
+  String bookedTimeSlot;
+  dynamic slotConfigId;
+  String slotDurationId;
+  String slotEndDateTime;
+  String slotStartDateTime;
+
+  SlotDetails({
+    required this.assignDockId,
+    required this.availableSlots,
+    required this.bookedTimeSlot,
+    required this.slotConfigId,
+    required this.slotDurationId,
+    required this.slotEndDateTime,
+    required this.slotStartDateTime,
+  });
+
+  factory SlotDetails.fromJSON(Map<String, dynamic> json) => SlotDetails(
+    assignDockId: json["AssignDockId"]??"",
+    availableSlots: json["AvailableSlots"]??"",
+    bookedTimeSlot: json["BookedTimeSlot"]??"",
+    slotConfigId: json["SlotConfigId"]??"",
+    slotDurationId: json["SlotDurationId"]??"",
+    slotEndDateTime: json["SlotEndDateTime"]??"",
+    slotStartDateTime: json["SlotStartDateTime"]??"",
+  );
+
+  Map<String, dynamic> toMap() => {
+    "AssignDockId": assignDockId,
+    "AvailableSlots": availableSlots,
+    "BookedTimeSlot": bookedTimeSlot,
+    "SlotConfigId": slotConfigId,
+    "SlotDurationId": slotDurationId,
+    "SlotEndDateTime": slotEndDateTime,
+    "SlotStartDateTime": slotStartDateTime,
+  };
 }
 
 class AllVehicleTypes {
@@ -444,38 +484,38 @@ class CargoTypeExporterImporterAgent {
   });
 
   factory CargoTypeExporterImporterAgent.fromJSON(Map<String, dynamic> json) => CargoTypeExporterImporterAgent(
-    airportWiseTimeZone: json["AirportWiseTimeZone"],
-    aliasName: json["AliasName"],
-    businessType: json["BusinessType"],
-    cntGrowssWeight: json["CntGrowssWeight"],
-    cntTareWeight: json["CntTareWeight"],
-    code: json["code"],
-    countryCodeDisplay: json["CountryCodeDisplay"],
-    countryDisplay: json["CountryDisplay"],
-    dclNo: json["DCLNo"],
-    description: json["description"],
-    driverId: json["DriverId"],
-    driverIsdCode: json["DriverISDCode"],
-    driverIsdCodeId: json["DriverISDCodeId"],
-    driverLicense: json["DriverLicense"],
-    driverMobNo: json["DriverMobNo"],
-    driverName: json["DriverName"],
-    driverSta: json["DriverSTA"],
-    isActive: json["IsActive"],
-    isGroup: json["IsGroup"],
-    isHaz: json["IsHaz"],
-    isSbYork: json["IsSbYork"],
-    name: json["name"],
-    nameDisplay: json["NameDisplay"],
-    orderval: json["orderval"],
-    parentid: json["parentid"],
-    query: json["Query"],
-    referenceId: json["ReferenceId"],
-    regExp: json["RegExp"],
-    servicelimit: json["Servicelimit"],
-    tariffUoMname: json["TariffUOMname"],
-    value: json["value"],
-    warehouseIdentifier: json["WarehouseIdentifier"],
+    airportWiseTimeZone: json["AirportWiseTimeZone"]??"",
+    aliasName: json["AliasName"]??"",
+    businessType: json["BusinessType"]??"",
+    cntGrowssWeight: json["CntGrowssWeight"]??"",
+    cntTareWeight: json["CntTareWeight"]??"",
+    code: json["code"]??"",
+    countryCodeDisplay: json["CountryCodeDisplay"]??"",
+    countryDisplay: json["CountryDisplay"]??"",
+    dclNo: json["DCLNo"]??"",
+    description: json["description"]??"",
+    driverId: json["DriverId"]??"",
+    driverIsdCode: json["DriverISDCode"]??"",
+    driverIsdCodeId: json["DriverISDCodeId"]??"",
+    driverLicense: json["DriverLicense"]??"",
+    driverMobNo: json["DriverMobNo"]??"",
+    driverName: json["DriverName"]??"",
+    driverSta: json["DriverSTA"]??"",
+    isActive: json["IsActive"]??"",
+    isGroup: json["IsGroup"]??"",
+    isHaz: json["IsHaz"]??"",
+    isSbYork: json["IsSbYork"]??"",
+    name: json["name"]??"",
+    nameDisplay: json["NameDisplay"]??"",
+    orderval: json["orderval"]??"",
+    parentid: json["parentid"]??"",
+    query: json["Query"]??"",
+    referenceId: json["ReferenceId"]??"",
+    regExp: json["RegExp"]??"",
+    servicelimit: json["Servicelimit"]??"",
+    tariffUoMname: json["TariffUOMname"]??"",
+    value: json["value"]??"",
+    warehouseIdentifier: json["WarehouseIdentifier"]??"",
   );
 
   Map<String, dynamic> toMap() => {

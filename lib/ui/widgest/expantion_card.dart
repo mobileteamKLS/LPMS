@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
@@ -7,6 +8,7 @@ import 'package:lpms/theme/app_color.dart';
 
 import '../../models/ShippingList.dart';
 import '../../screens/ShipmentDetails.dart';
+import '../../screens/SlotBooking.dart';
 import '../../screens/VehicleDetails.dart';
 import '../../util/Global.dart';
 import 'CustomTextField.dart';
@@ -287,7 +289,7 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
       shrinkWrap: true,
       itemCount: widget.shipmentDetailsList.length,
       itemBuilder: (BuildContext context, int index) {
-        final shipmentDetails = widget.shipmentDetailsList[index];
+        var shipmentDetails = widget.shipmentDetailsList[index];
 
         return Column(
           children: [
@@ -322,7 +324,22 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: (){},
+                            onTap: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddShipmentDetails(shipment: shipmentDetails),
+                                ),
+                              ).then((updatedShipment) {
+                                if (updatedShipment != null) {
+
+                                  setState(() {
+                                    widget.shipmentDetailsList[index] = updatedShipment;
+                                  });
+
+                                }
+                              });
+                            },
                             child: Container(
                                 margin: const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
@@ -401,6 +418,351 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                       header2: "",
                       value2: "",
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+class VehicleItemNew extends StatefulWidget {
+  final List<VehicleDetails> vehicleDetailsList;
+
+  const VehicleItemNew(
+      {super.key, required this.vehicleDetailsList});
+
+  @override
+  _VehicleItemNewState createState() =>
+      _VehicleItemNewState();
+}
+
+class _VehicleItemNewState extends State<VehicleItemNew> {
+  List<bool> expanded = [];
+  String? fileName;
+  String? fileSize;
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Check if file is PNG and less than 2 MB
+      if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
+        setState(() {
+          fileName = file.name;
+          fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+        });
+      } else {
+        setState(() {
+          fileName = 'Invalid file. Please upload a PNG less than 2 MB.';
+          fileSize = null;
+        });
+      }
+    } else {
+      // User canceled the picker
+    }
+  }
+  void showUploadDocSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        // List<String> selectedFilters = [];
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: 350,
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Upload PNG file (Max 2 MB)'),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _pickFile,
+                      child: const Text('Pick PNG File',style: TextStyle(color: Colors.white),),
+                    ),
+                    SizedBox(height: 20),
+                    if (fileName != null) Text('Selected File: $fileName'),
+                    if (fileSize != null) Text('File Size: $fileSize'),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    expanded =
+        List.generate(widget.vehicleDetailsList.length, (index) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      separatorBuilder: (context, index) => const SizedBox(height: 2),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: widget.vehicleDetailsList.length,
+      itemBuilder: (BuildContext context, int index) {
+        var vehicleDetails = widget.vehicleDetailsList[index];
+
+        return Column(
+          children: [
+            Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Vehicle No.",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.textColorSecondary,
+                                ),
+                              ),
+                              Text(
+                                vehicleDetails.vehicleNo,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textColorPrimary,
+                                    fontSize: 15),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: MediaQuery.sizeOf(context).width*0.12,
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Slot Date/Time",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.textColorSecondary,
+                                ),
+                              ),
+                              Text(
+                                vehicleDetails.vehicleNo,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textColorPrimary,
+                                    fontSize: 15),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: (){
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AddVehicleDetails(vehicleDetails:vehicleDetails),
+                                    ),
+                                  ).then((updateVehicle) {
+                                    if (updateVehicle != null) {
+
+                                      setState(() {
+                                        widget.vehicleDetailsList[index] = updateVehicle;
+                                      });
+
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(Icons.edit,
+                                        size: 28, color: AppColors.primary)),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    expanded[index] = !expanded[index];
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: AppColors.gradient1,
+                                  ),
+                                  child: Icon(
+                                    size: 28,
+                                    expanded[index]
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          GestureDetector(
+                             onTap:(){
+                               showUploadDocSheet(context);
+
+                             },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    margin: const EdgeInsets.only(right: 8,),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(Icons.account_box_outlined,
+                                        size: 28, color: AppColors.primary)),
+                                const Text(
+                                  "Reg. Cert.",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 18,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.account_box_outlined,
+                                      size: 28, color: AppColors.primary)),
+                              const Text(
+                                "DL",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+
+                            ],
+                          ),
+                        ],
+                      ),
+                       Column(
+                        children: [
+                          SizedBox(
+                            height: 32,
+
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AddBookSlot(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Book Slot",
+                                style: TextStyle(color: Colors.white,fontSize: 14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                ],
+              ),
+            ),
+            if (expanded[index])
+              Container(
+                width: MediaQuery.sizeOf(context).width,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShipmentInfoRow(
+                      header1: "Type of Vehicle",
+                      value1: vehicleDetails.vehicleType,
+                      header2: "Driving License No.",
+                      value2: vehicleDetails.driverLicenseNo,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ShipmentInfoRow(
+                      header1: "Driver DOB",
+                      value1: vehicleDetails.driverDOB,
+                      header2: "Driver Name",
+                      value2: vehicleDetails.driverName,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ShipmentInfoRow(
+                      header1: "Driver Mob No.",
+                      value1: vehicleDetails.driverMobNo,
+                      header2: "Remark/Chassis No.",
+                      value2: vehicleDetails.remark,
+                    ),
+
                     const SizedBox(
                       height: 10,
                     ),
@@ -581,20 +943,20 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              final result =
-                                  await Navigator.push<ShipmentDetails>(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AddShipmentDetails(),
+                                  builder: (context) => const AddShipmentDetails(shipment: null),
                                 ),
-                              );
-                              if (result != null) {
-                                setState(() {
-                                  widget.shipmentDetailsList.add(
-                                      result);
-                                });
-                              }
+                              ).then((newShipment) {
+                                if (newShipment != null) {
+                                  setState(() {
+                                    // Add new shipment to the list
+                                    shipmentList.add(newShipment);
+                                    expanded.add(false);
+                                  });
+                                }
+                              });
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -674,11 +1036,11 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
 
 
 class AddVehicleDetailsListNew extends StatefulWidget {
-  final List<ShipmentDetails> shipmentDetailsList;
-  final Future<ShipmentDetails?> Function() validateAndNavigate;
+  final List<VehicleDetails> vehicleDetailsList;
+  final Future<VehicleDetails?> Function() validateAndNavigate;
   const AddVehicleDetailsListNew({
     super.key,
-    required this.shipmentDetailsList, required this.validateAndNavigate,
+    required this.vehicleDetailsList, required this.validateAndNavigate,
 
   });
 
@@ -694,14 +1056,14 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
   void initState() {
     super.initState();
     expanded =
-        List.generate(widget.shipmentDetailsList.length, (index) => false);
-    print("-----${widget.shipmentDetailsList.length}");
+        List.generate(widget.vehicleDetailsList.length, (index) => false);
+    print("-----${widget.vehicleDetailsList.length}");
   }
 
   @override
   Widget build(BuildContext context) {
 
-    if (widget.shipmentDetailsList.isEmpty) {
+    if (widget.vehicleDetailsList.isEmpty) {
       return _buildEmptyShipmentDetails();
     } else {
       return _buildShipmentDetailsList();
@@ -743,7 +1105,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                       final result = await widget.validateAndNavigate();
                       if (result != null) {
                         setState(() {
-                          widget.shipmentDetailsList
+                          widget.vehicleDetailsList
                               .add(result);
                         });
                       }
@@ -840,18 +1202,11 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              final result =
-                              await Navigator.push<ShipmentDetails>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                  const AddShipmentDetails(),
-                                ),
-                              );
+                              final result = await widget.validateAndNavigate();
                               if (result != null) {
                                 setState(() {
-                                  widget.shipmentDetailsList.add(
-                                      result);
+                                  widget.vehicleDetailsList
+                                      .add(result);
                                 });
                               }
                             },
@@ -909,7 +1264,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                              widget.shipmentDetailsList.length.toString()),
+                              widget.vehicleDetailsList.length.toString()),
                         ),
                       ),
                     ],
@@ -920,8 +1275,8 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
             ),
             if (isExpanded)
               SizedBox(
-                child: ShipmentItemNew(
-                  shipmentDetailsList: shipmentList,
+                child: VehicleItemNew(
+                  vehicleDetailsList: dummyVehicleDetailsList,
                 ),
               ),
           ],
@@ -929,6 +1284,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
       ],
     );
   }
+
 }
 
 // class AddShipmentDetailsList extends StatefulWidget {
@@ -1361,6 +1717,80 @@ class _AddVehicleDetailsList extends State<AddVehicleDetailsList> {
           ],
         );
       },
+    );
+  }
+}
+
+class FileUploadBottomSheet extends StatefulWidget {
+  @override
+  _FileUploadBottomSheetState createState() => _FileUploadBottomSheetState();
+}
+
+class _FileUploadBottomSheetState extends State<FileUploadBottomSheet> {
+  String? fileName;
+  String? fileSize;
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Check if file is PNG and less than 2 MB
+      if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
+        setState(() {
+          fileName = file.name;
+          fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+        });
+      } else {
+        setState(() {
+          fileName = 'Invalid file. Please upload a PNG less than 2 MB.';
+          fileSize = null;
+        });
+      }
+    } else {
+      // User canceled the picker
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Upload PNG'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Upload PNG file (Max 2 MB)'),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _pickFile,
+                        child: Text('Pick PNG File'),
+                      ),
+                      SizedBox(height: 20),
+                      if (fileName != null) Text('Selected File: $fileName'),
+                      if (fileSize != null) Text('File Size: $fileSize'),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+          child: Text('Upload File'),
+        ),
+      ),
     );
   }
 }

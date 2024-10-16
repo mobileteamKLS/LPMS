@@ -5,15 +5,18 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
+import '../ui/widgest/AutoSuggest.dart';
 
 
 class AddShipmentDetails extends StatefulWidget {
-  const AddShipmentDetails({super.key});
+  final ShipmentDetails? shipment;
+  const AddShipmentDetails({super.key, this.shipment});
 
   @override
   State<AddShipmentDetails> createState() => _AddShipmentDetailsState();
@@ -21,20 +24,40 @@ class AddShipmentDetails extends StatefulWidget {
 
 class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController billNoController = TextEditingController();
-  final TextEditingController billDateController = TextEditingController();
-  final TextEditingController exporterNameController = TextEditingController();
-  final TextEditingController hsnCodeController = TextEditingController();
-  final TextEditingController cargoTypeController = TextEditingController();
-  final TextEditingController cargoDescriptionController =
+  final FocusNode _cityFocusNode = FocusNode();
+  final FocusNode _cityFocusNode2 = FocusNode();
+  late TextEditingController billNoController = TextEditingController();
+  late TextEditingController billDateController = TextEditingController();
+  late TextEditingController exporterNameController = TextEditingController();
+  late TextEditingController hsnCodeController = TextEditingController();
+  late TextEditingController cargoTypeController = TextEditingController();
+  late TextEditingController cargoDescriptionController =
       TextEditingController();
-  final TextEditingController qualityController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController valueController = TextEditingController();
+  late TextEditingController qualityController = TextEditingController();
+  late TextEditingController weightController = TextEditingController();
+  late TextEditingController valueController = TextEditingController();
   double fieldHeight = 45;
+  double _textFieldHeight = 45;
   bool isValid = true;
   final RegExp hsnPattern = RegExp(r'^\d{6,8}$');
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
+
+
+  @override
+  void initState() {
+    super.initState();
+    billNoController = TextEditingController(text: widget.shipment?.billNo ?? '');
+    billDateController = TextEditingController(text: widget.shipment?.billDate ?? '');
+    exporterNameController = TextEditingController(text: widget.shipment?.exporterName ?? '');
+    hsnCodeController = TextEditingController(text: widget.shipment?.hsnCode ?? '');
+    cargoTypeController = TextEditingController(text: widget.shipment?.cargoType ?? '');
+    cargoDescriptionController = TextEditingController(text: widget.shipment?.cargoDescription ?? '');
+    qualityController = TextEditingController(text: widget.shipment?.quality ?? '');
+    weightController = TextEditingController(text: widget.shipment?.cargoWeight ?? '');
+    valueController = TextEditingController(text: widget.shipment?.cargoValue ?? '');
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -290,10 +313,111 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 height:
                                     MediaQuery.sizeOf(context).height * 0.015,
                               ),
-                              CustomTextField(
-                                controller: exporterNameController,
-                                labelText: "Name of Exporter",
-                                inputType: TextInputType.text,
+                              // CustomTextField(
+                              //   controller: exporterNameController,
+                              //   labelText: "Name of Exporter",
+                              //   inputType: TextInputType.text,
+                              // ),
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width,
+                                child: FormField<String>(
+                                  validator: (value) {
+                                    if (exporterNameController.text.isEmpty) {
+                                      setState(() {
+                                        _textFieldHeight = 45;
+                                      });
+                                      return '  Required';
+                                    }
+                                    setState(() {
+                                      _textFieldHeight =
+                                      45; // Reset to initial height if valid
+                                    });
+                                    return null; // Valid input
+                                  },
+                                  builder: (formFieldState) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          height: _textFieldHeight,
+                                          // Dynamic height based on validation
+                                          child: TypeAheadField<
+                                              CargoTypeExporterImporterAgent>(
+                                            textFieldConfiguration:
+                                            TextFieldConfiguration(
+                                              controller: exporterNameController,
+                                              focusNode: _cityFocusNode,
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                    horizontal: 10.0),
+                                                border: OutlineInputBorder(),
+                                                labelText: 'Name of Exporter',
+                                              ),
+                                            ),
+                                            suggestionsCallback: (search) =>
+                                                ExporterService.find(search),
+                                            itemBuilder: (context, city) {
+                                              return Container(
+                                                decoration: const BoxDecoration(
+                                                  border: Border(
+                                                    top: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    left: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    right: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    bottom: BorderSide
+                                                        .none, // No border on the bottom
+                                                  ),
+                                                ),
+                                                padding:
+                                                const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    Text(city.code.toUpperCase()),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(city.description
+                                                        .toUpperCase()),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            onSuggestionSelected: (city) {
+                                              exporterNameController.text =
+                                                  city.description.toUpperCase();
+                                              formFieldState
+                                                  .didChange(exporterNameController.text);
+                                            },
+                                            noItemsFoundBuilder: (context) =>
+                                            const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text('No Exporter Found'),
+                                            ),
+                                          ),
+                                        ),
+                                        if (formFieldState.hasError)
+                                          Padding(
+                                            padding:
+                                            const EdgeInsets.only(top: 8.0,left: 16),
+                                            child: Text(
+                                              formFieldState.errorText ?? '',
+                                              style: const TextStyle(
+                                                  color: Colors.red,fontSize: 12),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                               SizedBox(
                                 height:
@@ -315,17 +439,104 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               SizedBox(
-                                height: 45,
                                 width: MediaQuery.sizeOf(context).width,
-                                child: TextFormField(
-                                  controller: cargoTypeController,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    labelText: "Cargo Type",
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
+                                child: FormField<String>(
+                                  validator: (value) {
+                                    if (cargoTypeController.text.isEmpty) {
+                                      setState(() {
+                                        _textFieldHeight = 45;
+                                      });
+                                      return '  Required';
+                                    }
+                                    setState(() {
+                                      _textFieldHeight =
+                                      45; // Reset to initial height if valid
+                                    });
+                                    return null; // Valid input
+                                  },
+                                  builder: (formFieldState) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          height: _textFieldHeight,
+                                          // Dynamic height based on validation
+                                          child: TypeAheadField<
+                                              CargoTypeExporterImporterAgent>(
+                                            textFieldConfiguration:
+                                            TextFieldConfiguration(
+                                              controller: cargoTypeController,
+                                              focusNode: _cityFocusNode2,
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                    horizontal: 10.0),
+                                                border: OutlineInputBorder(),
+                                                labelText: 'Cargo Type',
+                                              ),
+                                            ),
+                                            suggestionsCallback: (search) =>
+                                                CargoTypeService.find(search),
+                                            itemBuilder: (context, city) {
+                                              return Container(
+                                                decoration: const BoxDecoration(
+                                                  border: Border(
+                                                    top: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    left: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    right: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    bottom: BorderSide
+                                                        .none, // No border on the bottom
+                                                  ),
+                                                ),
+                                                padding:
+                                                const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    Text(city.code.toUpperCase()),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(city.description
+                                                        .toUpperCase()),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            onSuggestionSelected: (city) {
+                                              cargoTypeController.text =
+                                                  city.description.toUpperCase();
+                                              formFieldState
+                                                  .didChange(cargoTypeController.text);
+                                            },
+                                            noItemsFoundBuilder: (context) =>
+                                            const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text('No Cargo Type Found'),
+                                            ),
+                                          ),
+                                        ),
+                                        if (formFieldState.hasError)
+                                          Padding(
+                                            padding:
+                                            const EdgeInsets.only(top: 8.0,left: 16.0),
+                                            child: Text(
+                                              formFieldState.errorText ?? '',
+                                              style: const TextStyle(
+                                                  color: Colors.red,fontSize: 12),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                               SizedBox(
@@ -411,7 +622,11 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pop(
+                                        context,
+                                      );
+                                    },
                                     child: const Text("Cancel"),
                                   ),
                                 ),

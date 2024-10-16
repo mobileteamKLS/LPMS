@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lpms/screens/VehicleDetails.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -83,11 +85,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       cargoValue: "\$100,000",
     ),
   ];
-  List<VehicleDetails> dummyVehicleDetailsList = [
+  List<VehicleDetails> dummyVehicleDetailsList2 = [
     VehicleDetails(
       billDate: "2024-01-25",
       vehicleType: "6 Wheeler Truck",
-      vehicle: "LMN789",
+      vehicleNo: "LMN789",
       driverLicenseNo: "DL-654321987",
       driverMobNo: "9876543230",
       driverDOB: "1988-12-14",
@@ -97,7 +99,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     VehicleDetails(
       billDate: "2024-02-01",
       vehicleType: "Truck",
-      vehicle: "PQR101",
+      vehicleNo: "PQR101",
       driverLicenseNo: "DL-789456123",
       driverMobNo: "9876543240",
       driverDOB: "1992-07-08",
@@ -107,7 +109,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     VehicleDetails(
       billDate: "2024-02-05",
       vehicleType: "Chassis",
-      vehicle: "DEF234",
+      vehicleNo: "DEF234",
       driverLicenseNo: "DL-321654987",
       driverMobNo: "9876543250",
       driverDOB: "1989-03-18",
@@ -132,7 +134,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   @override
   void initState() {
     super.initState();
-    // callAllApis();
+    callAllApis();
     noOfVehiclesController.text = "1";
   }
   Future<ShipmentDetails?> validateAndNavigate() async {
@@ -141,6 +143,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         context,
         MaterialPageRoute(
           builder: (context) => const AddShipmentDetails(),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<VehicleDetails?> validateAndNavigateV2() async {
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<VehicleDetails>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddVehicleDetails(),
         ),
       );
     } else {
@@ -183,21 +199,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   // }
 
   Future<void> loadCargoTypes() async {
-    await Future.delayed(const Duration(seconds: 2));
     setState(() {
       isLoading = true;
     });
 
+    await Future.delayed(const Duration(seconds: 2));
+
     final mdl = SelectionModels();
-    if (mdl.topRecord == null || mdl.topRecord == 10) {
-      mdl.topRecord = 999;
-    }
+    mdl.topRecord ??= 10; // Assign 10 if topRecord is null
+    mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
 
     SelectionQuery body = SelectionQuery();
-
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    body.query = await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
+
     var headers = {
       'Accept': 'text/plain',
       'Content-Type': 'multipart/form-data',
@@ -206,17 +221,19 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       'Query': '${body.query}',
     };
 
-    await authService
-        .sendMultipartRequest(
-            headers: headers,
-            fields: fields,
-            endPoint: "api/GenericDropDown/GetAllClientListOfValues")
-        .then((response) {
+    try {
+      final response = await authService.sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api/GenericDropDown/GetAllClientListOfValues",
+      );
+
       if (response.body.isNotEmpty) {
-        json.decode(response.body);
         print("-----Cargo Types-----");
-        print(json.decode(response.body));
         List<dynamic> jsonData = json.decode(response.body);
+        print("-----Cargo Types----- $jsonData");
+        print("-----Cargo Types Length= ${jsonData.length}-----");
+
         setState(() {
           cargoTypeList = jsonData
               .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
@@ -224,22 +241,17 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         });
         print("-----Cargo Types Length= ${cargoTypeList.length}-----");
       } else {
-        print("response is empty");
+        print("Response is empty");
       }
+    } catch (error) {
+      print("Error: $error");
+    } finally {
       setState(() {
-        setState(() {
-          isLoading = false;
-        });
+        isLoading = false;
       });
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          isLoading = false;
-        });
-      });
-    });
-
+    }
   }
+
 
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
     await Future.delayed(const Duration(seconds: 2));
@@ -475,7 +487,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " AGA",
+                                      " india",
                                       style: TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
@@ -486,7 +498,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " ALL",
+                                      " bangladesh",
                                       style: TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
@@ -806,7 +818,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      shipmentDetailsList: shipmentList,validateAndNavigate: validateAndNavigate,
+                      vehicleDetailsList: dummyVehicleDetailsList,validateAndNavigate: validateAndNavigateV2,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -929,6 +941,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
 }
+
 
 
 class Vehicle {
