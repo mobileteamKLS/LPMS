@@ -26,7 +26,7 @@ class AddVehicleDetails extends StatefulWidget {
 
 class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController billDateController = TextEditingController();
+  late int vehicleTypeId;
   late TextEditingController vehicleTypeController = TextEditingController();
   late TextEditingController vehicleNoController = TextEditingController();
   late TextEditingController driverLicenseNoController = TextEditingController();
@@ -46,9 +46,9 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   @override
   void initState() {
     super.initState();
-    billDateController = TextEditingController(text: widget.vehicleDetails?.billDate ?? '');
-    vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleType ?? '');
-    vehicleNoController = TextEditingController(text: widget.vehicleDetails?.vehicleNo ?? '');
+    vehicleTypeId=widget.vehicleDetails?.vehicleId ??0;
+    vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleTypeName ?? '');
+    vehicleNoController = TextEditingController(text: widget.vehicleDetails?.truckNo ?? '');
     driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.driverLicenseNo ?? '');
     driverDOBController = TextEditingController(text: widget.vehicleDetails?.driverDOB ?? '');
     driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverMobNo ?? '');
@@ -297,11 +297,11 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CustomDatePicker(
-                                controller: billDateController,
-                                labelText: 'Shipping Bill Date',
-                                allowPastDates: false,
-                              ),
+                              // CustomDatePicker(
+                              //   controller: billDateController,
+                              //   labelText: 'Shipping Bill Date',
+                              //   allowPastDates: false,
+                              // ),
                               SizedBox(
                                 height:
                                 MediaQuery.sizeOf(context).height * 0.015,
@@ -385,6 +385,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                             onSuggestionSelected: (city) {
                                               vehicleTypeController.text =
                                                   city.name;
+                                              vehicleTypeId=int.parse(city.id);
                                               formFieldState
                                                   .didChange(vehicleTypeController.text);
                                             },
@@ -419,6 +420,10 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: vehicleNoController,
                                 labelText: "Vehicle No.",
                                 inputType: TextInputType.text,
+                                inputFormatters: [
+
+                                  LengthLimitingTextInputFormatter(10)
+                                ],
                               ),
                               SizedBox(
                                 height:
@@ -428,6 +433,10 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: driverLicenseNoController,
                                 labelText: "Driving License No.",
                                 inputType: TextInputType.text,
+                                inputFormatters: [
+
+                                  LengthLimitingTextInputFormatter(16)
+                                ],
                               ),
                               SizedBox(
                                 height:
@@ -437,6 +446,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: driverDOBController,
                                 labelText: "Driver DOB",
                                 allowPastDates: true,
+                                allowFutureDates: false,
                               ),
                               SizedBox(
                                 height:
@@ -446,6 +456,10 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: driverNameController,
                                 labelText: "Driver Name",
                                 inputType: TextInputType.text,
+                                inputFormatters: [
+
+                                  LengthLimitingTextInputFormatter(50)
+                                ],
                               ),
                               SizedBox(
                                 height:
@@ -455,6 +469,10 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: driverMobNoController,
                                 labelText: "Driver Mobile No.",
                                 inputType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(10)
+                                ],
                               ),
                               SizedBox(
                                 height:
@@ -464,6 +482,11 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 controller: remarkController,
                                 labelText: "Remark/Chassis No.",
                                 inputType: TextInputType.text,
+                                isValidationRequired: false,
+                                inputFormatters: [
+
+                                  LengthLimitingTextInputFormatter(16)
+                                ],
                               ),
                             ],
                           ),
@@ -511,9 +534,9 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
                                         final newVehicle = VehicleDetails(
-                                          billDate: billDateController.text,
-                                          vehicleType: vehicleTypeController.text,
-                                          vehicleNo: vehicleNoController.text,
+                                          vehicleTypeId:  vehicleTypeId,
+                                          vehicleTypeName: vehicleTypeController.text,
+                                          truckNo: vehicleNoController.text,
                                           driverLicenseNo: driverLicenseNoController.text,
                                           driverMobNo: driverMobNoController.text,
                                           driverDOB: driverDOBController.text,

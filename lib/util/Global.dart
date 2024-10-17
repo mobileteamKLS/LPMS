@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
 import '../models/LoginMaster.dart';
@@ -12,6 +13,7 @@ List<CargoTypeExporterImporterAgent> chaAgentList = [];
 List<CargoTypeExporterImporterAgent> exporterList = [];
 List<CargoTypeExporterImporterAgent> importerList = [];
 List<DropdownItem<Vehicle>> items = [ ];
+List<DropdownItem<Vehicle>> items1 = [ ];
 List<ShipmentDetails> shipmentList = [
   // ShipmentDetails(
   //   billNo: "SBN001",
@@ -49,9 +51,9 @@ List<ShipmentDetails> shipmentList = [
 ];
 List<VehicleDetails> dummyVehicleDetailsList = [
   // VehicleDetails(
-  //   billDate: "2024-01-25",
+  //
   //   vehicleType: "6 Wheeler Truck",
-  //   vehicleNo: "LMN789",
+  //   truckNo: "LMN789",
   //   driverLicenseNo: "DL-654321987",
   //   driverMobNo: "9876543230",
   //   driverDOB: "1988-12-14",
@@ -80,3 +82,6 @@ List<VehicleDetails> dummyVehicleDetailsList = [
   // ),
 ];
 final multiSelectController = MultiSelectController<Vehicle>();
+final multiSelectController2 = MultiSelectController<Vehicle>();
+final TextEditingController noOfVehiclesController = TextEditingController();
+bool isFTlAndOneShipment=false;

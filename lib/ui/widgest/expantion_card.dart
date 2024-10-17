@@ -1,17 +1,26 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lpms/theme/app_color.dart';
 
+import '../../api/auth.dart';
 import '../../models/ShippingList.dart';
 import '../../screens/ShipmentDetails.dart';
 import '../../screens/SlotBooking.dart';
 import '../../screens/VehicleDetails.dart';
 import '../../util/Global.dart';
 import 'CustomTextField.dart';
+import 'package:http_parser/http_parser.dart';
 
 // class RecursiveDrawerItem extends StatelessWidget {
 //   final List categories;
@@ -262,13 +271,13 @@ class _RecursiveDrawerItemStateV2 extends State<RecursiveDrawerItemV2> {
 
 class ShipmentItemNew extends StatefulWidget {
   final List<ShipmentDetails> shipmentDetailsList;
+  final bool isExport;
 
   const ShipmentItemNew(
-      {super.key, required this.shipmentDetailsList});
+      {super.key, required this.shipmentDetailsList, required this.isExport});
 
   @override
-  _ShipmentItemNewState createState() =>
-      _ShipmentItemNewState();
+  _ShipmentItemNewState createState() => _ShipmentItemNewState();
 }
 
 class _ShipmentItemNewState extends State<ShipmentItemNew> {
@@ -324,24 +333,27 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: (){
+                            onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AddShipmentDetails(shipment: shipmentDetails),
+                                  builder: (context) => AddShipmentDetails(
+                                    shipment: shipmentDetails,
+                                    isExport: widget.isExport,
+                                  ),
                                 ),
                               ).then((updatedShipment) {
                                 if (updatedShipment != null) {
-
                                   setState(() {
-                                    widget.shipmentDetailsList[index] = updatedShipment;
+                                    widget.shipmentDetailsList[index] =
+                                        updatedShipment;
                                   });
-
                                 }
                               });
                             },
                             child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 8),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
@@ -431,24 +443,29 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
   }
 }
 
-
 class VehicleItemNew extends StatefulWidget {
   final List<VehicleDetails> vehicleDetailsList;
   final IsExport;
+
   const VehicleItemNew(
       {super.key, required this.vehicleDetailsList, this.IsExport});
 
   @override
-  _VehicleItemNewState createState() =>
-      _VehicleItemNewState();
+  _VehicleItemNewState createState() => _VehicleItemNewState();
 }
 
 class _VehicleItemNewState extends State<VehicleItemNew> {
   List<bool> expanded = [];
   String? fileName;
   String? fileSize;
+  final AuthService authService = AuthService();
+  final TextEditingController docNameController = TextEditingController();
+  final TextEditingController docRemarkController = TextEditingController();
 
-  Future<void> _pickFile() async {
+  File? pickedFile;
+  Uint8List? fileBytes;
+
+  Future<void> _pickFile(setState) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png'],
@@ -456,11 +473,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
     if (result != null) {
       PlatformFile file = result.files.first;
-
-      // Check if file is PNG and less than 2 MB
+      String filePath = result.files.single.path!;
+      File file2 = File(filePath);
       if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
         setState(() {
           fileName = file.name;
+          print(fileName);
+          fileBytes = result.files.single.bytes;
+          pickedFile = File(result.files.single.path!);
           fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
         });
       } else {
@@ -469,11 +489,48 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           fileSize = null;
         });
       }
+      Upload(file2);
     } else {
       // User canceled the picker
     }
   }
-  void showUploadDocSheet(BuildContext context) {
+
+  Future<void> Upload(File file) async {
+    await Future.delayed(const Duration(seconds: 2));
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ${loginMaster[0].token}',
+    };
+    try {
+      // Create a multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://acsintapigateway.kalelogistics.com/api/ReturnRootPath/Upload'),
+      );
+
+      request.headers.addAll(headers);
+      var stream = http.ByteStream(pickedFile!.openRead());
+      var length = await pickedFile!.length();
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file', // Field name expected by the server
+          file.path,
+          contentType: MediaType('application', 'octet-stream'), // MIME type
+        ),
+      );
+      request.fields['UploadPath'] = "Upload/ImportFiles/";
+
+      var response = await request.send();
+      final String responseBody = await response.stream.bytesToString();
+      print("---$responseBody");
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+  void showUploadRCSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -485,20 +542,171 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(
-                height: 350,
+                height: 400,
                 width: double.infinity,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Upload PNG file (Max 2 MB)'),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _pickFile,
-                      child: const Text('Pick PNG File',style: TextStyle(color: Colors.white),),
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Text(
+                              'Registration Certificate',
+                              style: TextStyle(
+                                  color: AppColors.textColorPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          color: AppColors.textColorSecondary,
+                          height: 1,
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                CustomTextField(
+                                  controller: docNameController,
+                                  labelText: 'Document Name',
+                                  isValidationRequired: false,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                CustomTextField(
+                                  controller: docRemarkController,
+                                  labelText: 'Remark',
+                                  isValidationRequired: false,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.32,
+                                      height: 45,
+                                      child: fileSize != null
+                                          ? const Text(
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
+                                          : const Text(""),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.42,
+                                      height: 45,
+                                      child: fileSize != null
+                                          ? Text(
+                                              "PNG & $fileSize",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
+                                          : const Text(""),
+                                    ),
+                                  ],
+                                ),
+                                fileName != null
+                                    ? Text(
+                                        " $fileName",
+                                        style: const TextStyle(
+                                            color: AppColors.textColorPrimary,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700),
+                                      )
+                                    : const Text(""),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _pickFile(setState);
+                              },
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.upload_outlined,
+                                    color: AppColors.primary,
+                                  ),
+                                  Text(
+                                    ' Upload File',
+                                    style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
-                    SizedBox(height: 20),
-                    if (fileName != null) Text('Selected File: $fileName'),
-                    if (fileSize != null) Text('File Size: $fileSize'),
+                    Column(
+                      children: [
+                        Container(
+                          color: AppColors.textColorSecondary,
+                          height: 1,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.42,
+                              height: 45,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Cancel"),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.42,
+                              height: 45,
+                              child: ElevatedButton(
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Save",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -506,7 +714,201 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           },
         );
       },
-    );
+    ).whenComplete(() {
+      setState(() {
+        fileName = null;
+        fileSize = null;
+      });
+    });
+  }
+
+  void showUploadDLSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        // List<String> selectedFilters = [];
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: 400,
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Text(
+                              'Driving License',
+                              style: TextStyle(
+                                  color: AppColors.textColorPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          color: AppColors.textColorSecondary,
+                          height: 1,
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                CustomTextField(
+                                  controller: docNameController,
+                                  labelText: 'Document Name',
+                                  isValidationRequired: false,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                CustomTextField(
+                                  controller: docRemarkController,
+                                  labelText: 'Remark',
+                                  isValidationRequired: false,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.32,
+                                      height: 45,
+                                      child: fileSize != null
+                                          ? const Text(
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
+                                          : const Text(""),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.42,
+                                      height: 45,
+                                      child: fileSize != null
+                                          ? Text(
+                                              "PNG & $fileSize",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
+                                          : const Text(""),
+                                    ),
+                                  ],
+                                ),
+                                fileName != null
+                                    ? Text(
+                                        " $fileName",
+                                        style: const TextStyle(
+                                            color: AppColors.textColorPrimary,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700),
+                                      )
+                                    : const Text(""),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _pickFile(setState);
+                              },
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.upload_outlined,
+                                    color: AppColors.primary,
+                                  ),
+                                  Text(
+                                    ' Upload File',
+                                    style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          color: AppColors.textColorSecondary,
+                          height: 1,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.42,
+                              height: 45,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Cancel"),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.42,
+                              height: 45,
+                              child: ElevatedButton(
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Save",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      setState(() {
+        fileName = null;
+        fileSize = null;
+      });
+    });
   }
 
   @override
@@ -530,7 +932,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           children: [
             Container(
               padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               color: Colors.white,
               child: Column(
                 children: [
@@ -552,7 +954,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 ),
                               ),
                               Text(
-                                vehicleDetails.vehicleNo,
+                                vehicleDetails.truckNo,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textColorPrimary,
@@ -561,13 +963,13 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                             ],
                           ),
                           SizedBox(
-                            width: MediaQuery.sizeOf(context).width*0.12,
+                            width: MediaQuery.sizeOf(context).width * 0.12,
                           ),
-                          Column(
+                          const Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "Slot Date/Time",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w400,
@@ -575,8 +977,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 ),
                               ),
                               Text(
-                                vehicleDetails.vehicleNo,
-                                style: const TextStyle(
+                                "",
+                                style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textColorPrimary,
                                     fontSize: 15),
@@ -590,24 +992,25 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: (){
+                                onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => AddVehicleDetails(vehicleDetails:vehicleDetails),
+                                      builder: (context) => AddVehicleDetails(
+                                          vehicleDetails: vehicleDetails),
                                     ),
                                   ).then((updateVehicle) {
                                     if (updateVehicle != null) {
-
                                       setState(() {
-                                        widget.vehicleDetailsList[index] = updateVehicle;
+                                        widget.vehicleDetailsList[index] =
+                                            updateVehicle;
                                       });
-
                                     }
                                   });
                                 },
                                 child: Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 8),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
@@ -641,7 +1044,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8,),
+                  const SizedBox(
+                    height: 8,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -649,21 +1054,24 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           GestureDetector(
-                             onTap:(){
-                               showUploadDocSheet(context);
-
-                             },
+                            onTap: () {
+                              showUploadRCSheet(context);
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
-                                    margin: const EdgeInsets.only(right: 8,),
+                                    margin: const EdgeInsets.only(
+                                      right: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(Icons.account_box_outlined,
-                                        size: 28, color: AppColors.primary)),
+                                    child: const Icon(
+                                        Icons.account_box_outlined,
+                                        size: 28,
+                                        color: AppColors.primary)),
                                 const Text(
                                   "Reg. Cert.",
                                   style: TextStyle(
@@ -671,53 +1079,61 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     color: AppColors.primary,
                                   ),
                                 ),
-
                               ],
                             ),
                           ),
                           const SizedBox(
                             width: 18,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
+                          GestureDetector(
+                            onTap: () {
+                              showUploadDLSheet(context);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(
+                                        Icons.account_box_outlined,
+                                        size: 28,
+                                        color: AppColors.primary)),
+                                const Text(
+                                  "DL",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.primary,
                                   ),
-                                  child: const Icon(Icons.account_box_outlined,
-                                      size: 28, color: AppColors.primary)),
-                              const Text(
-                                "DL",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.primary,
                                 ),
-                              ),
-
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                       Column(
+                      Column(
                         children: [
                           SizedBox(
                             height: 32,
-
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>  AddBookSlot(isExport: widget.IsExport),
+                                    builder: (context) => AddBookSlot(
+                                      isExport: widget.IsExport,
+                                      vehicleTypeTd: vehicleDetails.vehicleId,
+                                    ),
                                   ),
                                 );
                               },
                               child: const Text(
                                 "Book Slot",
-                                style: TextStyle(color: Colors.white,fontSize: 14),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
                               ),
                             ),
                           ),
@@ -725,7 +1141,6 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                       ),
                     ],
                   ),
-
                 ],
               ),
             ),
@@ -733,14 +1148,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
               Container(
                 width: MediaQuery.sizeOf(context).width,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShipmentInfoRow(
                       header1: "Type of Vehicle",
-                      value1: vehicleDetails.vehicleType,
+                      value1: vehicleDetails.vehicleTypeName,
                       header2: "Driving License No.",
                       value2: vehicleDetails.driverLicenseNo,
                     ),
@@ -762,7 +1177,6 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                       header2: "Remark/Chassis No.",
                       value2: vehicleDetails.remark,
                     ),
-
                     const SizedBox(
                       height: 10,
                     ),
@@ -779,10 +1193,13 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 class AddShipmentDetailsListNew extends StatefulWidget {
   final List<ShipmentDetails> shipmentDetailsList;
   final Future<ShipmentDetails?> Function() validateAndNavigate;
+  final bool isExport;
+
   const AddShipmentDetailsListNew({
     super.key,
-    required this.shipmentDetailsList, required this.validateAndNavigate,
-
+    required this.shipmentDetailsList,
+    required this.validateAndNavigate,
+    required this.isExport,
   });
 
   @override
@@ -803,7 +1220,6 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
 
   @override
   Widget build(BuildContext context) {
-
     if (widget.shipmentDetailsList.isEmpty) {
       return _buildEmptyShipmentDetails();
     } else {
@@ -841,13 +1257,301 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
               ),
               Row(
                 children: [
+                  isFTlAndOneShipment
+                      ? GestureDetector(
+                          onTap: () async {
+                            if (int.parse(noOfVehiclesController.text) > 1) {
+                              final result = await widget.validateAndNavigate();
+                              if (result != null) {
+                                setState(() {
+                                  widget.shipmentDetailsList.add(result);
+                                });
+                              }
+                            }
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Icon(
+                              size: 28,
+                              Icons.add,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () async {
+                            if (int.parse(noOfVehiclesController.text) > 1) {
+                              final result = await widget.validateAndNavigate();
+                              if (result != null) {
+                                setState(() {
+                                  widget.shipmentDetailsList.add(result);
+                                });
+                              }
+                            }
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Icon(
+                              size: 28,
+                              Icons.add,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text(
+                "Total Count  ",
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textColorSecondary,
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.containerBgColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text("0"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  // Method to build the widget when shipmentDetailsList is not empty
+  Widget _buildShipmentDetailsList() {
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      children: [
+        Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft: (!isExpanded)
+                      ? const Radius.circular(12)
+                      : const Radius.circular(0),
+                  bottomRight: (!isExpanded)
+                      ? const Radius.circular(12)
+                      : const Radius.circular(0),
+                ),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.background,
+                    width: 4.0,
+                  ),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "SHIPMENT DETAILS",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: AppColors.textColorPrimary,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddShipmentDetails(
+                                    shipment: null,
+                                    isExport: widget.isExport,
+                                  ),
+                                ),
+                              ).then((newShipment) {
+                                if (newShipment != null) {
+                                  setState(() {
+                                    // Add new shipment to the list
+                                    shipmentList.add(newShipment);
+                                    expanded.add(false);
+                                  });
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                size: 28,
+                                Icons.add,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isExpanded = !isExpanded;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: AppColors.gradient1,
+                              ),
+                              child: Icon(
+                                size: 28,
+                                isExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        "Total Count  ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColorSecondary,
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.containerBgColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                              widget.shipmentDetailsList.length.toString()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            if (isExpanded)
+              SizedBox(
+                child: ShipmentItemNew(
+                  shipmentDetailsList: shipmentList,
+                  isExport: widget.isExport,
+                ),
+              ),
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class AddVehicleDetailsListNew extends StatefulWidget {
+  final List<VehicleDetails> vehicleDetailsList;
+  final Future<VehicleDetails?> Function() validateAndNavigate;
+  final bool isExport;
+
+  AddVehicleDetailsListNew({
+    super.key,
+    required this.vehicleDetailsList,
+    required this.validateAndNavigate,
+    required this.isExport,
+  });
+
+  @override
+  _AddVehicleDetailsListNew createState() => _AddVehicleDetailsListNew();
+}
+
+class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
+  List<bool> expanded = [];
+  bool isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    expanded =
+        List.generate(widget.vehicleDetailsList.length, (index) => false);
+    print("-----${widget.vehicleDetailsList.length}");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.vehicleDetailsList.isEmpty) {
+      return _buildEmptyShipmentDetails();
+    } else {
+      return _buildShipmentDetailsList();
+    }
+  }
+
+  Widget _buildEmptyShipmentDetails() {
+    return Container(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.background,
+            width: 4.0,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "VEHICLE DETAILS",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: AppColors.textColorPrimary,
+                ),
+              ),
+              Row(
+                children: [
                   GestureDetector(
                     onTap: () async {
                       final result = await widget.validateAndNavigate();
                       if (result != null) {
                         setState(() {
-                          widget.shipmentDetailsList
-                              .add(result);
+                          widget.vehicleDetailsList.add(result);
                         });
                       }
                     },
@@ -932,266 +1636,6 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "SHIPMENT DETAILS",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: AppColors.textColorPrimary,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AddShipmentDetails(shipment: null),
-                                ),
-                              ).then((newShipment) {
-                                if (newShipment != null) {
-                                  setState(() {
-                                    // Add new shipment to the list
-                                    shipmentList.add(newShipment);
-                                    expanded.add(false);
-                                  });
-                                }
-                              });
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                size: 28,
-                                Icons.add,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isExpanded = !isExpanded;
-                              });
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: AppColors.gradient1,
-                              ),
-                              child: Icon(
-                                size: 28,
-                                isExpanded
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Total Count  ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColorSecondary,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.containerBgColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                              widget.shipmentDetailsList.length.toString()),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-            if (isExpanded)
-              SizedBox(
-                child: ShipmentItemNew(
-                  shipmentDetailsList: shipmentList,
-                ),
-              ),
-          ],
-        )
-      ],
-    );
-  }
-}
-
-
-class AddVehicleDetailsListNew extends StatefulWidget {
-  final List<VehicleDetails> vehicleDetailsList;
-  final Future<VehicleDetails?> Function() validateAndNavigate;
-  final bool isExport;
-   AddVehicleDetailsListNew({
-    super.key,
-    required this.vehicleDetailsList, required this.validateAndNavigate, required this.isExport,
-
-  });
-
-  @override
-  _AddVehicleDetailsListNew createState() => _AddVehicleDetailsListNew();
-}
-
-class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
-  List<bool> expanded = [];
-  bool isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    expanded =
-        List.generate(widget.vehicleDetailsList.length, (index) => false);
-    print("-----${widget.vehicleDetailsList.length}");
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    if (widget.vehicleDetailsList.isEmpty) {
-      return _buildEmptyShipmentDetails();
-    } else {
-      return _buildShipmentDetailsList();
-    }
-  }
-
-  Widget _buildEmptyShipmentDetails() {
-    return Container(
-      padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.background,
-            width: 4.0,
-          ),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "VEHICLE DETAILS",
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  color: AppColors.textColorPrimary,
-                ),
-              ),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await widget.validateAndNavigate();
-                      if (result != null) {
-                        setState(() {
-                          widget.vehicleDetailsList
-                              .add(result);
-                        });
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: const Icon(
-                        size: 28,
-                        Icons.add,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              const Text(
-                "Total Count  ",
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.textColorSecondary,
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.containerBgColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text("0"),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  // Method to build the widget when shipmentDetailsList is not empty
-  Widget _buildShipmentDetailsList() {
-    return ListView(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      children: [
-        Column(
-          children: [
-            Container(
-              padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(12),
-                  topRight: const Radius.circular(12),
-                  bottomLeft: (!isExpanded)
-                      ? const Radius.circular(12)
-                      : const Radius.circular(0),
-                  bottomRight: (!isExpanded)
-                      ? const Radius.circular(12)
-                      : const Radius.circular(0),
-                ),
-                border: const Border(
-                  bottom: BorderSide(
-                    color: AppColors.background,
-                    width: 4.0,
-                  ),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
                         "VEHICLE DETAILS",
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -1206,8 +1650,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                               final result = await widget.validateAndNavigate();
                               if (result != null) {
                                 setState(() {
-                                  widget.vehicleDetailsList
-                                      .add(result);
+                                  widget.vehicleDetailsList.add(result);
                                 });
                               }
                             },
@@ -1264,8 +1707,8 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                              widget.vehicleDetailsList.length.toString()),
+                          child:
+                              Text(widget.vehicleDetailsList.length.toString()),
                         ),
                       ),
                     ],
@@ -1277,7 +1720,8 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
             if (isExpanded)
               SizedBox(
                 child: VehicleItemNew(
-                  vehicleDetailsList: dummyVehicleDetailsList,IsExport: widget.isExport,
+                  vehicleDetailsList: dummyVehicleDetailsList,
+                  IsExport: widget.isExport,
                 ),
               ),
           ],
@@ -1285,7 +1729,6 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
       ],
     );
   }
-
 }
 
 // class AddShipmentDetailsList extends StatefulWidget {
@@ -1718,80 +2161,6 @@ class _AddVehicleDetailsList extends State<AddVehicleDetailsList> {
           ],
         );
       },
-    );
-  }
-}
-
-class FileUploadBottomSheet extends StatefulWidget {
-  @override
-  _FileUploadBottomSheetState createState() => _FileUploadBottomSheetState();
-}
-
-class _FileUploadBottomSheetState extends State<FileUploadBottomSheet> {
-  String? fileName;
-  String? fileSize;
-
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png'],
-    );
-
-    if (result != null) {
-      PlatformFile file = result.files.first;
-
-      // Check if file is PNG and less than 2 MB
-      if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
-        setState(() {
-          fileName = file.name;
-          fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
-        });
-      } else {
-        setState(() {
-          fileName = 'Invalid file. Please upload a PNG less than 2 MB.';
-          fileSize = null;
-        });
-      }
-    } else {
-      // User canceled the picker
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Upload PNG'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (BuildContext context) {
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Upload PNG file (Max 2 MB)'),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _pickFile,
-                        child: Text('Pick PNG File'),
-                      ),
-                      SizedBox(height: 20),
-                      if (fileName != null) Text('Selected File: $fileName'),
-                      if (fileSize != null) Text('File Size: $fileSize'),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          child: Text('Upload File'),
-        ),
-      ),
     );
   }
 }

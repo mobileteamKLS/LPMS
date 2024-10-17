@@ -20,7 +20,8 @@ import '../util/Global.dart';
 
 class AddBookSlot extends StatefulWidget {
   final bool isExport;
-  const AddBookSlot({super.key, required this.isExport});
+  final int vehicleTypeTd;
+  const AddBookSlot({super.key, required this.isExport, required this.vehicleTypeTd});
 
   @override
   State<AddBookSlot> createState() => _AddBookSlotState();
@@ -88,11 +89,11 @@ class _AddBookSlotState extends State<AddBookSlot> {
     slotDetailsList = [];
     var queryParams = {
       "CommodityTypeId": 1,
-      "ShipmentModeId": 7198,
+      "ShipmentModeId": widget.isExport? 7198:7199,
       "Date": Utils.formatDate(selectedDate!),
       "OrgProdId": loginMaster[0].adminOrgProdId,
       "TerminalId": loginMaster[0].terminalId,
-      "VehicleTypeId": "44",
+      "VehicleTypeId": widget.vehicleTypeTd.toString(),
       "TimeZone": loginMaster[0].timeZone
     };
     await authService

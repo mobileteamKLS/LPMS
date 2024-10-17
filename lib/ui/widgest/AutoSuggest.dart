@@ -44,6 +44,11 @@ class CHAAgentService {
   }
 }
 
+ String normalizeString(String input) {
+// Remove non-alphanumeric characters and convert to lowercase
+return input.replaceAll(RegExp(r'[^a-zA-Z0-9\s]'), '').toLowerCase().trim();
+}
+
 class ExporterService {
   static List<CargoTypeExporterImporterAgent> find(String search) {
     return exporterList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
@@ -54,9 +59,28 @@ class ExporterService {
   }
 }
 
-class CargoTypeService {
+class ImporterService {
   static List<CargoTypeExporterImporterAgent> find(String search) {
-    return cargoTypeList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
+    return importerList.where((agent) => agent.name.trim().toLowerCase().contains(search.trim().toLowerCase())).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    return importerList.any((agent) => agent.name.toLowerCase() == input.toLowerCase());
+  }
+}
+
+class CargoTypeService {
+  // static List<CargoTypeExporterImporterAgent> find(String search) {
+  //   return cargoTypeList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
+  // }
+
+  static List<CargoTypeExporterImporterAgent> find(String search) {
+    final normalizedSearch = normalizeString(search);
+    return cargoTypeList.where((agent) {
+      final normalizedName = normalizeString(agent.name);
+      print(normalizedName);
+      return normalizedName.contains(normalizedSearch);
+    }).toList();
   }
 
   static bool isValidAgent(String input) {

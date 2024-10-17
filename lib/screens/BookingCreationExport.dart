@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -35,7 +34,7 @@ class BookingCreationExport extends StatefulWidget {
 class _BookingCreationExportState extends State<BookingCreationExport> {
   // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
-  final TextEditingController noOfVehiclesController = TextEditingController();
+  // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
   final FocusNode _cityFocusNode = FocusNode();
@@ -51,73 +50,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       'sub_categories': [],
     },
   ];
-  List<ShipmentDetails> shipmentList1 = [
-    ShipmentDetails(
-      billNo: "SBN001",
-      billDate: "2024-10-01",
-      exporterName: "Global Exports Ltd",
-      hsnCode: "123456",
-      cargoType: "Electronics",
-      cargoDescription: "Smartphones and accessories",
-      quality: "High",
-      cargoWeight: "500kg",
-      cargoValue: "\$50,000",
-    ),
-    ShipmentDetails(
-      billNo: "SBN002",
-      billDate: "2024-10-02",
-      exporterName: "Oceanic Cargo Pvt Ltd",
-      hsnCode: "654321",
-      cargoType: "Textiles",
-      cargoDescription: "Cotton Fabrics",
-      quality: "Medium",
-      cargoWeight: "1200kg",
-      cargoValue: "\$30,000",
-    ),
-    ShipmentDetails(
-      billNo: "SBN003",
-      billDate: "2024-10-03",
-      exporterName: "Sky High Logistics",
-      hsnCode: "789012",
-      cargoType: "Machinery",
-      cargoDescription: "Industrial Machinery",
-      quality: "Premium",
-      cargoWeight: "2000kg",
-      cargoValue: "\$100,000",
-    ),
-  ];
-  List<VehicleDetails> dummyVehicleDetailsList2 = [
-    VehicleDetails(
-      billDate: "2024-01-25",
-      vehicleType: "6 Wheeler Truck",
-      vehicleNo: "LMN789",
-      driverLicenseNo: "DL-654321987",
-      driverMobNo: "9876543230",
-      driverDOB: "1988-12-14",
-      driverName: "David Brown",
-      remark: "Damaged goods",
-    ),
-    VehicleDetails(
-      billDate: "2024-02-01",
-      vehicleType: "Truck",
-      vehicleNo: "PQR101",
-      driverLicenseNo: "DL-789456123",
-      driverMobNo: "9876543240",
-      driverDOB: "1992-07-08",
-      driverName: "Robert Johnson",
-      remark: "Smooth operation",
-    ),
-    VehicleDetails(
-      billDate: "2024-02-05",
-      vehicleType: "Chassis",
-      vehicleNo: "DEF234",
-      driverLicenseNo: "DL-321654987",
-      driverMobNo: "9876543250",
-      driverDOB: "1989-03-18",
-      driverName: "James Williams",
-      remark: "Late departure",
-    ),
-  ];
+
 
   bool _isLoading = false;
   final AuthService authService = AuthService();
@@ -135,7 +68,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   @override
   void initState() {
     super.initState();
-    // multiSelectController.clearAll();
+    noOfVehiclesController.clear();
+    isFTlAndOneShipment=false;
     callAllApis();
     noOfVehiclesController.text = "1";
   }
@@ -145,7 +79,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       return await Navigator.push<ShipmentDetails>(
         context,
         MaterialPageRoute(
-          builder: (context) => const AddShipmentDetails(),
+          builder: (context) => const AddShipmentDetails(isExport: true,),
         ),
       );
     } else {
@@ -206,7 +140,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     setState(() {
       isLoading = true;
     });
-
+    cargoTypeList=[];
     await Future.delayed(const Duration(seconds: 2));
 
     final mdl = SelectionModels();
@@ -262,7 +196,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     setState(() {
       isLoading = true;
     });
-
+    exporterList=[];
+    cargoTypeList=[];
     final mdl = SelectionModels();
     mdl.jointableName = 'Organization_Businessline OB ';
     mdl.allRecord = true;
@@ -560,7 +495,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                 children: [
                                   SizedBox(
                                     width:
-                                        MediaQuery.sizeOf(context).width * 0.88,
+                                        MediaQuery.sizeOf(context).width * 0.87,
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
@@ -656,6 +591,18 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
                                       enabled: modeSelected == 1 ? false : true,
+                                      onChanged: (text){
+                                        if(int.parse(text)==1){
+                                          setState(() {
+                                            isFTlAndOneShipment=true;
+                                          });
+                                        }
+                                        else{
+                                          setState(() {
+                                            isFTlAndOneShipment=false;
+                                          });
+                                        }
+                                      },
                                       // Disable based on switch state
                                       decoration: InputDecoration(
                                         isDense: true,
@@ -757,7 +704,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               focusNode: _cityFocusNode,
                                               decoration: InputDecoration(
                                                   contentPadding:
-                                                      const EdgeInsets.symmetric(
+                                                      const EdgeInsets
+                                                          .symmetric(
                                                           vertical: 12.0,
                                                           horizontal: 10.0),
                                                   border: OutlineInputBorder(
@@ -788,7 +736,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                             color: AppColors
                                                                 .errorRed),
                                                   ),
-
                                                   focusedErrorBorder:
                                                       OutlineInputBorder(
                                                     borderRadius:
@@ -875,6 +822,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                     AddShipmentDetailsListNew(
                       shipmentDetailsList: shipmentList,
                       validateAndNavigate: validateAndNavigate,
+                      isExport: true,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -882,7 +830,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                     AddVehicleDetailsListNew(
                       vehicleDetailsList: dummyVehicleDetailsList,
                       validateAndNavigate: validateAndNavigateV2,
-                      isExport: true,                    ),
+                      isExport: false,
+                    ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
@@ -906,6 +855,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
                                     onPressed: () {
+                                      multiSelectController.clearAll();
                                       Navigator.pop(context);
                                     },
                                     child: const Text("Cancel"),
@@ -920,7 +870,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      print(multiSelectController.selectedItems);
+                                      print(
+                                          multiSelectController.selectedItems);
                                       if (_formKey.currentState!.validate()) {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(

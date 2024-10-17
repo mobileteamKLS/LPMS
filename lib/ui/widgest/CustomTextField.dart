@@ -54,6 +54,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       width: width,
       child: TextFormField(
         controller: widget.controller,
+
         keyboardType: widget.inputType,
         inputFormatters: widget.inputFormatters,
         validator: widget.isValidationRequired
