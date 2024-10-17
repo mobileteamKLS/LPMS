@@ -5,11 +5,15 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
+import '../ui/widgest/AutoSuggest.dart';
+import '../util/Global.dart';
+import 'BookingCreationExport.dart';
 
 
 class AddVehicleDetails extends StatefulWidget {
@@ -32,6 +36,8 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   late TextEditingController driverNameController = TextEditingController();
   late TextEditingController remarkController = TextEditingController();
   double fieldHeight = 45;
+  double _textFieldHeight = 45;
+  final FocusNode _cityFocusNode = FocusNode();
   bool isValid = true;
   late RegExp hsnPattern = RegExp(r'^\d{6,8}$');
   late RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
@@ -49,6 +55,9 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
     driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
     remarkController = TextEditingController(text: widget.vehicleDetails?.remark ?? '');
 
+    selectedVehicleList = multiSelectController.selectedItems.map((item) {
+      return Vehicle(id:item.value.id, name:item.value.name);
+    }).toList();
 
   }
 
@@ -298,11 +307,110 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 MediaQuery.sizeOf(context).height * 0.015,
                               ),
 
-                              CustomTextField(
-                                controller: vehicleTypeController,
-                                labelText: "Type of Vehicle",
-                                inputType: TextInputType.text,
+                              // CustomTextField(
+                              //   controller: vehicleTypeController,
+                              //   labelText: "Type of Vehicle",
+                              //   inputType: TextInputType.text,
+                              // ),
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width,
+                                child: FormField<String>(
+                                  validator: (value) {
+                                    if (vehicleTypeController.text.isEmpty) {
+                                      setState(() {
+                                        _textFieldHeight = 45;
+                                      });
+                                      return '  Required';
+                                    }
+                                    setState(() {
+                                      _textFieldHeight =
+                                      45; // Reset to initial height if valid
+                                    });
+                                    return null; // Valid input
+                                  },
+                                  builder: (formFieldState) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          height: _textFieldHeight,
+                                          // Dynamic height based on validation
+                                          child: TypeAheadField<
+                                              Vehicle>(
+                                            textFieldConfiguration:
+                                            TextFieldConfiguration(
+                                              controller: vehicleTypeController,
+                                              focusNode: _cityFocusNode,
+                                              decoration: const InputDecoration(
+                                                contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                    horizontal: 10.0),
+                                                border: OutlineInputBorder(),
+                                                labelText: 'Vehicle Type',
+                                              ),
+                                            ),
+                                            suggestionsCallback: (search) =>
+                                                SelectedVehicleService.find(search),
+                                            itemBuilder: (context, city) {
+                                              return Container(
+                                                decoration: const BoxDecoration(
+                                                  border: Border(
+                                                    top: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    left: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    right: BorderSide(
+                                                        color: Colors.black,
+                                                        width: 0.2),
+                                                    bottom: BorderSide
+                                                        .none, // No border on the bottom
+                                                  ),
+                                                ),
+                                                padding:
+                                                const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+
+                                                    Text(city.name
+                                                        ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            onSuggestionSelected: (city) {
+                                              vehicleTypeController.text =
+                                                  city.name;
+                                              formFieldState
+                                                  .didChange(vehicleTypeController.text);
+                                            },
+                                            noItemsFoundBuilder: (context) =>
+                                            const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text('No Vehicle Found'),
+                                            ),
+                                          ),
+                                        ),
+                                        if (formFieldState.hasError)
+                                          Padding(
+                                            padding:
+                                            const EdgeInsets.only(top: 8.0,left: 16),
+                                            child: Text(
+                                              formFieldState.errorText ?? '',
+                                              style: const TextStyle(
+                                                  color: Colors.red,fontSize: 12),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
+
                               SizedBox(
                                 height:
                                 MediaQuery.sizeOf(context).height * 0.015,

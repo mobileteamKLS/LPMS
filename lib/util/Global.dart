@@ -7,6 +7,7 @@ import '../screens/BookingCreationExport.dart';
 List<LoginDetailsMaster> loginMaster = [];
 List<AllVehicleTypes> vehicleTypeList = [];
 List<CargoTypeExporterImporterAgent> cargoTypeList = [];
+List<Vehicle> selectedVehicleList = [];
 List<CargoTypeExporterImporterAgent> chaAgentList = [];
 List<CargoTypeExporterImporterAgent> exporterList = [];
 List<CargoTypeExporterImporterAgent> importerList = [];
@@ -78,3 +79,4 @@ List<VehicleDetails> dummyVehicleDetailsList = [
   //   remark: "Late departure",
   // ),
 ];
+final multiSelectController = MultiSelectController<Vehicle>();

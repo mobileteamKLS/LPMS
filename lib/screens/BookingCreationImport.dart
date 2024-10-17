@@ -823,6 +823,7 @@ class _BookingCreationImportState extends State<BookingCreationImport> {
                     ),
                     AddVehicleDetailsListNew(
                       vehicleDetailsList: dummyVehicleDetailsList,validateAndNavigate: validateAndNavigateV2,
+                      isExport: false,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,

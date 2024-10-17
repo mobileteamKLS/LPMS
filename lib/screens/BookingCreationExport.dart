@@ -33,10 +33,11 @@ class BookingCreationExport extends StatefulWidget {
 }
 
 class _BookingCreationExportState extends State<BookingCreationExport> {
-  final multiSelectController = MultiSelectController<Vehicle>();
+  // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
   final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
+  bool isValid = true;
   final FocusNode _cityFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
@@ -134,9 +135,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   @override
   void initState() {
     super.initState();
+    // multiSelectController.clearAll();
     callAllApis();
     noOfVehiclesController.text = "1";
   }
+
   Future<ShipmentDetails?> validateAndNavigate() async {
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<ShipmentDetails>(
@@ -164,6 +167,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       return null;
     }
   }
+
   Future<void> callAllApis() async {
     try {
       setState(() {
@@ -210,7 +214,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
 
     SelectionQuery body = SelectionQuery();
-    body.query = await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    body.query =
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
 
     var headers = {
@@ -251,7 +256,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       });
     }
   }
-
 
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
     await Future.delayed(const Duration(seconds: 2));
@@ -549,7 +553,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     fontWeight: FontWeight.w700, fontSize: 14),
                               ),
                               SizedBox(
-                                height: MediaQuery.sizeOf(context).height * 0.01,
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.01,
                               ),
                               Row(
                                 children: [
@@ -569,22 +574,31 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       ),
                                       fieldDecoration: FieldDecoration(
                                         hintText: 'Types of Vehicles',
-                                        hintStyle: const TextStyle(
-                                            color: Colors.black54),
-                                        // prefixIcon: const Icon(CupertinoIcons.flag),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          borderSide: const BorderSide(
+                                              color: AppColors.errorRed),
+                                        ),
+                                        hintStyle: !isValid
+                                            ? const TextStyle(
+                                                color: AppColors.errorRed)
+                                            : const TextStyle(
+                                                color: Colors.black54),
                                         showClearIcon: true,
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                           borderSide: const BorderSide(
-                                              color:
-                                                  AppColors.textFieldBorderColor),
+                                              color: AppColors
+                                                  .textFieldBorderColor),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                          borderSide: const BorderSide(
-                                            color: Colors.black87,
-                                          ),
-                                        ),
+                                        // focusedBorder: OutlineInputBorder(
+                                        //   borderRadius: BorderRadius.circular(4),
+                                        //   borderSide: const BorderSide(
+                                        //     color: Colors.black87,
+                                        //   ),
+                                        // ),
                                       ),
                                       dropdownDecoration:
                                           const DropdownDecoration(
@@ -604,30 +618,35 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       ),
                                       dropdownItemDecoration:
                                           DropdownItemDecoration(
-                                        selectedIcon: const Icon(Icons.check_box,
+                                        selectedIcon: const Icon(
+                                            Icons.check_box,
                                             color: Colors.green),
                                         disabledIcon: Icon(Icons.lock,
                                             color: Colors.grey.shade300),
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
+                                          setState(() {
+                                            isValid = false;
+                                          });
                                           return 'Required';
                                         }
                                         return null;
                                       },
                                       onSelectionChange: (selectedItems) {
-                                        debugPrint(
-                                            "OnSelectionChange: $selectedItems");
+                                        // Your selection logic here
                                       },
                                     ),
                                   ),
                                 ],
                               ),
                               SizedBox(
-                                height: MediaQuery.sizeOf(context).height * 0.015,
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SizedBox(
@@ -642,7 +661,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         isDense: true,
                                         labelText: "No of Vehicles",
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                       ),
                                       keyboardType: TextInputType.number,
@@ -651,15 +671,15 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         LengthLimitingTextInputFormatter(2),
                                       ],
                                       validator: (value) {
-
-                                        if (modeSelected != 1 && (value == null || value.isEmpty)) {
+                                        if (modeSelected != 1 &&
+                                            (value == null || value.isEmpty)) {
                                           setState(() {
-                                            _textFieldHeight2=65;
+                                            _textFieldHeight2 = 65;
                                           });
                                           return 'Required';
                                         }
                                         setState(() {
-                                          _textFieldHeight2=45;
+                                          _textFieldHeight2 = 45;
                                         });
                                         return null; // No error
                                       },
@@ -674,7 +694,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         MediaQuery.sizeOf(context).width * 0.42,
                                     child: ToggleSwitch(
                                       minWidth:
-                                          MediaQuery.sizeOf(context).width * 0.5,
+                                          MediaQuery.sizeOf(context).width *
+                                              0.5,
                                       minHeight: 45.0,
                                       fontSize: 14.0,
                                       initialLabelIndex: modeSelected,
@@ -700,7 +721,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                 ],
                               ),
                               SizedBox(
-                                height: MediaQuery.sizeOf(context).height * 0.015,
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               SizedBox(
                                 width: MediaQuery.sizeOf(context).width,
@@ -733,14 +755,50 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                 TextFieldConfiguration(
                                               controller: chaController,
                                               focusNode: _cityFocusNode,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        vertical: 12.0,
-                                                        horizontal: 10.0),
-                                                border: OutlineInputBorder(),
-                                                labelText: 'CHA Name',
-                                              ),
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                          vertical: 12.0,
+                                                          horizontal: 10.0),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
+                                                  ),
+                                                  labelText: 'CHA Name',
+                                                  labelStyle: formFieldState
+                                                          .hasError
+                                                      ? const TextStyle(
+                                                          color: AppColors
+                                                              .errorRed)
+                                                      : const TextStyle(
+                                                          color:
+                                                              Colors.black87),
+                                                  errorBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
+                                                  ),
+
+                                                  focusedErrorBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
+                                                  )),
                                             ),
                                             suggestionsCallback: (search) =>
                                                 CHAAgentService.find(search),
@@ -765,7 +823,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Row(
                                                   children: [
-                                                    Text(city.code.toUpperCase()),
+                                                    Text(city.code
+                                                        .toUpperCase()),
                                                     const SizedBox(
                                                       width: 10,
                                                     ),
@@ -776,10 +835,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               );
                                             },
                                             onSuggestionSelected: (city) {
-                                              chaController.text =
-                                                  city.description.toUpperCase();
-                                              formFieldState
-                                                  .didChange(chaController.text);
+                                              chaController.text = city
+                                                  .description
+                                                  .toUpperCase();
+                                              formFieldState.didChange(
+                                                  chaController.text);
                                             },
                                             noItemsFoundBuilder: (context) =>
                                                 const Padding(
@@ -790,12 +850,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         ),
                                         if (formFieldState.hasError)
                                           Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
+                                            padding: const EdgeInsets.only(
+                                                top: 4.0, left: 16),
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red),
+                                                  color: AppColors.errorRed,
+                                                  fontSize: 12),
                                             ),
                                           ),
                                       ],
@@ -812,14 +873,16 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentList,validateAndNavigate: validateAndNavigate,
+                      shipmentDetailsList: shipmentList,
+                      validateAndNavigate: validateAndNavigate,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      vehicleDetailsList: dummyVehicleDetailsList,validateAndNavigate: validateAndNavigateV2,
-                    ),
+                      vehicleDetailsList: dummyVehicleDetailsList,
+                      validateAndNavigate: validateAndNavigateV2,
+                      isExport: true,                    ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
@@ -842,7 +905,9 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
                                     child: const Text("Cancel"),
                                   ),
                                 ),
@@ -855,11 +920,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      print(multiSelectController.toString());
+                                      print(multiSelectController.selectedItems);
                                       if (_formKey.currentState!.validate()) {
-
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Form submitted successfully!')),
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Form submitted successfully!')),
                                         );
                                       }
                                     },
@@ -939,10 +1006,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       ),
     );
   }
-
 }
-
-
 
 class Vehicle {
   final String name;

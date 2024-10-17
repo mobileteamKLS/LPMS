@@ -434,9 +434,9 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
 
 class VehicleItemNew extends StatefulWidget {
   final List<VehicleDetails> vehicleDetailsList;
-
+  final IsExport;
   const VehicleItemNew(
-      {super.key, required this.vehicleDetailsList});
+      {super.key, required this.vehicleDetailsList, this.IsExport});
 
   @override
   _VehicleItemNewState createState() =>
@@ -711,7 +711,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const AddBookSlot(),
+                                    builder: (context) =>  AddBookSlot(isExport: widget.IsExport),
                                   ),
                                 );
                               },
@@ -1038,9 +1038,10 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
 class AddVehicleDetailsListNew extends StatefulWidget {
   final List<VehicleDetails> vehicleDetailsList;
   final Future<VehicleDetails?> Function() validateAndNavigate;
-  const AddVehicleDetailsListNew({
+  final bool isExport;
+   AddVehicleDetailsListNew({
     super.key,
-    required this.vehicleDetailsList, required this.validateAndNavigate,
+    required this.vehicleDetailsList, required this.validateAndNavigate, required this.isExport,
 
   });
 
@@ -1276,7 +1277,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
             if (isExpanded)
               SizedBox(
                 child: VehicleItemNew(
-                  vehicleDetailsList: dummyVehicleDetailsList,
+                  vehicleDetailsList: dummyVehicleDetailsList,IsExport: widget.isExport,
                 ),
               ),
           ],

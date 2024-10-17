@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:lpms/models/ShippingList.dart';
 
+import '../../screens/BookingCreationExport.dart';
 import '../../util/Global.dart';
 
 // City model class
@@ -63,8 +64,21 @@ class CargoTypeService {
   }
 }
 
-// Main widget
+class SelectedVehicleService {
+  static List<Vehicle> find(String search) {
+    return selectedVehicleList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    return selectedVehicleList.any((agent) => agent.name.toLowerCase() == input.toLowerCase());
+  }
+}
+
+
+
 class AutoSuggestCityForm extends StatefulWidget {
+  const AutoSuggestCityForm({super.key});
+
   @override
   _AutoSuggestCityFormState createState() => _AutoSuggestCityFormState();
 }

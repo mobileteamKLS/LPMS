@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:lpms/screens/BookingCreationExport.dart';
+import 'package:lpms/screens/BookingCreationImport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
 import '../api/auth.dart';
@@ -17,7 +19,8 @@ import '../theme/app_theme.dart';
 import '../util/Global.dart';
 
 class AddBookSlot extends StatefulWidget {
-  const AddBookSlot({super.key});
+  final bool isExport;
+  const AddBookSlot({super.key, required this.isExport});
 
   @override
   State<AddBookSlot> createState() => _AddBookSlotState();
@@ -123,60 +126,52 @@ class _AddBookSlotState extends State<AddBookSlot> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-            'Exports',
-            style: TextStyle(color: Colors.white),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0057D8),
-                  Color(0xFF1c86ff),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
+        title: const Text(
+          'Exports',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 32),
+        toolbarHeight: 80,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF0057D8), Color(0xFF1c86ff)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
           ),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  FontAwesomeIcons.userGear,
-                  size: 26,
-                ),
-                color: Colors.white,
-                onPressed: () {}),
-            IconButton(
-              icon: Stack(
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.bell,
-                    size: 26,
-                  ),
-                  // Bell icon
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: Colors.orange, // Notification dot color
-                        shape: BoxShape.circle,
-                      ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(FontAwesomeIcons.userGear, size: 26),
+            color: Colors.white,
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Stack(
+              children: [
+                const Icon(FontAwesomeIcons.bell, size: 26),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
                     ),
                   ),
-                ],
-              ),
-              color: Colors.white,
-              onPressed: () {},
+                ),
+              ],
             ),
-          ]),
+            color: Colors.white,
+            onPressed: () {},
+          ),
+        ],
+      ),
       drawer: Drawer(
         child: ListView(
-          children: const [Text('Drawer Item')],
+          children: [Text('Drawer Item')],
         ),
       ),
       body: Stack(
@@ -185,163 +180,35 @@ class _AddBookSlotState extends State<AddBookSlot> {
             constraints: const BoxConstraints.expand(),
             color: AppColors.background,
             child: Padding(
-              padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
+                        GestureDetector(
+                          child: const Icon(Icons.arrow_back_ios,
+                              color: AppColors.primary),
+                          onTap: () {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) =>BookingCreationExport()));
+                          },
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
                         Text(
                           'Slot Booking',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: AppColors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Discover available slots by selecting date",
-                                        style: TextStyle(
-                                            color: AppColors.textColorSecondary,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height *
-                                                0.003,
-                                      ),
-                                      GestureDetector(
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.calendar_today,
-                                                color: AppColors.primary),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              slotFilterDate,
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: AppColors.primary),
-                                            ),
-                                          ],
-                                        ),
-                                        onTap: () {
-                                          pickDate(context, setState);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.015,
-                    ),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: AppColors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: double.infinity,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.info_outline_rounded),
-                                  SizedBox(
-                                    width: 8,
-                                  ),
-                                  Flexible(
-                                    child: Text(
-                                      "Slot Availability is subject to market change based on slot availability",
-                                      style: TextStyle(
-                                        color: AppColors.textColorSecondary,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            isLoading
-                                ? const Center(
-                                    child: SizedBox(
-                                        height: 100,
-                                        width: 100,
-                                        child: CircularProgressIndicator()))
-                                : Expanded(
-                                    child: SingleChildScrollView(
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                1.01,
-                                        child: (slotDetailsList.isEmpty)
-                                            ? Container(
-                                                height: 400,
-                                                child: const Center(
-                                                  child:
-                                                      Text("NO RECORD FOUND"),
-                                                ),
-                                              )
-                                            : ListView.builder(
-                                          physics:
-                                          const NeverScrollableScrollPhysics(),
-                                                shrinkWrap: true,
-                                                itemCount:
-                                                    slotDetailsList.length,
-                                                itemBuilder: (context, index) {
-                                                  final slot =
-                                                      slotDetailsList[index];
-                                                  return ListTile(
-                                                    title: Text(slot
-                                                        .availableSlots
-                                                        .toString()),
-                                                    subtitle: Text(
-                                                        slot.bookedTimeSlot),
-                                                  );
-                                                },
-                                              ),
-                                      ),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.015,
-                    ),
+                    const SizedBox(height: 10),
+                    _buildSlotBookingContainer(context),
+                    const SizedBox(height: 10),
+                    _buildSlotAvailabilityContainer(context),
                   ],
                 ),
               ),
@@ -353,8 +220,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
             right: 0,
             child: IgnorePointer(
               child: CustomPaint(
-                size: Size(MediaQuery.of(context).size.width,
-                    100), // Adjust the height as needed
+                size: Size(MediaQuery.of(context).size.width, 100),
                 painter: AppBarPainterGradient(),
               ),
             ),
@@ -365,41 +231,203 @@ class _AddBookSlotState extends State<AddBookSlot> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         height: 60,
         color: Colors.white,
-        surfaceTintColor: Colors.white,
         shape: const CircularNotchedRectangle(),
         notchMargin: 5,
         child: Row(
-          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            GestureDetector(
+          children: [
+            _buildBottomNavigationItem(
+              icon: CupertinoIcons.chart_pie,
+              label: "Dashboard",
               onTap: () {},
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.chart_pie),
-                  Text("Dashboard"),
-                ],
-              ),
             ),
-            GestureDetector(
+            _buildBottomNavigationItem(
+              icon: Icons.help_outline,
+              label: "User Help",
+              color: AppColors.primary,
               onTap: () {},
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.help_outline,
-                    color: AppColors.primary,
-                  ),
-                  Text(
-                    "User Help",
-                    style: TextStyle(color: AppColors.primary),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSlotBookingContainer(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Discover available slots by selecting date",
+                      style: TextStyle(
+                        color: AppColors.textColorSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.008),
+                    GestureDetector(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              color: AppColors.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            slotFilterDate,
+                            style: const TextStyle(
+                                fontSize: 16, color: AppColors.primary),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        pickDate(context, setState);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSlotAvailabilityContainer(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline_rounded),
+                SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    "Slot Availability is subject to market change based on slot availability",
+                    style: TextStyle(
+                      color: AppColors.textColorSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10,),
+            isLoading
+                ? const Center(
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : _buildSlotList(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSlotList(BuildContext context) {
+    return slotDetailsList.isEmpty
+        ? Container(
+            height: 400,
+            alignment: Alignment.center,
+            child: const Text("NO RECORD FOUND"),
+          )
+        : ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: slotDetailsList.length,
+            itemBuilder: (context, index) {
+              final slot = slotDetailsList[index];
+              return Container(
+                padding: EdgeInsets.all(8),
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: AppColors.textColorPrimary, width: 0.3),
+                    borderRadius: BorderRadius.circular(8)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded),
+                        const SizedBox(width: 8),
+                        Text(slot.bookedTimeSlot),
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.containerBgColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text("${slot.availableSlots}"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 32,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => widget.isExport?const BookingCreationExport():const BookingCreationImport(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Book Now",
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+  }
+
+  Widget _buildBottomNavigationItem({
+    required IconData icon,
+    required String label,
+    Color color = Colors.black,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color),
+          Text(label, style: TextStyle(color: color)),
+        ],
       ),
     );
   }
