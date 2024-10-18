@@ -591,8 +591,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
                                       enabled: modeSelected == 1 ? false : true,
-                                      onChanged: (text){
-                                        if(int.parse(text)==1){
+                                      onChanged: (value){
+
+                                        if(int.parse(noOfVehiclesController.text)==0){
+                                          noOfVehiclesController.text="1";
+                                        }
+                                        Utils.keepFirstNElements(vehicleTypeList, int.parse(noOfVehiclesController.text));
+                                        if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
                                           setState(() {
                                             isFTlAndOneShipment=true;
                                           });

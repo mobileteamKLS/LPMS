@@ -56,6 +56,12 @@ import '../theme/app_color.dart';
     return DateFormat('d MMM yyyy').format(date);
   }
 
+  static keepFirstNElements(List<dynamic> list, int n) {
+    if (n < list.length) {
+      list.removeRange(n, list.length);
+    }
+  }
+
   // static void printLongString(String text) {
   //   const int chunkSize = 1000;
   //   for (var i = 0; i < text.length; i += chunkSize) {

@@ -20,8 +20,8 @@ import '../util/Global.dart';
 
 class AddBookSlot extends StatefulWidget {
   final bool isExport;
-  final int vehicleTypeTd;
-  const AddBookSlot({super.key, required this.isExport, required this.vehicleTypeTd});
+  final VehicleDetails vehicleDetails;
+  const AddBookSlot({super.key, required this.isExport, required this.vehicleDetails});
 
   @override
   State<AddBookSlot> createState() => _AddBookSlotState();
@@ -93,7 +93,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
       "Date": Utils.formatDate(selectedDate!),
       "OrgProdId": loginMaster[0].adminOrgProdId,
       "TerminalId": loginMaster[0].terminalId,
-      "VehicleTypeId": widget.vehicleTypeTd.toString(),
+      "VehicleTypeId": widget.vehicleDetails.vehicleTypeId.toString(),
       "TimeZone": loginMaster[0].timeZone
     };
     await authService
@@ -191,13 +191,13 @@ class _AddBookSlotState extends State<AddBookSlot> {
                           child: const Icon(Icons.arrow_back_ios,
                               color: AppColors.primary),
                           onTap: () {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) =>BookingCreationExport()));
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) =>const BookingCreationExport()));
                           },
                         ),
                         SizedBox(
                           width: 8,
                         ),
-                        Text(
+                        const Text(
                           'Slot Booking',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -395,6 +395,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
                       height: 32,
                       child: ElevatedButton(
                         onPressed: () {
+                          widget.vehicleDetails.slotDateTime=slot.bookedTimeSlot;
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(

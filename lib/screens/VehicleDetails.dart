@@ -49,11 +49,11 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
     vehicleTypeId=widget.vehicleDetails?.vehicleId ??0;
     vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleTypeName ?? '');
     vehicleNoController = TextEditingController(text: widget.vehicleDetails?.truckNo ?? '');
-    driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.driverLicenseNo ?? '');
-    driverDOBController = TextEditingController(text: widget.vehicleDetails?.driverDOB ?? '');
-    driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverMobNo ?? '');
+    driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.drivingLicenseNo ?? '');
+    driverDOBController = TextEditingController(text: widget.vehicleDetails?.driverDob ?? '');
+    driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverContact ?? '');
     driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
-    remarkController = TextEditingController(text: widget.vehicleDetails?.remark ?? '');
+    remarkController = TextEditingController(text: widget.vehicleDetails?.remarksChassisNo ?? '');
 
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id:item.value.id, name:item.value.name);
@@ -533,15 +533,16 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
+                                        print("${vehicleTypeId}");
                                         final newVehicle = VehicleDetails(
                                           vehicleTypeId:  vehicleTypeId,
                                           vehicleTypeName: vehicleTypeController.text,
                                           truckNo: vehicleNoController.text,
-                                          driverLicenseNo: driverLicenseNoController.text,
-                                          driverMobNo: driverMobNoController.text,
-                                          driverDOB: driverDOBController.text,
+                                          drivingLicenseNo: driverLicenseNoController.text,
+                                          driverContact: driverMobNoController.text,
+                                          driverDob: driverDOBController.text,
                                           driverName:driverNameController.text,
-                                          remark:remarkController.text,
+                                          remarksChassisNo:remarkController.text,
                                         );
                                         Navigator.pop(context,
                                             newVehicle); // Pass the object back
