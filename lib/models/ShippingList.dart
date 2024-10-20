@@ -1,3 +1,125 @@
+import '../util/Global.dart';
+
+class SlotCreation {
+  int bookingId;
+  List<String> vehicleType;
+  String bookingDt;
+  int noofVehicle;
+  bool isFtl;
+  bool isLtl;
+  String origin;
+  String destination;
+  dynamic hsnCode;
+  dynamic cargoValue;
+  List<ShipmentDetailsExports> shipmentDetailsList;
+  List<VehicleDetailsExports> vehicalDetailsList;
+  String chaName;
+  int chaId;
+  dynamic unitOfQt;
+  dynamic portOfDest;
+  dynamic grossQt;
+  int orgProdId;
+  int userId;
+  String branchCode;
+  String companyCode;
+  int airportId;
+  String paCompanyCode;
+  int screenId;
+  int adminOrgProdId;
+  int orgId;
+  String eventCode;
+
+  SlotCreation({
+    required this.bookingId,
+    required this.vehicleType,
+    required this.bookingDt,
+    required this.noofVehicle,
+    required this.isFtl,
+    required this.isLtl,
+    required this.origin,
+    required this.destination,
+    required this.hsnCode,
+    required this.cargoValue,
+    required this.shipmentDetailsList,
+    required this.vehicalDetailsList,
+    required this.chaName,
+    required this.chaId,
+    required this.unitOfQt,
+    required this.portOfDest,
+    required this.grossQt,
+    required this.orgProdId,
+    required this.userId,
+    required this.branchCode,
+    required this.companyCode,
+    required this.airportId,
+    required this.paCompanyCode,
+    required this.screenId,
+    required this.adminOrgProdId,
+    required this.orgId,
+    required this.eventCode,
+  });
+
+  factory SlotCreation.fromMap(Map<String, dynamic> json) => SlotCreation(
+    bookingId: json["BookingId"],
+    vehicleType: List<String>.from(json["VehicleType"].map((x) => x)),
+    bookingDt: json["BookingDt"],
+    noofVehicle: json["NoofVehicle"],
+    isFtl: json["IsFTL"],
+    isLtl: json["IsLTL"],
+    origin: json["Origin"],
+    destination: json["Destination"],
+    hsnCode: json["HSNCode"],
+    cargoValue: json["CargoValue"],
+    shipmentDetailsList: List<ShipmentDetailsExports>.from(json["ShipmentDetailsList"].map((x) => ShipmentDetailsExports.fromJson(x))),
+    vehicalDetailsList: List<VehicleDetailsExports>.from(json["VehicalDetailsList"].map((x) => VehicleDetailsExports.fromJson(x))),
+    chaName: json["ChaName"],
+    chaId: json["CHAId"],
+    unitOfQt: json["UnitOfQt"],
+    portOfDest: json["PortOfDest"],
+    grossQt: json["GrossQt"],
+    orgProdId: json["OrgProdId"],
+    userId: json["UserId"],
+    branchCode: json["BranchCode"],
+    companyCode: json["CompanyCode"],
+    airportId: json["AirportId"],
+    paCompanyCode: json["PACompanyCode"],
+    screenId: json["ScreenId"],
+    adminOrgProdId: json["Admin_OrgProdId"],
+    orgId: json["OrgId"],
+    eventCode: json["EventCode"],
+  );
+
+  Map<String, dynamic> toMap() => {
+    "BookingId": bookingId,
+    "VehicleType": List<dynamic>.from(vehicleType.map((x) => x)),
+    "BookingDt": bookingDt,
+    "NoofVehicle": noofVehicle,
+    "IsFTL": isFtl,
+    "IsLTL": isLtl,
+    "Origin": origin,
+    "Destination": destination,
+    "HSNCode": hsnCode,
+    "CargoValue": cargoValue,
+    "ShipmentDetailsList": List<dynamic>.from(shipmentDetailsList.map((x) => x.toJson())),
+    "VehicalDetailsList": List<dynamic>.from(vehicalDetailsList.map((x) => x.toJson())),
+    "ChaName": chaName,
+    "CHAId": chaId,
+    "UnitOfQt": unitOfQt,
+    "PortOfDest": portOfDest,
+    "GrossQt": grossQt,
+    "OrgProdId": orgProdId,
+    "UserId": userId,
+    "BranchCode": branchCode,
+    "CompanyCode": companyCode,
+    "AirportId": airportId,
+    "PACompanyCode": paCompanyCode,
+    "ScreenId": screenId,
+    "Admin_OrgProdId": adminOrgProdId,
+    "OrgId": orgId,
+    "EventCode": eventCode,
+  };
+}
+
 class SlotBookingShipmentDetailsExport {
   int bookingId;
   String bookingDt;
@@ -98,68 +220,69 @@ class SlotBookingShipmentDetailsImport {
       };
 }
 
-class ShipmentDetails {
-  final String billNo;
-  final String billDate;
-  final String exporterName;
+class ShipmentDetailsExports1 {
+  final String shippingBillNoIgmNno;
+  final String shippingBillDateIgm;
+  final String nameOfExporterImporter;
   final String hsnCode;
   final String cargoType;
   final String cargoDescription;
-  final String quality;
+  final String quantity;
   final String cargoWeight;
   final String cargoValue;
 
-  ShipmentDetails({
-    required this.billNo,
-    required this.billDate,
-    required this.exporterName,
+  ShipmentDetailsExports1({
+    required this.shippingBillNoIgmNno,
+    required this.shippingBillDateIgm,
+    required this.nameOfExporterImporter,
     required this.hsnCode,
     required this.cargoType,
     required this.cargoDescription,
-    required this.quality,
+    required this.quantity,
     required this.cargoWeight,
     required this.cargoValue,
   });
 
-  factory ShipmentDetails.fromJSON(Map<String, dynamic> data) {
-    return ShipmentDetails(
-      billNo: data["billNo"],
-      billDate: data["billDate"],
-      exporterName: data["exporterName"],
+  factory ShipmentDetailsExports1.fromJSON(Map<String, dynamic> data) {
+    return ShipmentDetailsExports1(
+      shippingBillNoIgmNno: data["billNo"],
+      shippingBillDateIgm: data["billDate"],
+      nameOfExporterImporter: data["exporterName"],
       hsnCode: data["hsnCode"],
       cargoType: data["cargoType"],
       cargoDescription: data["cargoDescription"],
-      quality: data["quality"],
+      quantity: data["quality"],
       cargoWeight: data["cargoWeight"],
       cargoValue: data["cargoValue"],
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
-      'billNo': billNo,
-      'billDate': billDate,
-      'exporterName': exporterName,
+      'billNo': shippingBillNoIgmNno,
+      'billDate': shippingBillDateIgm,
+      'exporterName': nameOfExporterImporter,
       'hsnCode': hsnCode,
       'cargoType': cargoType,
       'cargoDescription': cargoDescription,
-      'quality': quality,
+      'quality': quantity,
       'cargoWeight': cargoWeight,
       'cargoValue': cargoValue,
     };
   }
 }
 
-class ShipmentDetailsList {
+class ShipmentDetailsExports {
   int detailsId;
   String cargoDescription;
   int cargoTypeId;
+  String cargoType;
   int cargoWeight;
   String chaName;
   String nameOfExporterImporter;
   int quantity;
   String shippingBillNoIgmNno;
-  DateTime shippingBillDateIgm;
+  String shippingBillDateIgm;
   String typeOfGoods;
   String hsnCode;
   int cargoValue;
@@ -169,10 +292,11 @@ class ShipmentDetailsList {
   String grossQt;
   bool isUliPverified;
 
-  ShipmentDetailsList({
-    required this.detailsId,
+  ShipmentDetailsExports({
+     this.detailsId=0,
     required this.cargoDescription,
     required this.cargoTypeId,
+    this.cargoType="",
     required this.cargoWeight,
     required this.chaName,
     required this.nameOfExporterImporter,
@@ -189,7 +313,7 @@ class ShipmentDetailsList {
     required this.isUliPverified,
   });
 
-  factory ShipmentDetailsList.fromJson(Map<String, dynamic> json) => ShipmentDetailsList(
+  factory ShipmentDetailsExports.fromJson(Map<String, dynamic> json) => ShipmentDetailsExports(
     detailsId: json["DetailsId"],
     cargoDescription: json["CargoDescription"],
     cargoTypeId: json["CargoTypeId"],
@@ -198,7 +322,7 @@ class ShipmentDetailsList {
     nameOfExporterImporter: json["NameOfExporterImporter"],
     quantity: json["Quantity"],
     shippingBillNoIgmNno: json["ShippingBillNoIGMNno"],
-    shippingBillDateIgm: DateTime.parse(json["ShippingBillDateIGM"]),
+    shippingBillDateIgm: json["ShippingBillDateIGM"],
     typeOfGoods: json["TypeOfGoods"],
     hsnCode: json["HSNCode"],
     cargoValue: json["CargoValue"],
@@ -218,7 +342,7 @@ class ShipmentDetailsList {
     "NameOfExporterImporter": nameOfExporterImporter,
     "Quantity": quantity,
     "ShippingBillNoIGMNno": shippingBillNoIgmNno,
-    "ShippingBillDateIGM": shippingBillDateIgm.toIso8601String(),
+    "ShippingBillDateIGM": shippingBillDateIgm,
     "TypeOfGoods": typeOfGoods,
     "HSNCode": hsnCode,
     "CargoValue": cargoValue,
@@ -230,7 +354,7 @@ class ShipmentDetailsList {
   };
 }
 
-class VehicleDetails {
+class VehicleDetailsExports {
   int vehicleId;
   String vehicleTypeName;
   String driverAadhaar;
@@ -258,7 +382,7 @@ class VehicleDetails {
   String isvehicleVerified;
   String isDriverVerified;
 
-  VehicleDetails({
+  VehicleDetailsExports({
      this.vehicleId=0,
     this.vehicleTypeName = "",
     this.driverAadhaar = "",
@@ -288,8 +412,8 @@ class VehicleDetails {
   }) : drivingLicense = drivingLicense ?? DrivingLicense(), // Assign default DrivingLicense if null
         rcScanned = rcScanned ?? DrivingLicense();
 
-  factory VehicleDetails.fromJson(Map<String, dynamic> json) =>
-      VehicleDetails(
+  factory VehicleDetailsExports.fromJson(Map<String, dynamic> json) =>
+      VehicleDetailsExports(
         vehicleId: json["VehicleId"],
         driverAadhaar: json["DriverAadhaar"],
         driverContact: json["DriverContact"],

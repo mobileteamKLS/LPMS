@@ -8,7 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/VehicleDetails.dart';
+import 'package:lpms/screens/VehicleDetailsExport.dart';
+import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -22,7 +23,7 @@ import '../ui/widgest/AutoSuggest.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'Encryption.dart';
-import 'ShipmentDetails.dart';
+import 'ShipmentDetailsExport.dart';
 
 class BookingCreationExport extends StatefulWidget {
   const BookingCreationExport({super.key});
@@ -44,6 +45,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   double _textFieldHeight2 = 45; // Default initial height
   final double initialHeight = 45;
   final double errorHeight = 65;
+
   final List categoriesData = [
     {
       'name': 'SHIPMENT DETAILS',
@@ -52,31 +54,74 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   ];
 
 
-  bool _isLoading = false;
+
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
 
   List<SelectionModels> vehicleTypes = [];
-  bool isLoading = false;
+  bool _isLoading = false;
 
   void _updateTextField() {
     if (modeSelected == 1) {
       noOfVehiclesController.text = '1';
+      isFTlAndOneShipment=false;
     }
+  }
+
+  saveBookingDetailsExport(){
+
+  }
+
+  getOriginDestination() async {
+    await Future.delayed(const Duration(seconds: 2));
+    var queryParams = {
+      "TerminalId":selectedTerminalId,
+      "IsImportShipment":false,
+    };
+    await authService
+        .postData(
+      "api_master/Airport/GetAirportOriginDestination",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"]!=null && jsonData["Origin"]!=null) {
+        setState(() {
+          originMaster=jsonData["Origin"];
+          destinationMaster=jsonData["Destination"];
+        });
+        callAllApis();
+      }
+      else{
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    originMaster="";
+    destinationMaster="";
     noOfVehiclesController.clear();
+    Utils.clearMasterList();
     isFTlAndOneShipment=false;
+    // getOriginDestination();
     callAllApis();
+
     noOfVehiclesController.text = "1";
   }
 
-  Future<ShipmentDetails?> validateAndNavigate() async {
+  Future<ShipmentDetailsExports?> validateAndNavigate() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<ShipmentDetails>(
+      return await Navigator.push<ShipmentDetailsExports>(
         context,
         MaterialPageRoute(
           builder: (context) => const AddShipmentDetails(isExport: true,),
@@ -88,9 +133,9 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     }
   }
 
-  Future<VehicleDetails?> validateAndNavigateV2() async {
+  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<VehicleDetails>(
+      return await Navigator.push<VehicleDetailsExports>(
         context,
         MaterialPageRoute(
           builder: (context) => const AddVehicleDetails(),
@@ -105,22 +150,24 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   Future<void> callAllApis() async {
     try {
       setState(() {
-        isLoading = true;
+        _isLoading = true;
       });
 
       await Future.wait([
         loadCargoTypes(),
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Exporter'),
+
       ]);
     } catch (e) {
       print("Error calling APIs: $e");
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
+
 
   // Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
   //   return {
@@ -137,9 +184,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   // }
 
   Future<void> loadCargoTypes() async {
-    setState(() {
-      isLoading = true;
-    });
     cargoTypeList=[];
     await Future.delayed(const Duration(seconds: 2));
 
@@ -186,7 +230,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print("Error: $error");
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -194,7 +238,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
-      isLoading = true;
+      _isLoading = true;
     });
     exporterList=[];
     cargoTypeList=[];
@@ -221,6 +265,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     var headers = {
       'Accept': 'text/plain',
       'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ${loginMaster[0].token}',
     };
     var fields = {
       'Query': '${body.query}',
@@ -257,13 +302,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       }
       setState(() {
         setState(() {
-          isLoading = false;
+          _isLoading = false;
         });
       });
     }).catchError((onError) {
       setState(() {
         setState(() {
-          isLoading = false;
+          _isLoading = false;
         });
       });
     });
@@ -322,7 +367,51 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                   size: 26,
                 ),
                 color: Colors.white,
-                onPressed: () {}),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Landport'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Landport Terminal',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: selectedTerminalId,
+                              items: terminals.map((terminal) {
+                                return DropdownMenuItem<int>(
+                                  value: terminal['id'],
+                                  child: Text(terminal['name'] ?? ''),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedTerminalId = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'Cancel'),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context, 'OK');
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }),
             IconButton(
               icon: Stack(
                 children: [
@@ -419,26 +508,26 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Row(
+                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.location_on_outlined,
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " india",
-                                      style: TextStyle(
+                                      " $originMaster",
+                                      style: const TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    Icon(
+                                    const Icon(
                                       Icons.arrow_forward,
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " bangladesh",
-                                      style: TextStyle(
+                                      " $destinationMaster",
+                                      style: const TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400),
@@ -597,16 +686,16 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           noOfVehiclesController.text="1";
                                         }
                                         Utils.keepFirstNElements(vehicleTypeList, int.parse(noOfVehiclesController.text));
-                                        if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
-                                          setState(() {
-                                            isFTlAndOneShipment=true;
-                                          });
-                                        }
-                                        else{
-                                          setState(() {
-                                            isFTlAndOneShipment=false;
-                                          });
-                                        }
+                                        // if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
+                                        //   setState(() {
+                                        //     isFTlAndOneShipment=true;
+                                        //   });
+                                        // }
+                                        // else{
+                                        //   setState(() {
+                                        //     isFTlAndOneShipment=false;
+                                        //   });
+                                        // }
                                       },
                                       // Disable based on switch state
                                       decoration: InputDecoration(
@@ -790,6 +879,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               chaController.text = city
                                                   .description
                                                   .toUpperCase();
+                                              chaNameMaster=city
+                                                  .description;
                                               formFieldState.didChange(
                                                   chaController.text);
                                             },
@@ -825,7 +916,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentList,
+                      shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: true,
                     ),
@@ -833,7 +924,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      vehicleDetailsList: dummyVehicleDetailsList,
+                      vehicleDetailsList: vehicleListExports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: false,
                     ),
@@ -918,6 +1009,34 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
               ),
             ),
           ),
+          _isLoading
+              ? BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              // semi-transparent background
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+              : const SizedBox(),
         ],
       ),
       bottomNavigationBar: BottomAppBar(

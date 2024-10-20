@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_color.dart';
+import 'Global.dart';
  class Utils{
 
   static Icon getStatusIcon(String status) {
@@ -60,6 +61,17 @@ import '../theme/app_color.dart';
     if (n < list.length) {
       list.removeRange(n, list.length);
     }
+  }
+
+  static String normalizeString(String input) {
+    return input
+        .toLowerCase()                      // Convert to lowercase
+        .trim()                              // Remove leading and trailing spaces
+        .replaceAll(RegExp(r'\s+'), ' ');    // Replace multiple spaces with a single space
+  }
+  static clearMasterList(){
+    vehicleListExports=[];
+    shipmentListImports=[];
   }
 
   // static void printLongString(String text) {

@@ -5,6 +5,8 @@ import 'dart:convert';
 import '../models/IPInfo.dart';
 import '../models/SelectionModel.dart';
 import '../util/Global.dart';
+import 'package:http_parser/http_parser.dart';
+import 'dart:io';
 
 class AuthService {
   Future<Post> getUserAuthenticationDetails(service, payload, headers) async {
@@ -187,13 +189,38 @@ class AuthService {
     }
   }
 
+  Future<Post> uploadFile({
+    required String endPoint,
+    required Map<String, String> headers,
+    required File file,
+  }) async {
+    var url = "https://acsintapigateway.kalelogistics.com/$endPoint";
+    print(url);
+    var uri = Uri.parse(url);
+    var request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(headers);
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        file.path,
+        contentType: MediaType('application', 'octet-stream'),
+      ),
+    );
+    request.fields['UploadPath'] = "Upload/ImportFiles/";
+    try {
+      http.StreamedResponse response = await request.send();
+      return await handleResponse(response);
+    } catch (e) {
+      throw Exception("Failed to send multipart request: $e");
+    }
+  }
+
   Future<Post> handleResponse(http.StreamedResponse response) async {
     final int statusCode = response.statusCode;
     final String responseBody = await response.stream.bytesToString();
 
     print('Response:Successful');
     print('Status code: $statusCode');
-
 
     if (statusCode == 401) {
       return Post.fromJson(responseBody, statusCode);
@@ -205,7 +232,6 @@ class AuthService {
 
     return Post.fromJson(responseBody, statusCode);
   }
-
 }
 
 class Post {

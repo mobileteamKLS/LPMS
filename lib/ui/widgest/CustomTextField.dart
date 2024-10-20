@@ -327,22 +327,24 @@ class CustomSnackBar {
     final snackBar = SnackBar(
       content: SizedBox(
         height: 20,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.info, color: Colors.white),
-                Text('  $message'),
-              ],
-            ),
-            GestureDetector(
-              child: const Icon(Icons.close, color: Colors.white),
-              onTap: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              },
-            ),
-          ],
+        child: Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.info, color: Colors.white),
+                  Text('  $message'),
+                ],
+              ),
+              GestureDetector(
+                child: const Icon(Icons.close, color: Colors.white),
+                onTap: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
+            ],
+          ),
         ),
       ),
       backgroundColor: backgroundColor,

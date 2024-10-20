@@ -20,7 +20,7 @@ import '../util/Global.dart';
 
 class AddBookSlot extends StatefulWidget {
   final bool isExport;
-  final VehicleDetails vehicleDetails;
+  final VehicleDetailsExports vehicleDetails;
   const AddBookSlot({super.key, required this.isExport, required this.vehicleDetails});
 
   @override

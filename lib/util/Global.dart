@@ -14,74 +14,21 @@ List<CargoTypeExporterImporterAgent> exporterList = [];
 List<CargoTypeExporterImporterAgent> importerList = [];
 List<DropdownItem<Vehicle>> items = [ ];
 List<DropdownItem<Vehicle>> items1 = [ ];
-List<ShipmentDetails> shipmentList = [
-  // ShipmentDetails(
-  //   billNo: "SBN001",
-  //   billDate: "2024-10-01",
-  //   exporterName: "Global Exports Ltd",
-  //   hsnCode: "123456",
-  //   cargoType: "Electronics",
-  //   cargoDescription: "Smartphones and accessories",
-  //   quality: "High",
-  //   cargoWeight: "500kg",
-  //   cargoValue: "\$50,000",
-  // ),
-  // ShipmentDetails(
-  //   billNo: "SBN002",
-  //   billDate: "2024-10-02",
-  //   exporterName: "Oceanic Cargo Pvt Ltd",
-  //   hsnCode: "654321",
-  //   cargoType: "Textiles",
-  //   cargoDescription: "Cotton Fabrics",
-  //   quality: "Medium",
-  //   cargoWeight: "1200kg",
-  //   cargoValue: "\$30,000",
-  // ),
-  // ShipmentDetails(
-  //   billNo: "SBN003",
-  //   billDate: "2024-10-03",
-  //   exporterName: "Sky High Logistics",
-  //   hsnCode: "789012",
-  //   cargoType: "Machinery",
-  //   cargoDescription: "Industrial Machinery",
-  //   quality: "Premium",
-  //   cargoWeight: "2000kg",
-  //   cargoValue: "\$100,000",
-  // ),
-];
-List<VehicleDetails> dummyVehicleDetailsList = [
-  // VehicleDetails(
-  //
-  //   vehicleType: "6 Wheeler Truck",
-  //   truckNo: "LMN789",
-  //   driverLicenseNo: "DL-654321987",
-  //   driverMobNo: "9876543230",
-  //   driverDOB: "1988-12-14",
-  //   driverName: "David Brown",
-  //   remark: "Damaged goods",
-  // ),
-  // VehicleDetails(
-  //   billDate: "2024-02-01",
-  //   vehicleType: "Truck",
-  //   vehicleNo: "PQR101",
-  //   driverLicenseNo: "DL-789456123",
-  //   driverMobNo: "9876543240",
-  //   driverDOB: "1992-07-08",
-  //   driverName: "Robert Johnson",
-  //   remark: "Smooth operation",
-  // ),
-  // VehicleDetails(
-  //   billDate: "2024-02-05",
-  //   vehicleType: "Chassis",
-  //   vehicleNo: "DEF234",
-  //   driverLicenseNo: "DL-321654987",
-  //   driverMobNo: "9876543250",
-  //   driverDOB: "1989-03-18",
-  //   driverName: "James Williams",
-  //   remark: "Late departure",
-  // ),
-];
+List<ShipmentDetailsExports> shipmentListImports = [];
+List<VehicleDetailsExports> vehicleListExports = [];
 final multiSelectController = MultiSelectController<Vehicle>();
 final multiSelectController2 = MultiSelectController<Vehicle>();
 final TextEditingController noOfVehiclesController = TextEditingController();
 bool isFTlAndOneShipment=false;
+String originMaster="";
+String destinationMaster="";
+String chaNameMaster="";
+int? selectedTerminalId = 151;
+final List<Map<String, dynamic>> terminals = [
+  {'id': 157, 'name': 'AKOLA'},
+  {'id': 155, 'name': 'ATTARI'},
+  {'id': 154, 'name': 'RAXAUL'},
+  {'id': 153, 'name': 'JOGBANI'},
+  {'id': 152, 'name': 'PETRAPOLE'},
+  {'id': 151, 'name': 'AGARTALA'},
+];

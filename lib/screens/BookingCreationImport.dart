@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/VehicleDetails.dart';
+import 'package:lpms/screens/VehicleDetailsExport.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -20,11 +20,12 @@ import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/AutoSuggest.dart';
+import '../ui/widgest/CustomTextField.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'BookingCreationExport.dart';
 import 'Encryption.dart';
-import 'ShipmentDetails.dart';
+import 'ShipmentDetailsExport.dart';
 
 class BookingCreationImport extends StatefulWidget {
   const BookingCreationImport({super.key});
@@ -67,17 +68,53 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     }
   }
 
+   getOriginDestination() async {
+    await Future.delayed(const Duration(seconds: 2));
+    var queryParams = {
+      "TerminalId":selectedTerminalId,
+      "IsImportShipment":true,
+    };
+    await authService
+        .postData(
+      "api_master/Airport/GetAirportOriginDestination",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"]!=null && jsonData["Origin"]!=null) {
+        setState(() {
+          originMaster=jsonData["Origin"];
+          destinationMaster=jsonData["Destination"];
+        });
+        callAllApis();
+      }
+      else{
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    originMaster="";
+    getOriginDestination();
+    destinationMaster="";
     noOfVehiclesController.clear();
-    callAllApis();
+
     noOfVehiclesController.text = "1";
   }
 
-  Future<ShipmentDetails?> validateAndNavigate() async {
+  Future<ShipmentDetailsExports?> validateAndNavigate() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<ShipmentDetails>(
+      return await Navigator.push<ShipmentDetailsExports>(
         context,
         MaterialPageRoute(
           builder: (context) => const AddShipmentDetails(isExport: false,),
@@ -89,9 +126,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     }
   }
 
-  Future<VehicleDetails?> validateAndNavigateV2() async {
+  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<VehicleDetails>(
+      return await Navigator.push<VehicleDetailsExports>(
         context,
         MaterialPageRoute(
           builder: (context) => const AddVehicleDetails(),
@@ -152,7 +189,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     body.query =
     await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
-
+    print("---cargo Type---");
+    String abc="LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9AjJCH8YswkgxyDLWPe2L9BJr/S0YYYjX8WLY6+QL6pqV+E2/UQrlxumfhvcXiKzlkvZ3lC4rI36AAaT9Jd9wlRn7R6La8WnqMuCXUoI8RwYi5HLLlNrZUVuJqXlE35qCwOLCkGlNpVTmjOHM6SIK9OY+KVbrzPq7J5MM7/nldDpbTc4fJrAJXIcoHqZZpiau6XCm1EDgc/3m+Y8EAuq6TcuyV/6cG7YPe15DzKpGVk3jGBlP+owYqWJTq8DYgNWswY+zJbjFeR1UB1M9XFXmjpsxNdSEcwBIBWwvFFCmhCfg==";
+    Utils.printPrettyJson(
+        encryptionService.decryptUsingRandomKeyPrivateKey(abc));
     var headers = {
       'Accept': 'text/plain',
       'Content-Type': 'multipart/form-data',
@@ -328,7 +368,53 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                   size: 26,
                 ),
                 color: Colors.white,
-                onPressed: () {}),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Landport'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Landport Terminal',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: selectedTerminalId,
+                              items: terminals.map((terminal) {
+                                return DropdownMenuItem<int>(
+                                  value: terminal['id'],
+                                  child: Text(terminal['name'] ?? ''),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedTerminalId = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'Cancel'),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+
+                              Navigator.pop(context, 'OK');
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                }),
             IconButton(
               icon: Stack(
                 children: [
@@ -425,26 +511,26 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Row(
+                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.location_on_outlined,
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " india",
-                                      style: TextStyle(
+                                      " $originMaster",
+                                      style: const TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    Icon(
+                                    const Icon(
                                       Icons.arrow_forward,
                                       color: AppColors.cardTextColor,
                                     ),
                                     Text(
-                                      " bangladesh",
-                                      style: TextStyle(
+                                      " $destinationMaster",
+                                      style: const TextStyle(
                                           color: AppColors.cardTextColor,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400),
@@ -814,7 +900,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentList,
+                      shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: false,
                     ),
@@ -822,7 +908,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      vehicleDetailsList: dummyVehicleDetailsList,
+                      vehicleDetailsList: vehicleListExports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: false,
                     ),

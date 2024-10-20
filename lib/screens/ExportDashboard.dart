@@ -36,17 +36,10 @@ class _ExportScreenState extends State<ExportScreen> {
   bool isFilterApplied = false;
   DateTime? selectedDate;
   String slotFilterDate = "Slot Date";
-  int? selectedTerminalId = 151;
+
   final _formKey = GlobalKey<FormState>();
   // List of terminal data with id as int
-  final List<Map<String, dynamic>> terminals = [
-    {'id': 157, 'name': 'AKOLA'},
-    {'id': 155, 'name': 'ATTARI'},
-    {'id': 154, 'name': 'RAXAUL'},
-    {'id': 153, 'name': 'JOGBANI'},
-    {'id': 152, 'name': 'PETRAPOLE'},
-    {'id': 151, 'name': 'AGARTALA'},
-  ];
+
   List<SlotBookingShipmentDetailsExport> listShipmentDetails = [];
   List<SlotBookingShipmentDetailsExport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
