@@ -40,6 +40,12 @@ import 'Global.dart';
     }
   }
 
+  static printPayload(Map<String, dynamic> payload) {
+    for (var entry in payload.entries) {
+      print('${entry.key}: ${entry.value}');
+    }
+  }
+
   static printPrettyJson(String jsonString) {
     if(jsonString.isEmpty){
       return;

@@ -15,6 +15,7 @@ List<CargoTypeExporterImporterAgent> importerList = [];
 List<DropdownItem<Vehicle>> items = [ ];
 List<DropdownItem<Vehicle>> items1 = [ ];
 List<ShipmentDetailsExports> shipmentListExports = [];
+List<ShipmentDetailsImports> shipmentListImports = [];
 List<VehicleDetailsExports> vehicleListExports = [];
 final multiSelectController = MultiSelectController<Vehicle>();
 final multiSelectController2 = MultiSelectController<Vehicle>();

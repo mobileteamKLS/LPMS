@@ -14,18 +14,19 @@ import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import '../ui/widgest/AutoSuggest.dart';
 
-
-class AddShipmentDetails extends StatefulWidget {
-  final ShipmentDetailsExports? shipment;
+class AddShipmentDetailsImports extends StatefulWidget {
+  final ShipmentDetailsImports? shipment;
   final bool isExport;
 
-  const AddShipmentDetails({super.key, this.shipment, required this.isExport});
+  const AddShipmentDetailsImports(
+      {super.key, this.shipment, required this.isExport});
 
   @override
-  State<AddShipmentDetails> createState() => _AddShipmentDetailsState();
+  State<AddShipmentDetailsImports> createState() =>
+      _AddShipmentDetailsImportsState();
 }
 
-class _AddShipmentDetailsState extends State<AddShipmentDetails> {
+class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
   final _formKey = GlobalKey<FormState>();
   final FocusNode _cityFocusNode = FocusNode();
   final FocusNode _cityFocusNode2 = FocusNode();
@@ -35,7 +36,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   late TextEditingController hsnCodeController = TextEditingController();
   late TextEditingController cargoTypeController = TextEditingController();
   late TextEditingController cargoDescriptionController =
-  TextEditingController();
+      TextEditingController();
   late TextEditingController qualityController = TextEditingController();
   late TextEditingController weightController = TextEditingController();
   late TextEditingController valueController = TextEditingController();
@@ -44,17 +45,16 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   bool isValid = true;
   final RegExp hsnPattern = RegExp(r'^\d{6,8}$');
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
-  int exporterId=0;
-  int cargoTypeId=0;
-
+  int importerId = 0;
+  int cargoTypeId = 0;
 
   @override
   void initState() {
     super.initState();
-    billNoController = TextEditingController(
-        text: widget.shipment?.shippingBillNoIgmNno ?? '');
+    billNoController =
+        TextEditingController(text: widget.shipment?.boeNo ?? '');
     billDateController =
-        TextEditingController(text: widget.shipment?.shippingBillDateIgm ?? '');
+        TextEditingController(text: widget.shipment?.boeDt ?? '');
     exporterNameController = TextEditingController(
         text: widget.shipment?.nameOfExporterImporter ?? '');
     hsnCodeController =
@@ -67,10 +67,10 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
         TextEditingController(text: widget.shipment?.quantity.toString() ?? '');
     weightController = TextEditingController(
         text: widget.shipment?.cargoWeight.toString() ?? '');
-    valueController = TextEditingController(
-        text: widget.shipment?.cargoValue.toString() ?? '');
-    exporterId=widget.shipment?.exporterId??0;
-    cargoTypeId=widget.shipment?.cargoTypeId??0;
+    // valueController = TextEditingController(
+    //     text: widget.shipment?.cargoValue.toString() ?? '');
+    importerId = widget.shipment?.importerId ?? 0;
+    cargoTypeId = widget.shipment?.cargoTypeId ?? 0;
     print("isExport shp: ${widget.isExport}");
   }
 
@@ -322,9 +322,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
 
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomDatePicker(
                                 controller: billDateController,
@@ -337,9 +335,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               // CustomTextField(
                               //   controller: exporterNameController,
@@ -347,9 +343,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               //   inputType: TextInputType.text,
                               // ),
                               SizedBox(
-                                width: MediaQuery
-                                    .sizeOf(context)
-                                    .width,
+                                width: MediaQuery.sizeOf(context).width,
                                 child: FormField<String>(
                                   validator: (value) {
                                     if (exporterNameController.text.isEmpty) {
@@ -360,162 +354,197 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     }
                                     setState(() {
                                       _textFieldHeight =
-                                      45; // Reset to initial height if valid
+                                          45; // Reset to initial height if valid
                                     });
                                     return null; // Valid input
                                   },
                                   builder: (formFieldState) {
                                     return Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        widget.isExport ? AnimatedContainer(
-                                          duration: const Duration(
-                                              milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                            TextFieldConfiguration(
-                                              controller: exporterNameController,
-                                              focusNode: _cityFocusNode,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
-                                                border: OutlineInputBorder(),
-                                                labelText: 'Name of Exporter',
-                                              ),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                ExporterService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
+                                        widget.isExport
+                                            ? AnimatedContainer(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                height: _textFieldHeight,
+                                                // Dynamic height based on validation
+                                                child: TypeAheadField<
+                                                    CargoTypeExporterImporterAgent>(
+                                                  hideSuggestionsOnKeyboardHide:
+                                                      false,
+                                                  ignoreAccessibleNavigation:
+                                                      true,
+                                                  textFieldConfiguration:
+                                                      TextFieldConfiguration(
+                                                    controller:
+                                                        exporterNameController,
+                                                    focusNode: _cityFocusNode,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 12.0,
+                                                              horizontal: 10.0),
+                                                      border:
+                                                          OutlineInputBorder(),
+                                                      labelText:
+                                                          'Name of Exporter',
+                                                    ),
+                                                  ),
+                                                  suggestionsCallback:
+                                                      (search) =>
+                                                          ExporterService.find(
+                                                              search),
+                                                  itemBuilder: (context, city) {
+                                                    return Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        border: Border(
+                                                          top: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          left: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          right: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          bottom: BorderSide
+                                                              .none, // No border on the bottom
+                                                        ),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(city.code
+                                                              .toUpperCase()),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(city.description
+                                                              .toUpperCase()),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                  onSuggestionSelected: (city) {
+                                                    exporterNameController
+                                                            .text =
+                                                        city.description
+                                                            .toUpperCase();
+                                                    cargoTypeId=int.parse(city.value);
+                                                    formFieldState.didChange(
+                                                        exporterNameController
+                                                            .text);
+                                                  },
+                                                  noItemsFoundBuilder:
+                                                      (context) => const Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: Text(
+                                                        'No Exporter Found'),
                                                   ),
                                                 ),
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
+                                              )
+                                            : AnimatedContainer(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                height: _textFieldHeight,
+                                                // Dynamic height based on validation
+                                                child: TypeAheadField<
+                                                    CargoTypeExporterImporterAgent>(
+                                                  hideSuggestionsOnKeyboardHide:
+                                                      false,
+                                                  ignoreAccessibleNavigation:
+                                                      true,
+                                                  textFieldConfiguration:
+                                                      TextFieldConfiguration(
+                                                    controller:
+                                                        exporterNameController,
+                                                    focusNode: _cityFocusNode,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 12.0,
+                                                              horizontal: 10.0),
+                                                      border:
+                                                          OutlineInputBorder(),
+                                                      labelText:
+                                                          'Name of Importer',
                                                     ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              exporterNameController.text =
-                                                  city.description
-                                                      .toUpperCase();
-                                              formFieldState
-                                                  .didChange(
-                                                  exporterNameController.text);
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                                Padding(
-                                                  padding: EdgeInsets.all(8.0),
-                                                  child: const Text(
-                                                      'No Exporter Found'),
-                                                ),
-                                          ),
-                                        ) :
-                                        AnimatedContainer(
-                                          duration: const Duration(
-                                              milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                            TextFieldConfiguration(
-                                              controller: exporterNameController,
-                                              focusNode: _cityFocusNode,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
-                                                border: OutlineInputBorder(),
-                                                labelText: 'Name of Importer',
-                                              ),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                ImporterService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
+                                                  ),
+                                                  suggestionsCallback:
+                                                      (search) =>
+                                                          ImporterService.find(
+                                                              search),
+                                                  itemBuilder: (context, city) {
+                                                    return Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        border: Border(
+                                                          top: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          left: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          right: BorderSide(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 0.2),
+                                                          bottom: BorderSide
+                                                              .none, // No border on the bottom
+                                                        ),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(city.code
+                                                              .toUpperCase()),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(city.description
+                                                              .toUpperCase()),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                  onSuggestionSelected: (city) {
+                                                    exporterNameController
+                                                            .text =
+                                                        city.description
+                                                            .toUpperCase();
+                                                    importerId =
+                                                        int.parse(city.value);
+                                                    formFieldState.didChange(
+                                                        exporterNameController
+                                                            .text);
+                                                  },
+                                                  noItemsFoundBuilder:
+                                                      (context) =>
+                                                          const Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: Text(
+                                                        'No Importer Found'),
                                                   ),
                                                 ),
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              exporterNameController.text =
-                                                  city.description
-                                                      .toUpperCase();
-                                              formFieldState
-                                                  .didChange(
-                                                  exporterNameController.text);
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                            const Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text('No Importer Found'),
-                                            ),
-                                          ),
-                                        ),
+                                              ),
                                         if (formFieldState.hasError)
                                           Padding(
-                                            padding:
-                                            const EdgeInsets.only(
+                                            padding: const EdgeInsets.only(
                                                 top: 8.0, left: 16),
                                             child: Text(
                                               formFieldState.errorText ?? '',
@@ -531,33 +560,25 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: hsnCodeController,
                                 labelText: 'HSN Code',
                                 inputType: TextInputType.number,
-
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
                                 validationPattern: hsnPattern,
-                                patternErrorMessage:
-                                'Enter a valid HSN code',
+                                patternErrorMessage: 'Enter a valid HSN code',
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               SizedBox(
-                                width: MediaQuery
-                                    .sizeOf(context)
-                                    .width,
+                                width: MediaQuery.sizeOf(context).width,
                                 child: FormField<String>(
                                   validator: (value) {
                                     if (cargoTypeController.text.isEmpty) {
@@ -568,32 +589,34 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     }
                                     setState(() {
                                       _textFieldHeight =
-                                      45; // Reset to initial height if valid
+                                          45; // Reset to initial height if valid
                                     });
                                     return null; // Valid input
                                   },
                                   builder: (formFieldState) {
                                     return Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
+                                          duration:
+                                              const Duration(milliseconds: 200),
                                           height: _textFieldHeight,
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:
+                                                false,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
-                                            TextFieldConfiguration(
+                                                TextFieldConfiguration(
                                               controller: cargoTypeController,
                                               focusNode: _cityFocusNode2,
                                               decoration: const InputDecoration(
                                                 contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
+                                                    EdgeInsets.symmetric(
+                                                        vertical: 12.0,
+                                                        horizontal: 10.0),
                                                 border: OutlineInputBorder(),
                                                 labelText: 'Cargo Type',
                                               ),
@@ -618,7 +641,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                   ),
                                                 ),
                                                 padding:
-                                                const EdgeInsets.all(8.0),
+                                                    const EdgeInsets.all(8.0),
                                                 child: Row(
                                                   children: [
                                                     Text(city.description
@@ -628,26 +651,24 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               );
                                             },
                                             onSuggestionSelected: (city) {
-                                              cargoTypeController.text =
-                                                  city.description
-                                                      .toUpperCase();
+                                              cargoTypeController.text = city
+                                                  .description
+                                                  .toUpperCase();
 
-                                              formFieldState
-                                                  .didChange(
+                                              formFieldState.didChange(
                                                   cargoTypeController.text);
                                             },
                                             noItemsFoundBuilder: (context) =>
-                                            const Padding(
+                                                const Padding(
                                               padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                  'No Cargo Type Found'),
+                                              child:
+                                                  Text('No Cargo Type Found'),
                                             ),
                                           ),
                                         ),
                                         if (formFieldState.hasError)
                                           Padding(
-                                            padding:
-                                            const EdgeInsets.only(
+                                            padding: const EdgeInsets.only(
                                                 top: 8.0, left: 16.0),
                                             child: Text(
                                               formFieldState.errorText ?? '',
@@ -663,9 +684,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: cargoDescriptionController,
@@ -674,23 +693,18 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomTextField(
                                     controller: qualityController,
                                     labelText: 'Quantity',
                                     customWidth:
-                                    MediaQuery
-                                        .of(context)
-                                        .size
-                                        .width *
-                                        0.43,
+                                        MediaQuery.of(context).size.width *
+                                            0.43,
                                     inputType: TextInputType.number,
                                     isValidationRequired: false,
                                     inputFormatters: [
@@ -703,15 +717,11 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     labelText: 'Cargo Weight',
                                     isValidationRequired: false,
                                     customWidth:
-                                    MediaQuery
-                                        .of(context)
-                                        .size
-                                        .width *
-                                        0.43,
-
+                                        MediaQuery.of(context).size.width *
+                                            0.43,
                                     inputType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
                                     inputFormatters: [
                                       LengthLimitingTextInputFormatter(10),
                                       FilteringTextInputFormatter.allow(
@@ -726,9 +736,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery
-                                    .sizeOf(context)
-                                    .height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: valueController,
@@ -745,9 +753,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                       ),
                     ),
                     SizedBox(
-                      height: MediaQuery
-                          .sizeOf(context)
-                          .height * 0.015,
+                      height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     Container(
                       decoration: BoxDecoration(
@@ -766,9 +772,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery
-                                      .sizeOf(context)
-                                      .width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
                                     onPressed: () {
                                       Navigator.pop(
@@ -784,41 +788,37 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery
-                                      .sizeOf(context)
-                                      .width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
-                                        final newShipment = ShipmentDetailsExports(
-                                          shippingBillNoIgmNno: billNoController
-                                              .text,
-                                          shippingBillDateIgm: billDateController
-                                              .text,
+                                        final newShipment =
+                                            ShipmentDetailsImports(
+                                          boeNo: billNoController.text,
+                                          boeDt: billDateController.text,
                                           nameOfExporterImporter:
-                                          exporterNameController.text,
+                                              exporterNameController.text,
                                           hsnCode: hsnCodeController.text,
                                           cargoType: cargoTypeController.text,
                                           cargoDescription:
-                                          cargoDescriptionController.text,
-                                          quantity: int.parse(qualityController
-                                              .text),
-                                          cargoWeight: int.parse(
-                                              weightController.text),
-                                          cargoValue: int.parse(valueController
-                                              .text),
+                                              cargoDescriptionController.text,
+                                          quantity:
+                                              int.parse(qualityController.text),
+                                          cargoWeight:
+                                              int.parse(weightController.text),
                                           cargoTypeId: cargoTypeId,
                                           chaName: chaNameMaster,
-                                          typeOfGoods: '',
-                                          exporterId:exporterId,
-                                          unitOfQt: '',
-                                          portOfDest: '',
-                                          grossQt: '',
+                                          typeOfGoods: null,
+                                          importerId: importerId,
+                                          unitOfQt: null,
+                                          portOfDest: null,
                                           isUliPverified: false,
-
+                                          grossWt: null,
+                                          countryOrig:null,
+                                          whRequestId: 0,
+                                          bookingId: null,
                                         );
-                                        Navigator.pop(context,
-                                            newShipment);
+                                        Navigator.pop(context, newShipment);
                                       }
                                     },
                                     child: const Text(
@@ -834,9 +834,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                       ),
                     ),
                     SizedBox(
-                      height: MediaQuery
-                          .sizeOf(context)
-                          .height * 0.015,
+                      height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                   ],
                 ),
@@ -849,10 +847,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
             right: 0,
             child: IgnorePointer(
               child: CustomPaint(
-                size: Size(MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                size: Size(MediaQuery.of(context).size.width,
                     100), // Adjust the height as needed
                 painter: AppBarPainterGradient(),
               ),
@@ -903,4 +898,3 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     );
   }
 }
-

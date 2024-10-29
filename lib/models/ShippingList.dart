@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import '../util/Global.dart';
 
 class SlotBookingCreationExport {
@@ -28,7 +30,6 @@ class SlotBookingCreationExport {
   int adminOrgProdId;
   int orgId;
 
-
   SlotBookingCreationExport({
     required this.bookingId,
     required this.vehicleType,
@@ -56,10 +57,168 @@ class SlotBookingCreationExport {
     required this.screenId,
     required this.adminOrgProdId,
     required this.orgId,
-
   });
 
-  factory SlotBookingCreationExport.fromMap(Map<String, dynamic> json) => SlotBookingCreationExport(
+  factory SlotBookingCreationExport.fromMap(Map<String, dynamic> json) =>
+      SlotBookingCreationExport(
+        bookingId: json["BookingId"],
+        vehicleType: List<String>.from(json["VehicleType"].map((x) => x)),
+        bookingDt: json["BookingDt"],
+        noofVehicle: json["NoofVehicle"],
+        isFtl: json["IsFTL"],
+        isLtl: json["IsLTL"],
+        origin: json["Origin"],
+        destination: json["Destination"],
+        hsnCode: json["HSNCode"],
+        cargoValue: json["CargoValue"],
+        shipmentDetailsList: List<ShipmentDetailsExports>.from(
+            json["ShipmentDetailsList"]
+                .map((x) => ShipmentDetailsExports.fromJson(x))),
+        vehicalDetailsList: List<VehicleDetailsExports>.from(
+            json["VehicalDetailsList"]
+                .map((x) => VehicleDetailsExports.fromJson(x))),
+        chaName: json["ChaName"],
+        chaId: json["CHAId"],
+        unitOfQt: json["UnitOfQt"],
+        portOfDest: json["PortOfDest"],
+        grossQt: json["GrossQt"],
+        orgProdId: json["OrgProdId"],
+        userId: json["UserId"],
+        branchCode: json["BranchCode"],
+        companyCode: json["CompanyCode"],
+        airportId: json["AirportId"],
+        paCompanyCode: json["PACompanyCode"],
+        screenId: json["ScreenId"],
+        adminOrgProdId: json["Admin_OrgProdId"],
+        orgId: json["OrgId"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "BookingId": bookingId,
+        "VehicleType": List<dynamic>.from(vehicleType.map((x) => x)),
+        "BookingDt": bookingDt,
+        "NoofVehicle": noofVehicle,
+        "IsFTL": isFtl,
+        "IsLTL": isLtl,
+        "Origin": origin,
+        "Destination": destination,
+        "HSNCode": hsnCode,
+        "CargoValue": cargoValue,
+        "ShipmentDetailsList":
+            List<dynamic>.from(shipmentDetailsList.map((x) => x.toJson())),
+        "VehicalDetailsList":
+            List<dynamic>.from(vehicalDetailsList.map((x) => x.toJson())),
+        "ChaName": chaName,
+        "CHAId": chaId,
+        "UnitOfQt": unitOfQt,
+        "PortOfDest": portOfDest,
+        "GrossQt": grossQt,
+        "OrgProdId": orgProdId,
+        "UserId": userId,
+        "BranchCode": branchCode,
+        "CompanyCode": companyCode,
+        "AirportId": airportId,
+        "PACompanyCode": paCompanyCode,
+        "ScreenId": screenId,
+        "Admin_OrgProdId": adminOrgProdId,
+        "OrgId": orgId,
+      };
+
+  @override
+  String toString() {
+    return 'SlotBookingCreationExport('
+        'bookingId: $bookingId, '
+        'vehicleType: $vehicleType, '
+        'bookingDt: $bookingDt, '
+        'noofVehicle: $noofVehicle, '
+        'isFtl: $isFtl, '
+        'isLtl: $isLtl, '
+        'origin: $origin, '
+        'destination: $destination, '
+        'hsnCode: $hsnCode, '
+        'cargoValue: $cargoValue, '
+        'shipmentDetailsList: $shipmentDetailsList, '
+        'vehicalDetailsList: $vehicalDetailsList, '
+        'chaName: $chaName, '
+        'chaId: $chaId, '
+        'unitOfQt: $unitOfQt, '
+        'portOfDest: $portOfDest, '
+        'grossQt: $grossQt, '
+        'orgProdId: $orgProdId, '
+        'userId: $userId, '
+        'branchCode: $branchCode, '
+        'companyCode: $companyCode, '
+        'airportId: $airportId, '
+        'paCompanyCode: $paCompanyCode, '
+        'screenId: $screenId, '
+        'adminOrgProdId: $adminOrgProdId, '
+        'orgId: $orgId'
+        ')';
+  }
+}
+
+class SlotBookingCreationImport {
+  int bookingId;
+  List<String> vehicleType;
+  dynamic bookingDt;
+  String noofVehicle;
+  bool isFtl;
+  bool isLtl;
+  String origin;
+  String destination;
+  dynamic hsnCode;
+  dynamic cargoValue;
+  List<ShipmentDetailsImports> impBoeDetails;
+  List<VehicleDetailsExports> impVehicleDetails;
+  String chaName;
+  String chaId;
+  bool isYes;
+  bool isNo;
+  int orgProdId;
+  int userId;
+  String branchCode;
+  String companyCode;
+  int airportId;
+  int landportAirportId;
+  String paCompanyCode;
+  int screenId;
+  int adminOrgProdId;
+  int orgId;
+  String eventCode;
+  int directImportId;
+
+  SlotBookingCreationImport({
+    required this.bookingId,
+    required this.vehicleType,
+    required this.bookingDt,
+    required this.noofVehicle,
+    required this.isFtl,
+    required this.isLtl,
+    required this.origin,
+    required this.destination,
+    required this.hsnCode,
+    required this.cargoValue,
+    required this.impBoeDetails,
+    required this.impVehicleDetails,
+    required this.chaName,
+    required this.chaId,
+    required this.isYes,
+    required this.isNo,
+    required this.orgProdId,
+    required this.userId,
+    required this.branchCode,
+    required this.companyCode,
+    required this.airportId,
+    required this.landportAirportId,
+    required this.paCompanyCode,
+    required this.screenId,
+    required this.adminOrgProdId,
+    required this.orgId,
+    required this.eventCode,
+    required this.directImportId,
+  });
+
+  factory SlotBookingCreationImport.fromMap(Map<String, dynamic> json) => SlotBookingCreationImport(
     bookingId: json["BookingId"],
     vehicleType: List<String>.from(json["VehicleType"].map((x) => x)),
     bookingDt: json["BookingDt"],
@@ -70,23 +229,24 @@ class SlotBookingCreationExport {
     destination: json["Destination"],
     hsnCode: json["HSNCode"],
     cargoValue: json["CargoValue"],
-    shipmentDetailsList: List<ShipmentDetailsExports>.from(json["ShipmentDetailsList"].map((x) => ShipmentDetailsExports.fromJson(x))),
-    vehicalDetailsList: List<VehicleDetailsExports>.from(json["VehicalDetailsList"].map((x) => VehicleDetailsExports.fromJson(x))),
+    impBoeDetails: List<ShipmentDetailsImports>.from(json["ImpBOEDetails"].map((x) => ShipmentDetailsImports.fromJson(x))),
+    impVehicleDetails: List<VehicleDetailsExports>.from(json["ImpVehicleDetails"].map((x) => VehicleDetailsExports.fromJson(x))),
     chaName: json["ChaName"],
     chaId: json["CHAId"],
-    unitOfQt: json["UnitOfQt"],
-    portOfDest: json["PortOfDest"],
-    grossQt: json["GrossQt"],
+    isYes: json["IsYes"],
+    isNo: json["IsNo"],
     orgProdId: json["OrgProdId"],
     userId: json["UserId"],
     branchCode: json["BranchCode"],
     companyCode: json["CompanyCode"],
     airportId: json["AirportId"],
+    landportAirportId: json["LandportAirportId"],
     paCompanyCode: json["PACompanyCode"],
     screenId: json["ScreenId"],
     adminOrgProdId: json["Admin_OrgProdId"],
     orgId: json["OrgId"],
-
+    eventCode: json["EventCode"],
+    directImportId: json["DirectImportId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -100,24 +260,27 @@ class SlotBookingCreationExport {
     "Destination": destination,
     "HSNCode": hsnCode,
     "CargoValue": cargoValue,
-    "ShipmentDetailsList": List<dynamic>.from(shipmentDetailsList.map((x) => x.toJson())),
-    "VehicalDetailsList": List<dynamic>.from(vehicalDetailsList.map((x) => x.toJson())),
+    "ImpBOEDetails": List<dynamic>.from(impBoeDetails.map((x) => x.toJson())),
+    "ImpVehicleDetails": List<dynamic>.from(impVehicleDetails.map((x) => x.toJson())),
     "ChaName": chaName,
     "CHAId": chaId,
-    "UnitOfQt": unitOfQt,
-    "PortOfDest": portOfDest,
-    "GrossQt": grossQt,
+    "IsYes": isYes,
+    "IsNo": isNo,
     "OrgProdId": orgProdId,
     "UserId": userId,
     "BranchCode": branchCode,
     "CompanyCode": companyCode,
     "AirportId": airportId,
+    "LandportAirportId": landportAirportId,
     "PACompanyCode": paCompanyCode,
     "ScreenId": screenId,
     "Admin_OrgProdId": adminOrgProdId,
     "OrgId": orgId,
+    "EventCode": eventCode,
+    "DirectImportId": directImportId,
   };
 }
+
 
 class SlotBookingShipmentListingExport {
   int bookingId;
@@ -219,7 +382,6 @@ class SlotBookingShipmentListingImport {
       };
 }
 
-
 class ShipmentDetailsExports {
   int detailsId;
   String cargoDescription;
@@ -241,10 +403,10 @@ class ShipmentDetailsExports {
   bool isUliPverified;
 
   ShipmentDetailsExports({
-     this.detailsId=0,
+    this.detailsId = 0,
     required this.cargoDescription,
     required this.cargoTypeId,
-    this.cargoType="",
+    this.cargoType = "",
     required this.cargoWeight,
     required this.chaName,
     required this.nameOfExporterImporter,
@@ -261,45 +423,46 @@ class ShipmentDetailsExports {
     required this.isUliPverified,
   });
 
-  factory ShipmentDetailsExports.fromJson(Map<String, dynamic> json) => ShipmentDetailsExports(
-    detailsId: json["DetailsId"],
-    cargoDescription: json["CargoDescription"],
-    cargoTypeId: json["CargoTypeId"],
-    cargoWeight: json["CargoWeight"],
-    chaName: json["ChaName"],
-    nameOfExporterImporter: json["NameOfExporterImporter"],
-    quantity: json["Quantity"],
-    shippingBillNoIgmNno: json["ShippingBillNoIGMNno"],
-    shippingBillDateIgm: json["ShippingBillDateIGM"],
-    typeOfGoods: json["TypeOfGoods"],
-    hsnCode: json["HSNCode"],
-    cargoValue: json["CargoValue"],
-    exporterId: json["ExporterId"],
-    unitOfQt: json["UnitOfQt"],
-    portOfDest: json["PortOfDest"],
-    grossQt: json["GrossQt"],
-    isUliPverified: json["IsULIPverified"],
-  );
+  factory ShipmentDetailsExports.fromJson(Map<String, dynamic> json) =>
+      ShipmentDetailsExports(
+        detailsId: json["DetailsId"],
+        cargoDescription: json["CargoDescription"],
+        cargoTypeId: json["CargoTypeId"],
+        cargoWeight: json["CargoWeight"],
+        chaName: json["ChaName"],
+        nameOfExporterImporter: json["NameOfExporterImporter"],
+        quantity: json["Quantity"],
+        shippingBillNoIgmNno: json["ShippingBillNoIGMNno"],
+        shippingBillDateIgm: json["ShippingBillDateIGM"],
+        typeOfGoods: json["TypeOfGoods"],
+        hsnCode: json["HSNCode"],
+        cargoValue: json["CargoValue"],
+        exporterId: json["ExporterId"],
+        unitOfQt: json["UnitOfQt"],
+        portOfDest: json["PortOfDest"],
+        grossQt: json["GrossQt"],
+        isUliPverified: json["IsULIPverified"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "DetailsId": detailsId,
-    "CargoDescription": cargoDescription,
-    "CargoTypeId": cargoTypeId,
-    "CargoWeight": cargoWeight,
-    "ChaName": chaName,
-    "NameOfExporterImporter": nameOfExporterImporter,
-    "Quantity": quantity,
-    "ShippingBillNoIGMNno": shippingBillNoIgmNno,
-    "ShippingBillDateIGM": shippingBillDateIgm,
-    "TypeOfGoods": typeOfGoods,
-    "HSNCode": hsnCode,
-    "CargoValue": cargoValue,
-    "ExporterId": exporterId,
-    "UnitOfQt": unitOfQt,
-    "PortOfDest": portOfDest,
-    "GrossQt": grossQt,
-    "IsULIPverified": isUliPverified,
-  };
+        "DetailsId": detailsId,
+        "CargoDescription": cargoDescription,
+        "CargoTypeId": cargoTypeId,
+        "CargoWeight": cargoWeight,
+        "ChaName": chaName,
+        "NameOfExporterImporter": nameOfExporterImporter,
+        "Quantity": quantity,
+        "ShippingBillNoIGMNno": shippingBillNoIgmNno,
+        "ShippingBillDateIGM": shippingBillDateIgm,
+        "TypeOfGoods": typeOfGoods,
+        "HSNCode": hsnCode,
+        "CargoValue": cargoValue,
+        "ExporterId": exporterId,
+        "UnitOfQt": unitOfQt,
+        "PortOfDest": portOfDest,
+        "GrossQt": grossQt,
+        "IsULIPverified": isUliPverified,
+      };
 }
 
 class ShipmentDetailsImports {
@@ -313,20 +476,22 @@ class ShipmentDetailsImports {
   int quantity;
   String boeNo;
   String boeDt;
-  String typeOfGoods;
+  String? typeOfGoods;
   String hsnCode;
-
   int importerId;
-  String unitOfQt;
-  String portOfDest;
-  String grossQt;
+  String? unitOfQt;
+  String? grossWt;
+  String? countryOrig;
   bool isUliPverified;
+  int whRequestId;
+  String? bookingId;
+  String? portOfDest;
 
   ShipmentDetailsImports({
-     this.detailsId=0,
+    this.detailsId = 0,
     required this.cargoDescription,
     required this.cargoTypeId,
-    this.cargoType="",
+    this.cargoType = "",
     required this.cargoWeight,
     required this.chaName,
     required this.nameOfExporterImporter,
@@ -338,47 +503,57 @@ class ShipmentDetailsImports {
     required this.importerId,
     required this.unitOfQt,
     required this.portOfDest,
-    required this.grossQt,
+    required this.grossWt,
+    required this.countryOrig,
+    required this.whRequestId,
+    required this.bookingId,
     required this.isUliPverified,
   });
 
-  factory ShipmentDetailsImports.fromJson(Map<String, dynamic> json) => ShipmentDetailsImports(
-    detailsId: json["DetailsId"],
-    cargoDescription: json["CargoDescription"],
-    cargoTypeId: json["CargoTypeId"],
-    cargoWeight: json["CargoWeight"],
-    chaName: json["ChaName"],
-    nameOfExporterImporter: json["NameOfExporterImporter"],
-    quantity: json["Quantity"],
-    boeNo: json["BOENo"],
-    boeDt: json["BOEDt"],
-    typeOfGoods: json["TypeOfGoods"],
-    hsnCode: json["HSNCode"],
-    importerId: json["ImporterId"],
-    unitOfQt: json["UnitOfQt"],
-    portOfDest: json["PortOfDest"],
-    grossQt: json["GrossQt"],
-    isUliPverified: json["IsULIPverified"],
-  );
+  factory ShipmentDetailsImports.fromJson(Map<String, dynamic> json) =>
+      ShipmentDetailsImports(
+        detailsId: json["DetailsId"],
+        cargoDescription: json["CargoDescription"],
+        cargoTypeId: json["CargoTypeId"],
+        cargoWeight: json["CargoWeight"],
+        chaName: json["ChaName"],
+        nameOfExporterImporter: json["NameOfExporterImporter"],
+        quantity: json["Quantity"],
+        boeNo: json["BOENo"],
+        boeDt: json["BOEDt"],
+        typeOfGoods: json["TypeOfGoods"],
+        hsnCode: json["HSNCode"],
+        importerId: json["ImporterId"],
+        unitOfQt: json["UnitOfQt"],
+        portOfDest: json["PortOfDest"],
+        grossWt: json["GrossWt"],
+        countryOrig: json["CountryOrig"],
+        whRequestId: json["WHRequestId"],
+        bookingId: json["BookingId"],
+        isUliPverified: json["IsULIPverified"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "DetailsId": detailsId,
-    "CargoDescription": cargoDescription,
-    "CargoTypeId": cargoTypeId,
-    "CargoWeight": cargoWeight,
-    "ChaName": chaName,
-    "NameOfExporterImporter": nameOfExporterImporter,
-    "Quantity": quantity,
-    "ShippingBillNoIGMNno": boeNo,
-    "ShippingBillDateIGM": boeDt,
-    "TypeOfGoods": typeOfGoods,
-    "HSNCode": hsnCode,
-    "ImporterId": importerId,
-    "UnitOfQt": unitOfQt,
-    "PortOfDest": portOfDest,
-    "GrossQt": grossQt,
-    "IsULIPverified": isUliPverified,
-  };
+        "DetailsId": detailsId.toString(),
+        "CargoDescription": cargoDescription,
+        "CargoTypeId": cargoTypeId.toString(),
+        "CargoWeight": cargoWeight,
+        "ChaName": chaName,
+        "NameOfExporterImporter": nameOfExporterImporter,
+        "Quantity": quantity,
+        "BOENo": boeNo,
+        "BOEDt": DateFormat('d MMM yyyy').parse(boeDt).toIso8601String(),
+        "TypeOfGoods": typeOfGoods,
+        "HSNCode": hsnCode,
+        "ImporterId": importerId,
+        "UnitOfQt": unitOfQt,
+        "PortOfDest": portOfDest,
+        "GrossWt": grossWt,
+        "CountryOrig": grossWt,
+        "WHRequestId": grossWt,
+        "BookingId": grossWt,
+        "IsULIPverified": isUliPverified,
+      };
 }
 
 class VehicleDetailsExports {
@@ -397,8 +572,8 @@ class VehicleDetailsExports {
   int slotDurationId;
   String slotStartTime;
   String slotEndTime;
-  DrivingLicense drivingLicense;
-  DrivingLicense rcScanned;
+  DrivingLicense? drivingLicense;
+  DrivingLicense? rcScanned;
   bool isModifySlot;
   bool isNewSlot;
   String remarksChassisNo;
@@ -411,15 +586,15 @@ class VehicleDetailsExports {
   String isDriverVerified;
 
   VehicleDetailsExports({
-     this.vehicleId=0,
+    this.vehicleId = 0,
     this.vehicleTypeName = "",
     this.driverAadhaar = "",
     required this.driverContact,
     required this.driverDob,
     required this.driverName,
     required this.drivingLicenseNo,
-    this.slotDateTime="",
-    this.slotViewDateTime="",
+    this.slotDateTime = "",
+    this.slotViewDateTime = "",
     required this.truckNo,
     required this.vehicleTypeId,
     this.slotConfigId = 0,
@@ -438,8 +613,10 @@ class VehicleDetailsExports {
     this.netWt = "",
     this.isvehicleVerified = "",
     this.isDriverVerified = "",
-  }) : drivingLicense = drivingLicense ?? DrivingLicense(), // Assign default DrivingLicense if null
-        rcScanned = rcScanned ?? DrivingLicense();
+  });
+      // : drivingLicense = drivingLicense ?? DrivingLicense(),
+      //   // Assign default DrivingLicense if null
+      //   rcScanned = rcScanned ?? DrivingLicense();
 
   factory VehicleDetailsExports.fromJson(Map<String, dynamic> json) =>
       VehicleDetailsExports(
@@ -456,7 +633,9 @@ class VehicleDetailsExports {
         slotDurationId: json["SlotDurationId"],
         slotStartTime: json["SlotStartTime"],
         slotEndTime: json["SlotEndTime"],
-        drivingLicense: DrivingLicense.fromJson(json["DrivingLicense"]),
+        drivingLicense: json["DrivingLicense"] != null
+            ? DrivingLicense.fromJson(json["DrivingLicense"])
+            : null,
         rcScanned: DrivingLicense.fromJson(json["RCScanned"]),
         isModifySlot: json["IsModifySlot"],
         isNewSlot: json["IsNewSlot"],
@@ -484,8 +663,8 @@ class VehicleDetailsExports {
         "SlotDurationId": slotDurationId,
         "SlotStartTime": slotStartTime,
         "SlotEndTime": slotEndTime,
-        "DrivingLicense": drivingLicense.toJson(),
-        "RCScanned": rcScanned.toJson(),
+        "DrivingLicense": drivingLicense?.toJson(),
+        "RCScanned": rcScanned?.toJson(),
         "IsModifySlot": isModifySlot,
         "IsNewSlot": isNewSlot,
         "RemarksChassisNo": remarksChassisNo,
@@ -517,58 +696,58 @@ class DrivingLicense {
   int? rcDocConfigId;
 
   DrivingLicense({
-     this.bookingId,
-     this.vehicleId=0,
+    this.bookingId,
+    this.vehicleId = 0,
     this.dlDocConfigId,
-     this.documentType="",
-     this.documentName="",
-     this.remark="",
-     this.documentPhysicalFileName="",
-     this.filePath="",
-     this.documentDescription="",
-     this.isFinanicial=false,
-     this.documentTyepId=0,
-     this.documentUploadCriteria="PNG",
-     this.fileUom="MB",
-     this.fileSize=2,
+    this.documentType = "",
+    this.documentName = "",
+    this.remark = "",
+    this.documentPhysicalFileName = "",
+    this.filePath = "",
+    this.documentDescription = "",
+    this.isFinanicial = false,
+    this.documentTyepId = 0,
+    this.documentUploadCriteria = "PNG",
+    this.fileUom = "MB",
+    this.fileSize = 2,
     this.rcDocConfigId,
   });
 
   factory DrivingLicense.fromJson(Map<String, dynamic> json) => DrivingLicense(
-    bookingId: json["BookingId"],
-    vehicleId: json["VehicleId"],
-    dlDocConfigId: json["DLDocConfigId"],
-    documentType: json["DocumentType"],
-    documentName: json["DocumentName"],
-    remark: json["Remark"],
-    documentPhysicalFileName: json["DocumentPhysicalFileName"],
-    filePath: json["FilePath"],
-    documentDescription: json["DocumentDescription"],
-    isFinanicial: json["IsFinanicial"],
-    documentTyepId: json["DocumentTyepID"],
-    documentUploadCriteria: json["DocumentUploadCriteria"],
-    fileUom: json["FileUOM"],
-    fileSize: json["FileSize"],
-    rcDocConfigId: json["RCDocConfigId"],
-  );
+        bookingId: json["BookingId"],
+        vehicleId: json["VehicleId"],
+        dlDocConfigId: json["DLDocConfigId"],
+        documentType: json["DocumentType"],
+        documentName: json["DocumentName"],
+        remark: json["Remark"],
+        documentPhysicalFileName: json["DocumentPhysicalFileName"],
+        filePath: json["FilePath"],
+        documentDescription: json["DocumentDescription"],
+        isFinanicial: json["IsFinanicial"],
+        documentTyepId: json["DocumentTyepID"],
+        documentUploadCriteria: json["DocumentUploadCriteria"],
+        fileUom: json["FileUOM"],
+        fileSize: json["FileSize"],
+        rcDocConfigId: json["RCDocConfigId"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "BookingId": bookingId,
-    "VehicleId": vehicleId,
-    "DLDocConfigId": dlDocConfigId,
-    "DocumentType": documentType,
-    "DocumentName": documentName,
-    "Remark": remark,
-    "DocumentPhysicalFileName": documentPhysicalFileName,
-    "FilePath": filePath,
-    "DocumentDescription": documentDescription,
-    "IsFinanicial": isFinanicial,
-    "DocumentTyepID": documentTyepId,
-    "DocumentUploadCriteria": documentUploadCriteria,
-    "FileUOM": fileUom,
-    "FileSize": fileSize,
-    "RCDocConfigId": rcDocConfigId,
-  };
+        "BookingId": bookingId,
+        "VehicleId": vehicleId,
+        "DLDocConfigId": dlDocConfigId,
+        "DocumentType": documentType,
+        "DocumentName": documentName,
+        "Remark": remark,
+        "DocumentPhysicalFileName": documentPhysicalFileName,
+        "FilePath": filePath,
+        "DocumentDescription": documentDescription,
+        "IsFinanicial": isFinanicial,
+        "DocumentTyepID": documentTyepId,
+        "DocumentUploadCriteria": documentUploadCriteria,
+        "FileUOM": fileUom,
+        "FileSize": fileSize,
+        "RCDocConfigId": rcDocConfigId,
+      };
 }
 
 class UploadDocDetails {

@@ -15,6 +15,7 @@ import 'package:lpms/theme/app_color.dart';
 import '../../api/auth.dart';
 import '../../models/ShippingList.dart';
 import '../../screens/AddShipmentDetailsExport.dart';
+import '../../screens/AddShipmentDetailsImport.dart';
 import '../../screens/SlotBooking.dart';
 import '../../screens/AddVehicleDetailsExport.dart';
 import '../../util/Global.dart';
@@ -223,7 +224,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   File? pickedFile;
   Uint8List? fileBytes;
 
-  Future<void> _pickFile(setState, DrivingLicense vehicleDetails, String docType) async {
+  Future<void> _pickFile(setState, DrivingLicense? vehicleDetails, String docType) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png'],
@@ -253,7 +254,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
     }
   }
 
-  Future<void> Upload(File file,DrivingLicense docDetails,String fileName, String docType) async {
+  Future<void> Upload(File file,DrivingLicense? docDetails,String fileName, String docType) async {
     await Future.delayed(const Duration(seconds: 2));
     var headers = {
       'Accept': 'text/plain',
@@ -269,17 +270,19 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
       if (response.body.isNotEmpty) {
         Map<String, dynamic> jsonData = json.decode(response.body);
+        docDetails ??= DrivingLicense();
         setState(() {
-          docDetails.filePath = jsonData["message"];
-          docDetails.documentPhysicalFileName=fileName;
-          docDetails.remark=docRemarkController.text;
-          docDetails.documentName=docNameController.text;
-          docDetails.documentType=docType;
+          docDetails?.filePath = jsonData["message"];
+          docDetails?.documentPhysicalFileName=fileName;
+          docDetails?.remark=docRemarkController.text;
+          docDetails?.documentName=docNameController.text;
+          docDetails?.documentType=docType;
           if (docType == "RC UPLOAD") {
-            docDetails.documentTyepId = 145;
+            docDetails?.documentTyepId = 145;
           } else {
-            docDetails.documentTyepId = 144;
+            docDetails?.documentTyepId = 144;
           }
+          print("DocType");
         });
 
       } else {
@@ -461,7 +464,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               width: MediaQuery.of(context).size.width * 0.42,
                               height: 45,
                               child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
                                   child: const Text(
                                     "Save",
                                     style: TextStyle(color: Colors.white),
@@ -1532,6 +1537,503 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
           ],
         )
       ],
+    );
+  }
+}
+
+
+//Imports
+
+class AddShipmentDetailsListImportsNew extends StatefulWidget {
+  final List<ShipmentDetailsImports> shipmentDetailsList;
+  final Future<ShipmentDetailsImports?> Function() validateAndNavigate;
+  final bool isExport;
+
+  const AddShipmentDetailsListImportsNew({
+    super.key,
+    required this.shipmentDetailsList,
+    required this.validateAndNavigate,
+    required this.isExport,
+  });
+
+  @override
+  _AddShipmentDetailsListImportsNew createState() => _AddShipmentDetailsListImportsNew();
+}
+
+class _AddShipmentDetailsListImportsNew extends State<AddShipmentDetailsListImportsNew> {
+  List<bool> expanded = [];
+  bool isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    expanded =
+        List.generate(widget.shipmentDetailsList.length, (index) => false);
+    print("-----${widget.shipmentDetailsList.length}");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.shipmentDetailsList.isEmpty) {
+      return _buildEmptyShipmentDetails();
+    } else {
+      return _buildShipmentDetailsList();
+    }
+  }
+
+  Widget _buildEmptyShipmentDetails() {
+    return Container(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.background,
+            width: 4.0,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "SHIPMENT DETAILS",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: AppColors.textColorPrimary,
+                ),
+              ),
+              Row(
+                children: [
+                  // isFTlAndOneShipment
+                  //     ? GestureDetector(
+                  //         onTap: ()  {
+                  //           },
+                  //         child: Container(
+                  //           margin: const EdgeInsets.symmetric(horizontal: 8),
+                  //           decoration: BoxDecoration(
+                  //             borderRadius: BorderRadius.circular(5),
+                  //           ),
+                  //           child: const Icon(
+                  //             size: 28,
+                  //             Icons.add,
+                  //             color: AppColors.gateInYellow,
+                  //           ),
+                  //         ),
+                  //       )
+                  //     :
+                  GestureDetector(
+                    onTap: () async {
+
+                      final result = await widget.validateAndNavigate();
+                      if (result != null) {
+                        setState(() {
+                          widget.shipmentDetailsList.add(result);
+                        });
+                      }
+
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Icon(
+                        size: 28,
+                        Icons.add,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text(
+                "Total Count  ",
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textColorSecondary,
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.containerBgColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text("0"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  // Method to build the widget when shipmentDetailsList is not empty
+  Widget _buildShipmentDetailsList() {
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      children: [
+        Column(
+          children: [
+            Container(
+              padding:
+              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft: (!isExpanded)
+                      ? const Radius.circular(12)
+                      : const Radius.circular(0),
+                  bottomRight: (!isExpanded)
+                      ? const Radius.circular(12)
+                      : const Radius.circular(0),
+                ),
+                border: const Border(
+                  bottom: BorderSide(
+                    color: AppColors.background,
+                    width: 4.0,
+                  ),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "SHIPMENT DETAILS",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: AppColors.textColorPrimary,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          // (isFTlAndOneShipment && widget.shipmentDetailsList.length==0)?
+                          // GestureDetector(
+                          //   onTap: () async {
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) => AddShipmentDetails(
+                          //           shipment: null,
+                          //           isExport: widget.isExport,
+                          //         ),
+                          //       ),
+                          //     ).then((newShipment) {
+                          //       if (newShipment != null) {
+                          //         setState(() {
+                          //           // Add new shipment to the list
+                          //           shipmentList.add(newShipment);
+                          //           expanded.add(false);
+                          //         });
+                          //       }
+                          //     });
+                          //   },
+                          //   child: Container(
+                          //     margin: const EdgeInsets.symmetric(horizontal: 8),
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(5),
+                          //     ),
+                          //     child: const Icon(
+                          //       size: 28,
+                          //       Icons.add,
+                          //       color: AppColors.errorRed,
+                          //     ),
+                          //   ),
+                          // ):
+                          GestureDetector(
+                            onTap: () async {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddShipmentDetailsImports(
+                                    shipment: null,
+                                    isExport: widget.isExport,
+                                  ),
+                                ),
+                              ).then((newShipment) {
+                                if (newShipment != null) {
+                                  setState(() {
+                                    // Add new shipment to the list
+                                    shipmentListExports.add(newShipment);
+                                    expanded.add(false);
+                                  });
+                                }
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                size: 28,
+                                Icons.add,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                isExpanded = !isExpanded;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: AppColors.gradient1,
+                              ),
+                              child: Icon(
+                                size: 28,
+                                isExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        "Total Count  ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColorSecondary,
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.containerBgColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                              widget.shipmentDetailsList.length.toString()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+            if (isExpanded)
+              SizedBox(
+                child: ShipmentItemNewImports(
+                  shipmentDetailsList: shipmentListImports,
+                  isExport: widget.isExport,
+                ),
+              ),
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class ShipmentItemNewImports extends StatefulWidget {
+  final List<ShipmentDetailsImports> shipmentDetailsList;
+  final bool isExport;
+
+  const ShipmentItemNewImports(
+      {super.key, required this.shipmentDetailsList, required this.isExport});
+
+  @override
+  _ShipmentItemNewImportsState createState() => _ShipmentItemNewImportsState();
+}
+class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
+  List<bool> expanded = [];
+
+  @override
+  void initState() {
+    super.initState();
+    expanded =
+        List.generate(widget.shipmentDetailsList.length, (index) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print("shipmentDetailsList length: ${widget.shipmentDetailsList.length}");
+    print("expanded length: ${expanded.length}");
+    if (expanded.length != widget.shipmentDetailsList.length) {
+      expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+    }
+    return ListView.separated(
+      separatorBuilder: (context, index) => const SizedBox(height: 2),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: widget.shipmentDetailsList.length,
+      itemBuilder: (BuildContext context, int index) {
+        var shipmentDetails = widget.shipmentDetailsList[index];
+        return Column(
+          children: [
+            Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Shipping Bill No/ Date",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColorSecondary,
+                        ),
+                      ),
+                      Text(
+                        "${shipmentDetails.boeNo}/${shipmentDetails.boeDt}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textColorPrimary,
+                            fontSize: 15),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddShipmentDetailsImports(
+                                    shipment: shipmentDetails,
+                                    isExport: widget.isExport,
+                                  ),
+                                ),
+                              ).then((updatedShipment) {
+                                if (updatedShipment != null) {
+                                  setState(() {
+                                    widget.shipmentDetailsList[index] =
+                                        updatedShipment;
+                                    // expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+                                  });
+                                }
+                              });
+                            },
+                            child: Container(
+                                margin:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(Icons.edit,
+                                    size: 28, color: AppColors.primary)),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                expanded[index] = !expanded[index];
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: AppColors.gradient1,
+                              ),
+                              child: Icon(
+                                size: 28,
+                                expanded[index]
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (expanded[index])
+              Container(
+                width: MediaQuery.sizeOf(context).width,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShipmentInfoRow(
+                      header1: "Exporter Name",
+                      value1: shipmentDetails.nameOfExporterImporter,
+                      header2: "HSN Code",
+                      value2: shipmentDetails.hsnCode,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ShipmentInfoRow(
+                      header1: "Cargo Type",
+                      value1: shipmentDetails.cargoType,
+                      header2: "Cargo Description",
+                      value2: shipmentDetails.cargoDescription,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ShipmentInfoRow(
+                      header1: "Quantity",
+                      value1: shipmentDetails.quantity.toString(),
+                      header2: "Cargo Weight",
+                      value2: shipmentDetails.cargoWeight.toString(),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const ShipmentInfoRow(
+                      header1: "Cargo Value",
+                      value1: "",
+                      header2: "",
+                      value2: "",
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

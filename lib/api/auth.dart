@@ -29,13 +29,13 @@ class AuthService {
 
   Future<Post> postData(service, payload) async {
     print("payload $payload");
-    print("encoded payload ${json.encode(payload)}");
+    Utils.printPrettyJson(json.encode(payload));
     return fetchDataPOST(service, payload);
   }
 
   Future<Post> getData(service, payload) async {
     print("payload $payload");
-    print("encoded payload ${json.encode(payload)}");
+    Utils.printPrettyJson("encoded payload ${json.encode(payload)}");
     return fetchDataGET(service, payload);
   }
 

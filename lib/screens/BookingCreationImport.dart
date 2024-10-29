@@ -23,6 +23,7 @@ import '../ui/widgest/AutoSuggest.dart';
 import '../ui/widgest/CustomTextField.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
+import 'AddShipmentDetailsImport.dart';
 import 'BookingCreationExport.dart';
 import 'Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
@@ -44,6 +45,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   final FocusNode _cityFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
+  int chaIdMaster = 0;
   double _textFieldHeight = 45; // Default initial height
   double _textFieldHeight2 = 45; // Default initial height
   final double initialHeight = 45;
@@ -105,6 +107,89 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     });
   }
 
+  saveBookingDetailsImport() async {
+    if (shipmentListImports.isEmpty && vehicleListExports.isEmpty) {
+      CustomSnackBar.show(context,
+          message: "Shipment and Vehicle Details are required");
+      return;
+    }
+    if (shipmentListImports.isEmpty) {
+      CustomSnackBar.show(context, message: "Shipment Details are required");
+      return;
+    }
+    if (vehicleListExports.isEmpty) {
+      CustomSnackBar.show(context, message: "Vehicle Details are required");
+      return;
+    }
+    // setState(() {
+    //   _isLoading = true;
+    // });
+    List<String> vehicleIdList =
+        selectedVehicleList.map((vehicle) => vehicle.id).toList();
+
+    final bookingCreationImport = SlotBookingCreationImport(
+      bookingId: 0,
+      vehicleType: vehicleIdList,
+      bookingDt: null,
+      noofVehicle: noOfVehiclesController.text,
+      isFtl: modeSelected == 0,
+      isLtl: modeSelected == 1,
+      origin: originMaster,
+      destination: destinationMaster,
+      hsnCode: null,
+      cargoValue: null,
+      impBoeDetails: shipmentListImports,
+      impVehicleDetails: vehicleListExports,
+      chaName: chaNameMaster,
+      chaId: chaIdMaster.toString(),
+      orgProdId: loginMaster[0].adminOrgProdId,
+      userId: loginMaster[0].userId,
+      branchCode: loginMaster[0].branchCode,
+      companyCode: loginMaster[0].companyCode,
+      airportId: selectedTerminalId!,
+      paCompanyCode: loginMaster[0].companyCode,
+      screenId: 9065,
+      adminOrgProdId: loginMaster[0].adminOrgProdId,
+      orgId: loginMaster[0].adminOrgId,
+      isYes: false,
+      isNo: true,
+      landportAirportId: 0,
+      eventCode: 'CreateImpSlotBooking',
+      directImportId: 0,
+    );
+    Map<String, dynamic> payload = bookingCreationImport.toJson();
+    Utils.printPayload(payload);
+
+    await authService
+        .postData(
+      "api_pcs/ImpShipment/UpSert",
+      payload,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+      //   setState(() {
+      //     originMaster = jsonData["Origin"];
+      //     destinationMaster = jsonData["Destination"];
+      //   });
+      //   callAllApis();
+      // } else {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   CustomSnackBar.show(context, message: "No Data Found");
+      //   Navigator.pop(context);
+      // }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -116,12 +201,12 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     noOfVehiclesController.text = "1";
   }
 
-  Future<ShipmentDetailsExports?> validateAndNavigate() async {
+  Future<ShipmentDetailsImports?> validateAndNavigate() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<ShipmentDetailsExports>(
+      return await Navigator.push<ShipmentDetailsImports>(
         context,
         MaterialPageRoute(
-          builder: (context) => const AddShipmentDetails(
+          builder: (context) => const AddShipmentDetailsImports(
             isExport: false,
           ),
         ),
@@ -181,18 +266,18 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   // }
 
   Future<void> loadCargoTypes() async {
-
     cargoTypeList = [];
     await Future.delayed(const Duration(seconds: 2));
 
     final mdl = SelectionModels();
     mdl.topRecord ??= 10; // Assign 10 if topRecord is null
     mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
-    mdl.allRecord=false;
-    mdl.isTariff=false;
-    mdl.isDisabled=false;
-    mdl.whereCondition="CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
-    mdl.description="Concat(CLOV.Code,'' - '',CLOV.Description)";
+    mdl.allRecord = false;
+    mdl.isTariff = false;
+    mdl.isDisabled = false;
+    mdl.whereCondition =
+        "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
+    mdl.description = "Concat(CLOV.Code,'' - '',CLOV.Description)";
 
     SelectionQuery body = SelectionQuery();
     body.query =
@@ -304,7 +389,6 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       } else {
         print("response is empty");
       }
-
     }).catchError((onError) {
       setState(() {
         setState(() {
@@ -862,6 +946,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                               chaController.text = city
                                                   .description
                                                   .toUpperCase();
+                                              chaNameMaster= city
+                                                  .description;
+                                              chaIdMaster = int.parse(city.value);
                                               formFieldState.didChange(
                                                   chaController.text);
                                             },
@@ -896,8 +983,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentListExports,
+                    AddShipmentDetailsListImportsNew(
+                      shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: false,
                     ),
@@ -947,15 +1034,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      print(
-                                          multiSelectController.selectedItems);
                                       if (_formKey.currentState!.validate()) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Form submitted successfully!')),
-                                        );
+                                        saveBookingDetailsImport();
                                       }
                                     },
                                     child: const Text(
@@ -992,32 +1072,32 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
           ),
           _isLoading
               ? Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.primary),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        'Loading...',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'Loading...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
-          )
+                )
               : const SizedBox(),
         ],
       ),

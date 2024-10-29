@@ -339,6 +339,8 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               Vehicle>(
+                                            hideSuggestionsOnKeyboardHide:false,
+                                            ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
                                               controller: vehicleTypeController,
@@ -543,6 +545,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                           driverDob: driverDOBController.text,
                                           driverName:driverNameController.text,
                                           remarksChassisNo:remarkController.text,
+
                                         );
                                         Navigator.pop(context,
                                             newVehicle); // Pass the object back

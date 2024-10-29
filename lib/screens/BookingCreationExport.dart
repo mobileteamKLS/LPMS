@@ -531,10 +531,12 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
+                                            hideSuggestionsOnKeyboardHide:false,
+                                    ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
                                               controller: chaController,
-                                              focusNode: _cityFocusNode,
+                                              // focusNode: _cityFocusNode,
                                               decoration: InputDecoration(
                                                   contentPadding:
                                                       const EdgeInsets
@@ -580,6 +582,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                                 .errorRed),
                                                   )),
                                             ),
+
                                             suggestionsCallback: (search) =>
                                                 CHAAgentService.find(search),
                                             itemBuilder: (context, city) {
@@ -615,6 +618,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               );
                                             },
                                             onSuggestionSelected: (city) {
+                                              print("CHA trigger");
                                               chaController.text = city
                                                   .description
                                                   .toUpperCase();
@@ -705,8 +709,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      print(
-                                          multiSelectController.selectedItems);
+
                                       if (_formKey.currentState!.validate()) {
                                         saveBookingDetailsExport();
                                       }
@@ -1076,34 +1079,18 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       orgId: loginMaster[0].adminOrgId,
     );
     Map<String, dynamic> payload = bookingCreationExport.toJson();
-    print(payload);
-    return;
+   Utils.printPayload(payload);
 
-    var queryParams = {
-      "TerminalId": selectedTerminalId,
-      "IsImportShipment": false,
-    };
     await authService
         .postData(
       "api_pcs/ShipmentMaster/UpSertShipment",
-      queryParams,
+      payload,
     )
         .then((response) {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
-      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
-        setState(() {
-          originMaster = jsonData["Origin"];
-          destinationMaster = jsonData["Destination"];
-        });
-        callAllApis();
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        CustomSnackBar.show(context, message: "No Data Found");
-        Navigator.pop(context);
-      }
+      print(jsonData);
+
     }).catchError((onError) {
       setState(() {
         _isLoading = false;
