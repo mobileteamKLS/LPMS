@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/VehicleDetailsExport.dart';
+import 'package:lpms/screens/AddVehicleDetailsExport.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -25,7 +25,7 @@ import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'BookingCreationExport.dart';
 import 'Encryption.dart';
-import 'ShipmentDetailsExport.dart';
+import 'AddShipmentDetailsExport.dart';
 
 class BookingCreationImport extends StatefulWidget {
   const BookingCreationImport({super.key});
@@ -37,6 +37,7 @@ class BookingCreationImport extends StatefulWidget {
 class _BookingCreationExportState extends State<BookingCreationImport> {
   // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
+
   // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
@@ -54,7 +55,6 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     },
   ];
 
-
   bool _isLoading = false;
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
@@ -68,11 +68,13 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     }
   }
 
-   getOriginDestination() async {
-    await Future.delayed(const Duration(seconds: 2));
+  getOriginDestination() async {
+    setState(() {
+      _isLoading = true;
+    });
     var queryParams = {
-      "TerminalId":selectedTerminalId,
-      "IsImportShipment":true,
+      "TerminalId": selectedTerminalId,
+      "IsImportShipment": true,
     };
     await authService
         .postData(
@@ -82,20 +84,22 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         .then((response) {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
-      if (jsonData["Origin"]!=null && jsonData["Origin"]!=null) {
+      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
         setState(() {
-          originMaster=jsonData["Origin"];
-          destinationMaster=jsonData["Destination"];
+          originMaster = jsonData["Origin"];
+          destinationMaster = jsonData["Destination"];
         });
         callAllApis();
-      }
-      else{
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
         CustomSnackBar.show(context, message: "No Data Found");
         Navigator.pop(context);
       }
     }).catchError((onError) {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
       print(onError);
     });
@@ -104,9 +108,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   @override
   void initState() {
     super.initState();
-    originMaster="";
+    originMaster = "";
     getOriginDestination();
-    destinationMaster="";
+    destinationMaster = "";
     noOfVehiclesController.clear();
 
     noOfVehiclesController.text = "1";
@@ -117,7 +121,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       return await Navigator.push<ShipmentDetailsExports>(
         context,
         MaterialPageRoute(
-          builder: (context) => const AddShipmentDetails(isExport: false,),
+          builder: (context) => const AddShipmentDetails(
+            isExport: false,
+          ),
         ),
       );
     } else {
@@ -143,7 +149,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   Future<void> callAllApis() async {
     try {
       setState(() {
-        isLoading = true;
+        _isLoading = true;
       });
 
       await Future.wait([
@@ -155,7 +161,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       print("Error calling APIs: $e");
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -175,22 +181,26 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   // }
 
   Future<void> loadCargoTypes() async {
-    setState(() {
-      isLoading = true;
-    });
-    cargoTypeList=[];
+
+    cargoTypeList = [];
     await Future.delayed(const Duration(seconds: 2));
 
     final mdl = SelectionModels();
     mdl.topRecord ??= 10; // Assign 10 if topRecord is null
     mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
+    mdl.allRecord=false;
+    mdl.isTariff=false;
+    mdl.isDisabled=false;
+    mdl.whereCondition="CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
+    mdl.description="Concat(CLOV.Code,'' - '',CLOV.Description)";
 
     SelectionQuery body = SelectionQuery();
     body.query =
-    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
     print("---cargo Type---");
-    String abc="LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9AjJCH8YswkgxyDLWPe2L9BJr/S0YYYjX8WLY6+QL6pqV+E2/UQrlxumfhvcXiKzlkvZ3lC4rI36AAaT9Jd9wlRn7R6La8WnqMuCXUoI8RwYi5HLLlNrZUVuJqXlE35qCwOLCkGlNpVTmjOHM6SIK9OY+KVbrzPq7J5MM7/nldDpbTc4fJrAJXIcoHqZZpiau6XCm1EDgc/3m+Y8EAuq6TcuyV/6cG7YPe15DzKpGVk3jGBlP+owYqWJTq8DYgNWswY+zJbjFeR1UB1M9XFXmjpsxNdSEcwBIBWwvFFCmhCfg==";
+    String abc =
+        "LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9AjJCH8YswkgxyDLWPe2L9BJr/S0YYYjX8WLY6+QL6pqV+E2/UQrlxumfhvcXiKzlkvZ3lC4rI36AAaT9Jd9wlRn7R6La8WnqMuCXUoI8RwYi5HLLlNrZUVuJqXlE35qCwOLCkGlNpVTmjOHM6SIK9OY+KVbrzPq7J5MM7/nldDpbTc4fJrAJXIcoHqZZpiau6XCm1EDgc/3m+Y8EAuq6TcuyV/6cG7YPe15DzKpGVk3jGBlP+owYqWJTq8DYgNWswY+zJbjFeR1UB1M9XFXmjpsxNdSEcwBIBWwvFFCmhCfg==";
     Utils.printPrettyJson(
         encryptionService.decryptUsingRandomKeyPrivateKey(abc));
     var headers = {
@@ -225,35 +235,29 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       }
     } catch (error) {
       print("Error: $error");
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
     await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      isLoading = true;
-    });
-    exporterList=[];
-    chaAgentList=[];
+
+    exporterList = [];
+    chaAgentList = [];
     final mdl = SelectionModels();
     mdl.jointableName = 'Organization_Businessline OB ';
     mdl.allRecord = true;
     mdl.jointableCondition =
-    '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
+        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
     if (basedOnPrevious != null) {
       mdl.whereCondition =
-      '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
+          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
     } else {
       mdl.whereCondition =
-      'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
+          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
     }
     SelectionQuery body = SelectionQuery();
     body.query =
-    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
 
     mdl.query = body.query;
     Utils.printPrettyJson(
@@ -269,9 +273,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
 
     await authService
         .sendMultipartRequest(
-        headers: headers,
-        fields: fields,
-        endPoint: "api/GenericDropDown/GetAllOrganizations")
+            headers: headers,
+            fields: fields,
+            endPoint: "api/GenericDropDown/GetAllOrganizations")
         .then((response) {
       if (response.body.isNotEmpty) {
         json.decode(response.body);
@@ -292,8 +296,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                 .toList();
           });
           print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
-        }
-        else if (basedOnPrevious == "Importer"){
+        } else if (basedOnPrevious == "Importer") {
           importerList = jsonData
               .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
               .toList();
@@ -301,15 +304,11 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       } else {
         print("response is empty");
       }
-      setState(() {
-        setState(() {
-          isLoading = false;
-        });
-      });
+
     }).catchError((onError) {
       setState(() {
         setState(() {
-          isLoading = false;
+          _isLoading = false;
         });
       });
     });
@@ -404,7 +403,6 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                           ),
                           TextButton(
                             onPressed: () {
-
                               Navigator.pop(context, 'OK');
                             },
                             child: const Text('OK'),
@@ -413,7 +411,6 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       );
                     },
                   );
-
                 }),
             IconButton(
               icon: Stack(
@@ -511,7 +508,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Row(
+                                Row(
                                   children: [
                                     const Icon(
                                       Icons.location_on_outlined,
@@ -546,7 +543,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       ),
                                       child: const Padding(
                                         padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
+                                            EdgeInsets.symmetric(horizontal: 8),
                                         child: Text("NEW BOOKING"),
                                       ),
                                     )
@@ -581,13 +578,13 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery.sizeOf(context).height * 0.01,
+                                    MediaQuery.sizeOf(context).height * 0.01,
                               ),
                               Row(
                                 children: [
                                   SizedBox(
                                     width:
-                                    MediaQuery.sizeOf(context).width * 0.87,
+                                        MediaQuery.sizeOf(context).width * 0.87,
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
@@ -603,19 +600,19 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         hintText: 'Types of Vehicles',
                                         errorBorder: OutlineInputBorder(
                                           borderRadius:
-                                          BorderRadius.circular(4),
+                                              BorderRadius.circular(4),
                                           borderSide: const BorderSide(
                                               color: AppColors.errorRed),
                                         ),
                                         hintStyle: !isValid
                                             ? const TextStyle(
-                                            color: AppColors.errorRed)
+                                                color: AppColors.errorRed)
                                             : const TextStyle(
-                                            color: Colors.black54),
+                                                color: Colors.black54),
                                         showClearIcon: true,
                                         border: OutlineInputBorder(
                                           borderRadius:
-                                          BorderRadius.circular(4),
+                                              BorderRadius.circular(4),
                                           borderSide: const BorderSide(
                                               color: AppColors
                                                   .textFieldBorderColor),
@@ -628,7 +625,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         // ),
                                       ),
                                       dropdownDecoration:
-                                      const DropdownDecoration(
+                                          const DropdownDecoration(
                                         marginTop: 2,
                                         maxHeight: 400,
                                         header: Padding(
@@ -644,7 +641,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         ),
                                       ),
                                       dropdownItemDecoration:
-                                      DropdownItemDecoration(
+                                          DropdownItemDecoration(
                                         selectedIcon: const Icon(
                                             Icons.check_box,
                                             color: Colors.green),
@@ -669,17 +666,17 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery.sizeOf(context).height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SizedBox(
                                     height: _textFieldHeight2,
                                     width:
-                                    MediaQuery.sizeOf(context).width * 0.42,
+                                        MediaQuery.sizeOf(context).width * 0.42,
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
                                       enabled: modeSelected == 1 ? false : true,
@@ -689,7 +686,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         labelText: "No of Vehicles",
                                         border: OutlineInputBorder(
                                           borderRadius:
-                                          BorderRadius.circular(4),
+                                              BorderRadius.circular(4),
                                         ),
                                       ),
                                       keyboardType: TextInputType.number,
@@ -718,11 +715,11 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                   SizedBox(
                                     height: 45,
                                     width:
-                                    MediaQuery.sizeOf(context).width * 0.42,
+                                        MediaQuery.sizeOf(context).width * 0.42,
                                     child: ToggleSwitch(
                                       minWidth:
-                                      MediaQuery.sizeOf(context).width *
-                                          0.5,
+                                          MediaQuery.sizeOf(context).width *
+                                              0.5,
                                       minHeight: 45.0,
                                       fontSize: 14.0,
                                       initialLabelIndex: modeSelected,
@@ -749,7 +746,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                               ),
                               SizedBox(
                                 height:
-                                MediaQuery.sizeOf(context).height * 0.015,
+                                    MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               SizedBox(
                                 width: MediaQuery.sizeOf(context).width,
@@ -770,7 +767,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                   builder: (formFieldState) {
                                     return Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         AnimatedContainer(
                                           duration: Duration(milliseconds: 200),
@@ -779,52 +776,52 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
                                             textFieldConfiguration:
-                                            TextFieldConfiguration(
+                                                TextFieldConfiguration(
                                               controller: chaController,
                                               focusNode: _cityFocusNode,
                                               decoration: InputDecoration(
                                                   contentPadding:
-                                                  const EdgeInsets
-                                                      .symmetric(
-                                                      vertical: 12.0,
-                                                      horizontal: 10.0),
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 12.0,
+                                                          horizontal: 10.0),
                                                   border: OutlineInputBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(
-                                                        4),
+                                                        BorderRadius.circular(
+                                                            4),
                                                     borderSide:
-                                                    const BorderSide(
-                                                        color: AppColors
-                                                            .errorRed),
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
                                                   ),
                                                   labelText: 'CHA Name',
                                                   labelStyle: formFieldState
-                                                      .hasError
+                                                          .hasError
                                                       ? const TextStyle(
-                                                      color: AppColors
-                                                          .errorRed)
+                                                          color: AppColors
+                                                              .errorRed)
                                                       : const TextStyle(
-                                                      color:
-                                                      Colors.black87),
+                                                          color:
+                                                              Colors.black87),
                                                   errorBorder:
-                                                  OutlineInputBorder(
+                                                      OutlineInputBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(
-                                                        4),
+                                                        BorderRadius.circular(
+                                                            4),
                                                     borderSide:
-                                                    const BorderSide(
-                                                        color: AppColors
-                                                            .errorRed),
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
                                                   ),
                                                   focusedErrorBorder:
-                                                  OutlineInputBorder(
+                                                      OutlineInputBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(
-                                                        4),
+                                                        BorderRadius.circular(
+                                                            4),
                                                     borderSide:
-                                                    const BorderSide(
-                                                        color: AppColors
-                                                            .errorRed),
+                                                        const BorderSide(
+                                                            color: AppColors
+                                                                .errorRed),
                                                   )),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -847,7 +844,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                                   ),
                                                 ),
                                                 padding:
-                                                const EdgeInsets.all(8.0),
+                                                    const EdgeInsets.all(8.0),
                                                 child: Row(
                                                   children: [
                                                     Text(city.code
@@ -869,7 +866,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                                   chaController.text);
                                             },
                                             noItemsFoundBuilder: (context) =>
-                                            const Padding(
+                                                const Padding(
                                               padding: EdgeInsets.all(8.0),
                                               child: Text('No CHA Found'),
                                             ),
@@ -900,7 +897,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentListImports,
+                      shipmentDetailsList: shipmentListExports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: false,
                     ),
@@ -932,7 +929,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery.sizeOf(context).width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
                                     onPressed: () {
                                       multiSelectController.clearAll();
@@ -947,7 +944,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                  MediaQuery.sizeOf(context).width * 0.42,
+                                      MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       print(
@@ -993,6 +990,35 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
               ),
             ),
           ),
+          _isLoading
+              ? Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primary),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        'Loading...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+              : const SizedBox(),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -1038,4 +1064,3 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     );
   }
 }
-

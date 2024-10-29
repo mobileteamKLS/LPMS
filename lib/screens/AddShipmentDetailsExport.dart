@@ -804,8 +804,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           cargoTypeId: cargoTypeId,
                                           chaName: chaNameMaster,
                                           typeOfGoods: '',
-                                          exporterId:exporterId
-                                          ,
+                                          exporterId:exporterId,
                                           unitOfQt: '',
                                           portOfDest: '',
                                           grossQt: '',

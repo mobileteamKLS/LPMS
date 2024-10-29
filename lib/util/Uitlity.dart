@@ -71,7 +71,7 @@ import 'Global.dart';
   }
   static clearMasterList(){
     vehicleListExports=[];
-    shipmentListImports=[];
+    shipmentListExports=[];
   }
 
   // static void printLongString(String text) {

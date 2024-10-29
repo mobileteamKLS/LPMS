@@ -1,9 +1,9 @@
 import '../util/Global.dart';
 
-class SlotCreation {
+class SlotBookingCreationExport {
   int bookingId;
   List<String> vehicleType;
-  String bookingDt;
+  String? bookingDt;
   int noofVehicle;
   bool isFtl;
   bool isLtl;
@@ -27,9 +27,9 @@ class SlotCreation {
   int screenId;
   int adminOrgProdId;
   int orgId;
-  String eventCode;
 
-  SlotCreation({
+
+  SlotBookingCreationExport({
     required this.bookingId,
     required this.vehicleType,
     required this.bookingDt,
@@ -56,10 +56,10 @@ class SlotCreation {
     required this.screenId,
     required this.adminOrgProdId,
     required this.orgId,
-    required this.eventCode,
+
   });
 
-  factory SlotCreation.fromMap(Map<String, dynamic> json) => SlotCreation(
+  factory SlotBookingCreationExport.fromMap(Map<String, dynamic> json) => SlotBookingCreationExport(
     bookingId: json["BookingId"],
     vehicleType: List<String>.from(json["VehicleType"].map((x) => x)),
     bookingDt: json["BookingDt"],
@@ -86,10 +86,10 @@ class SlotCreation {
     screenId: json["ScreenId"],
     adminOrgProdId: json["Admin_OrgProdId"],
     orgId: json["OrgId"],
-    eventCode: json["EventCode"],
+
   );
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
     "BookingId": bookingId,
     "VehicleType": List<dynamic>.from(vehicleType.map((x) => x)),
     "BookingDt": bookingDt,
@@ -116,11 +116,10 @@ class SlotCreation {
     "ScreenId": screenId,
     "Admin_OrgProdId": adminOrgProdId,
     "OrgId": orgId,
-    "EventCode": eventCode,
   };
 }
 
-class SlotBookingShipmentDetailsExport {
+class SlotBookingShipmentListingExport {
   int bookingId;
   String bookingDt;
   String bookingNo;
@@ -131,7 +130,7 @@ class SlotBookingShipmentDetailsExport {
   String cargoTypeName;
   String statusDescription;
 
-  SlotBookingShipmentDetailsExport({
+  SlotBookingShipmentListingExport({
     required this.bookingId,
     required this.bookingDt,
     required this.bookingNo,
@@ -143,9 +142,9 @@ class SlotBookingShipmentDetailsExport {
     required this.statusDescription,
   });
 
-  factory SlotBookingShipmentDetailsExport.fromJSON(
+  factory SlotBookingShipmentListingExport.fromJSON(
           Map<String, dynamic> json) =>
-      SlotBookingShipmentDetailsExport(
+      SlotBookingShipmentListingExport(
         bookingId: json["BookingId"] ?? 0,
         bookingDt: json["BookingDt"] ?? "",
         bookingNo: json["BookingNo"] ?? "",
@@ -170,7 +169,7 @@ class SlotBookingShipmentDetailsExport {
       };
 }
 
-class SlotBookingShipmentDetailsImport {
+class SlotBookingShipmentListingImport {
   String boeDt;
   String boeNo;
   String bookingDt;
@@ -181,7 +180,7 @@ class SlotBookingShipmentDetailsImport {
   String exporterImporter;
   String statusDescription;
 
-  SlotBookingShipmentDetailsImport({
+  SlotBookingShipmentListingImport({
     required this.boeDt,
     required this.boeNo,
     required this.bookingDt,
@@ -193,9 +192,9 @@ class SlotBookingShipmentDetailsImport {
     required this.statusDescription,
   });
 
-  factory SlotBookingShipmentDetailsImport.fromJSON(
+  factory SlotBookingShipmentListingImport.fromJSON(
           Map<String, dynamic> json) =>
-      SlotBookingShipmentDetailsImport(
+      SlotBookingShipmentListingImport(
         boeDt: json["BOEDt"] ?? "",
         boeNo: json["BOENo"] ?? "",
         bookingDt: json["BookingDt"] ?? "",
@@ -220,57 +219,6 @@ class SlotBookingShipmentDetailsImport {
       };
 }
 
-class ShipmentDetailsExports1 {
-  final String shippingBillNoIgmNno;
-  final String shippingBillDateIgm;
-  final String nameOfExporterImporter;
-  final String hsnCode;
-  final String cargoType;
-  final String cargoDescription;
-  final String quantity;
-  final String cargoWeight;
-  final String cargoValue;
-
-  ShipmentDetailsExports1({
-    required this.shippingBillNoIgmNno,
-    required this.shippingBillDateIgm,
-    required this.nameOfExporterImporter,
-    required this.hsnCode,
-    required this.cargoType,
-    required this.cargoDescription,
-    required this.quantity,
-    required this.cargoWeight,
-    required this.cargoValue,
-  });
-
-  factory ShipmentDetailsExports1.fromJSON(Map<String, dynamic> data) {
-    return ShipmentDetailsExports1(
-      shippingBillNoIgmNno: data["billNo"],
-      shippingBillDateIgm: data["billDate"],
-      nameOfExporterImporter: data["exporterName"],
-      hsnCode: data["hsnCode"],
-      cargoType: data["cargoType"],
-      cargoDescription: data["cargoDescription"],
-      quantity: data["quality"],
-      cargoWeight: data["cargoWeight"],
-      cargoValue: data["cargoValue"],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'billNo': shippingBillNoIgmNno,
-      'billDate': shippingBillDateIgm,
-      'exporterName': nameOfExporterImporter,
-      'hsnCode': hsnCode,
-      'cargoType': cargoType,
-      'cargoDescription': cargoDescription,
-      'quality': quantity,
-      'cargoWeight': cargoWeight,
-      'cargoValue': cargoValue,
-    };
-  }
-}
 
 class ShipmentDetailsExports {
   int detailsId;
@@ -354,6 +302,85 @@ class ShipmentDetailsExports {
   };
 }
 
+class ShipmentDetailsImports {
+  int detailsId;
+  String cargoDescription;
+  int cargoTypeId;
+  String cargoType;
+  int cargoWeight;
+  String chaName;
+  String nameOfExporterImporter;
+  int quantity;
+  String boeNo;
+  String boeDt;
+  String typeOfGoods;
+  String hsnCode;
+
+  int importerId;
+  String unitOfQt;
+  String portOfDest;
+  String grossQt;
+  bool isUliPverified;
+
+  ShipmentDetailsImports({
+     this.detailsId=0,
+    required this.cargoDescription,
+    required this.cargoTypeId,
+    this.cargoType="",
+    required this.cargoWeight,
+    required this.chaName,
+    required this.nameOfExporterImporter,
+    required this.quantity,
+    required this.boeNo,
+    required this.boeDt,
+    required this.typeOfGoods,
+    required this.hsnCode,
+    required this.importerId,
+    required this.unitOfQt,
+    required this.portOfDest,
+    required this.grossQt,
+    required this.isUliPverified,
+  });
+
+  factory ShipmentDetailsImports.fromJson(Map<String, dynamic> json) => ShipmentDetailsImports(
+    detailsId: json["DetailsId"],
+    cargoDescription: json["CargoDescription"],
+    cargoTypeId: json["CargoTypeId"],
+    cargoWeight: json["CargoWeight"],
+    chaName: json["ChaName"],
+    nameOfExporterImporter: json["NameOfExporterImporter"],
+    quantity: json["Quantity"],
+    boeNo: json["BOENo"],
+    boeDt: json["BOEDt"],
+    typeOfGoods: json["TypeOfGoods"],
+    hsnCode: json["HSNCode"],
+    importerId: json["ImporterId"],
+    unitOfQt: json["UnitOfQt"],
+    portOfDest: json["PortOfDest"],
+    grossQt: json["GrossQt"],
+    isUliPverified: json["IsULIPverified"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "DetailsId": detailsId,
+    "CargoDescription": cargoDescription,
+    "CargoTypeId": cargoTypeId,
+    "CargoWeight": cargoWeight,
+    "ChaName": chaName,
+    "NameOfExporterImporter": nameOfExporterImporter,
+    "Quantity": quantity,
+    "ShippingBillNoIGMNno": boeNo,
+    "ShippingBillDateIGM": boeDt,
+    "TypeOfGoods": typeOfGoods,
+    "HSNCode": hsnCode,
+    "ImporterId": importerId,
+    "UnitOfQt": unitOfQt,
+    "PortOfDest": portOfDest,
+    "GrossQt": grossQt,
+    "IsULIPverified": isUliPverified,
+  };
+}
+
 class VehicleDetailsExports {
   int vehicleId;
   String vehicleTypeName;
@@ -363,6 +390,7 @@ class VehicleDetailsExports {
   String driverName;
   String drivingLicenseNo;
   String slotDateTime;
+  String slotViewDateTime;
   String truckNo;
   int vehicleTypeId;
   int slotConfigId;
@@ -391,6 +419,7 @@ class VehicleDetailsExports {
     required this.driverName,
     required this.drivingLicenseNo,
     this.slotDateTime="",
+    this.slotViewDateTime="",
     required this.truckNo,
     required this.vehicleTypeId,
     this.slotConfigId = 0,
@@ -615,7 +644,7 @@ class SlotDetails {
   dynamic assignDockId;
   int availableSlots;
   String bookedTimeSlot;
-  dynamic slotConfigId;
+  String slotConfigId;
   String slotDurationId;
   String slotEndDateTime;
   String slotStartDateTime;
@@ -634,7 +663,7 @@ class SlotDetails {
         assignDockId: json["AssignDockId"] ?? "",
         availableSlots: json["AvailableSlots"] ?? "",
         bookedTimeSlot: json["BookedTimeSlot"] ?? "",
-        slotConfigId: json["SlotConfigId"] ?? "",
+        slotConfigId: json["SlotConfigId"] ?? "0",
         slotDurationId: json["SlotDurationId"] ?? "",
         slotEndDateTime: json["SlotEndDateTime"] ?? "",
         slotStartDateTime: json["SlotStartDateTime"] ?? "",

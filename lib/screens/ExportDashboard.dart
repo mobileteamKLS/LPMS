@@ -40,13 +40,13 @@ class _ExportScreenState extends State<ExportScreen> {
   final _formKey = GlobalKey<FormState>();
   // List of terminal data with id as int
 
-  List<SlotBookingShipmentDetailsExport> listShipmentDetails = [];
-  List<SlotBookingShipmentDetailsExport> listShipmentDetailsBind = [];
+  List<SlotBookingShipmentListingExport> listShipmentDetails = [];
+  List<SlotBookingShipmentListingExport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
-  List<SlotBookingShipmentDetailsExport> filteredList = [];
+  List<SlotBookingShipmentListingExport> filteredList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
@@ -61,6 +61,7 @@ class _ExportScreenState extends State<ExportScreen> {
   @override
   void initState() {
     super.initState();
+    print("USER ID${loginMaster[0].userId}");
     DateTime today = DateTime.now();
     DateTime startOfDay = today
         .subtract(const Duration(days: 1))
@@ -371,7 +372,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            SlotBookingShipmentDetailsExport shipmentDetails =
+                                            SlotBookingShipmentListingExport shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
                                                 shipmentDetails, index);
@@ -388,7 +389,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            SlotBookingShipmentDetailsExport shipmentDetails =
+                                            SlotBookingShipmentListingExport shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -612,7 +613,7 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  void exportToExcel(List<SlotBookingShipmentDetailsExport> shipments) async {
+  void exportToExcel(List<SlotBookingShipmentListingExport> shipments) async {
     var excel = ex.Excel.createExcel();
     ex.Sheet sheetObject = excel['Sheet1'];
     sheetObject.appendRow([
@@ -672,17 +673,23 @@ class _ExportScreenState extends State<ExportScreen> {
         .then((response) {
       print("data received ");
       List<dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
       if (jsonData.isEmpty) {
         setState(() {
           hasNoRecord = true;
         });
       }
+      else{
+        hasNoRecord=false;
+      }
+      print("is empty record"+hasNoRecord.toString());
       listShipmentDetailsBind =
-          jsonData.map((json) => SlotBookingShipmentDetailsExport.fromJSON(json)).toList();
-      print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
+          jsonData.map((json) => SlotBookingShipmentListingExport.fromJSON(json)).toList();
+      print("length==  = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
         // filteredList = listShipmentDetails;
+        print("length--  = ${listShipmentDetails.length}");
         isLoading = false;
         _isExpandedList = List<bool>.filled(listShipmentDetails.length, false);
       });
@@ -694,7 +701,7 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  Widget buildShipmentDetailsCard(SlotBookingShipmentDetailsExport shipmentDetails, int index) {
+  Widget buildShipmentDetailsCard(SlotBookingShipmentListingExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -863,7 +870,7 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Widget buildShipmentDetailsCardV2(
-      SlotBookingShipmentDetailsExport shipmentDetails, int index) {
+      SlotBookingShipmentListingExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -1379,8 +1386,8 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  List<SlotBookingShipmentDetailsExport> getFilteredShipmentDetails(
-      List<SlotBookingShipmentDetailsExport> listShipmentDetails,
+  List<SlotBookingShipmentListingExport> getFilteredShipmentDetails(
+      List<SlotBookingShipmentListingExport> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {

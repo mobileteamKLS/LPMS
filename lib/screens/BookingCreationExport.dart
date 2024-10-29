@@ -8,13 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/VehicleDetailsExport.dart';
+import 'package:lpms/screens/AddVehicleDetailsExport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../api/auth.dart';
+import '../models/LoginMaster.dart';
 import '../models/SelectionModel.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
@@ -23,7 +24,7 @@ import '../ui/widgest/AutoSuggest.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'Encryption.dart';
-import 'ShipmentDetailsExport.dart';
+import 'AddShipmentDetailsExport.dart';
 
 class BookingCreationExport extends StatefulWidget {
   const BookingCreationExport({super.key});
@@ -35,26 +36,18 @@ class BookingCreationExport extends StatefulWidget {
 class _BookingCreationExportState extends State<BookingCreationExport> {
   // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
+
   // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
   final FocusNode _cityFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
+  int chaIdMaster = 0;
   double _textFieldHeight = 45; // Default initial height
   double _textFieldHeight2 = 45; // Default initial height
   final double initialHeight = 45;
   final double errorHeight = 65;
-
-  final List categoriesData = [
-    {
-      'name': 'SHIPMENT DETAILS',
-      'sub_categories': [],
-    },
-  ];
-
-
-
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
 
@@ -64,278 +57,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   void _updateTextField() {
     if (modeSelected == 1) {
       noOfVehiclesController.text = '1';
-      isFTlAndOneShipment=false;
+      isFTlAndOneShipment = false;
     }
-  }
-
-  saveBookingDetailsExport(){
-
-  }
-
-  getOriginDestination() async {
-    await Future.delayed(const Duration(seconds: 2));
-    var queryParams = {
-      "TerminalId":selectedTerminalId,
-      "IsImportShipment":false,
-    };
-    await authService
-        .postData(
-      "api_master/Airport/GetAirportOriginDestination",
-      queryParams,
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      if (jsonData["Origin"]!=null && jsonData["Origin"]!=null) {
-        setState(() {
-          originMaster=jsonData["Origin"];
-          destinationMaster=jsonData["Destination"];
-        });
-        callAllApis();
-      }
-      else{
-        CustomSnackBar.show(context, message: "No Data Found");
-        Navigator.pop(context);
-      }
-    }).catchError((onError) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(onError);
-    });
   }
 
   @override
   void initState() {
     super.initState();
-    originMaster="";
-    destinationMaster="";
+    originMaster = "";
+    destinationMaster = "";
     noOfVehiclesController.clear();
     Utils.clearMasterList();
-    isFTlAndOneShipment=false;
-    // getOriginDestination();
-    callAllApis();
-
+    isFTlAndOneShipment = false;
+    getOriginDestination();
     noOfVehiclesController.text = "1";
-  }
-
-  Future<ShipmentDetailsExports?> validateAndNavigate() async {
-    if (_formKey.currentState!.validate()) {
-      return await Navigator.push<ShipmentDetailsExports>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddShipmentDetails(isExport: true,),
-        ),
-      );
-    } else {
-      // Return null if validation fails
-      return null;
-    }
-  }
-
-  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
-    if (_formKey.currentState!.validate()) {
-      return await Navigator.push<VehicleDetailsExports>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddVehicleDetails(),
-        ),
-      );
-    } else {
-      // Return null if validation fails
-      return null;
-    }
-  }
-
-  Future<void> callAllApis() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      await Future.wait([
-        loadCargoTypes(),
-        loadCHAExporterNames('Agent'),
-        loadCHAExporterNames('Exporter'),
-
-      ]);
-    } catch (e) {
-      print("Error calling APIs: $e");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-
-  // Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
-  //   return {
-  //     "jointablename": secondJson["jointablename"] ?? "",
-  //     "jointablecondition": secondJson["jointablecondition"] ?? "",
-  //     "toprecord": secondJson["toprecord"] ?? 999,
-  //     "AllRecord": secondJson["AllRecord"] ?? false,
-  //     "Istariff": secondJson["Istariff"] ?? false,
-  //     "IsDisabled": secondJson["IsDisabled"] ?? false,
-  //     "wherecondition": secondJson["wherecondition"] ?? "",
-  //     "ReferenceId": secondJson["ReferenceId"] ?? "VehicleType",
-  //     "IsAll": secondJson["IsAll"] ?? true,
-  //   };
-  // }
-
-  Future<void> loadCargoTypes() async {
-    cargoTypeList=[];
-    await Future.delayed(const Duration(seconds: 2));
-
-    final mdl = SelectionModels();
-    mdl.topRecord ??= 10; // Assign 10 if topRecord is null
-    mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
-
-    SelectionQuery body = SelectionQuery();
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-    mdl.query = body.query;
-
-    var headers = {
-      'Accept': 'text/plain',
-      'Content-Type': 'multipart/form-data',
-    };
-    var fields = {
-      'Query': '${body.query}',
-    };
-
-    try {
-      final response = await authService.sendMultipartRequest(
-        headers: headers,
-        fields: fields,
-        endPoint: "api/GenericDropDown/GetAllClientListOfValues",
-      );
-
-      if (response.body.isNotEmpty) {
-        print("-----Cargo Types-----");
-        List<dynamic> jsonData = json.decode(response.body);
-        print("-----Cargo Types----- $jsonData");
-        print("-----Cargo Types Length= ${jsonData.length}-----");
-
-        setState(() {
-          cargoTypeList = jsonData
-              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-              .toList();
-        });
-        print("-----Cargo Types Length= ${cargoTypeList.length}-----");
-      } else {
-        print("Response is empty");
-      }
-    } catch (error) {
-      print("Error: $error");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> loadCHAExporterNames(basedOnPrevious) async {
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _isLoading = true;
-    });
-    exporterList=[];
-    cargoTypeList=[];
-    final mdl = SelectionModels();
-    mdl.jointableName = 'Organization_Businessline OB ';
-    mdl.allRecord = true;
-    mdl.jointableCondition =
-        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
-    if (basedOnPrevious != null) {
-      mdl.whereCondition =
-          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
-    } else {
-      mdl.whereCondition =
-          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
-    }
-    SelectionQuery body = SelectionQuery();
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-
-    mdl.query = body.query;
-    Utils.printPrettyJson(
-        encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
-
-    var headers = {
-      'Accept': 'text/plain',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ${loginMaster[0].token}',
-    };
-    var fields = {
-      'Query': '${body.query}',
-    };
-
-    await authService
-        .sendMultipartRequest(
-            headers: headers,
-            fields: fields,
-            endPoint: "api/GenericDropDown/GetAllOrganizations")
-        .then((response) {
-      if (response.body.isNotEmpty) {
-        json.decode(response.body);
-        print("-----$basedOnPrevious-----");
-        print(json.decode(response.body));
-        List<dynamic> jsonData = json.decode(response.body);
-        if (basedOnPrevious == "Exporter") {
-          setState(() {
-            exporterList = jsonData
-                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-                .toList();
-          });
-          print("-----$basedOnPrevious Length= ${exporterList.length}-----");
-        } else if (basedOnPrevious == "Agent") {
-          setState(() {
-            chaAgentList = jsonData
-                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-                .toList();
-          });
-          print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
-        }
-      } else {
-        print("response is empty");
-      }
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    });
-    // await authService
-    //     .fetchLoginDataPOST(
-    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
-    //     .then((response) {
-    //   print("data received ");
-    //   if (response.body.isNotEmpty) {
-    //     json.decode(response.body);
-    //     print(json.decode(response.body));
-    //   } else {
-    //     print("response is empty");
-    //   }
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    // }).catchError((onError) {
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    //   print(onError);
-    // });
   }
 
   @override
@@ -508,7 +243,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Row(
+                                Row(
                                   children: [
                                     const Icon(
                                       Icons.location_on_outlined,
@@ -680,12 +415,16 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
                                       enabled: modeSelected == 1 ? false : true,
-                                      onChanged: (value){
-
-                                        if(int.parse(noOfVehiclesController.text)==0){
-                                          noOfVehiclesController.text="1";
+                                      onChanged: (value) {
+                                        if (int.parse(
+                                                noOfVehiclesController.text) ==
+                                            0) {
+                                          noOfVehiclesController.text = "1";
                                         }
-                                        Utils.keepFirstNElements(vehicleTypeList, int.parse(noOfVehiclesController.text));
+                                        Utils.keepFirstNElements(
+                                            vehicleTypeList,
+                                            int.parse(
+                                                noOfVehiclesController.text));
                                         // if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
                                         //   setState(() {
                                         //     isFTlAndOneShipment=true;
@@ -879,8 +618,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               chaController.text = city
                                                   .description
                                                   .toUpperCase();
-                                              chaNameMaster=city
-                                                  .description;
+                                              chaNameMaster = city.description;
+                                              chaIdMaster = int.parse(city.value);
                                               formFieldState.didChange(
                                                   chaController.text);
                                             },
@@ -916,7 +655,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentListImports,
+                      shipmentDetailsList: shipmentListExports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: true,
                     ),
@@ -926,7 +665,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                     AddVehicleDetailsListNew(
                       vehicleDetailsList: vehicleListExports,
                       validateAndNavigate: validateAndNavigateV2,
-                      isExport: false,
+                      isExport: true,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -969,12 +708,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       print(
                                           multiSelectController.selectedItems);
                                       if (_formKey.currentState!.validate()) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Form submitted successfully!')),
-                                        );
+                                        saveBookingDetailsExport();
                                       }
                                     },
                                     child: const Text(
@@ -1010,32 +744,33 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
             ),
           ),
           _isLoading
-              ? BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-            child: Container(
-              color: Colors.black.withOpacity(0.5),
-              // semi-transparent background
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(
-                      valueColor:
-                      AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Loading...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+              ? Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'Loading...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          )
+                  ),
+                )
               : const SizedBox(),
         ],
       ),
@@ -1081,6 +816,339 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       ),
     );
   }
+
+
+  Future<ShipmentDetailsExports?> validateAndNavigate() async {
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<ShipmentDetailsExports>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddShipmentDetails(
+            isExport: true,
+          ),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<VehicleDetailsExports>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddVehicleDetails(),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<void> callAllApis() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await Future.wait([
+        loadCargoTypes(),
+        loadCHAExporterNames('Agent'),
+        loadCHAExporterNames('Exporter'),
+      ]);
+    } catch (e) {
+      print("Error calling APIs: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> loadCargoTypes() async {
+    cargoTypeList = [];
+    await Future.delayed(const Duration(seconds: 2));
+
+    final mdl = SelectionModels();
+    mdl.topRecord ??= 10; // Assign 10 if topRecord is null
+    mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
+    mdl.allRecord = false;
+    mdl.isTariff = false;
+    mdl.isDisabled = false;
+    mdl.whereCondition =
+    "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
+    mdl.description = "Concat(CLOV.Code,'' - '',CLOV.Description)";
+
+    SelectionQuery body = SelectionQuery();
+    body.query =
+    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    mdl.query = body.query;
+
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    try {
+      final response = await authService.sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api/GenericDropDown/GetAllClientListOfValues",
+      );
+
+      if (response.body.isNotEmpty) {
+        print("-----Cargo Types-----");
+        List<dynamic> jsonData = json.decode(response.body);
+        print("-----Cargo Types----- $jsonData");
+        print("-----Cargo Types Length= ${jsonData.length}-----");
+
+        setState(() {
+          cargoTypeList = jsonData
+              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+              .toList();
+        });
+        print("-----Cargo Types Length= ${cargoTypeList.length}-----");
+      } else {
+        print("Response is empty");
+      }
+    } catch (error) {
+      print("Error: $error");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> loadCHAExporterNames(basedOnPrevious) async {
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _isLoading = true;
+    });
+    exporterList = [];
+    cargoTypeList = [];
+    final mdl = SelectionModels();
+    mdl.jointableName = 'Organization_Businessline OB ';
+    mdl.allRecord = true;
+    mdl.jointableCondition =
+    '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
+    if (basedOnPrevious != null) {
+      mdl.whereCondition =
+      '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
+    } else {
+      mdl.whereCondition =
+      'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
+    }
+    SelectionQuery body = SelectionQuery();
+    body.query =
+    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+
+    mdl.query = body.query;
+    Utils.printPrettyJson(
+        encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
+
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ${loginMaster[0].token}',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api/GenericDropDown/GetAllOrganizations")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        json.decode(response.body);
+        print("-----$basedOnPrevious-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        if (basedOnPrevious == "Exporter") {
+          setState(() {
+            exporterList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
+          });
+          print("-----$basedOnPrevious Length= ${exporterList.length}-----");
+        } else if (basedOnPrevious == "Agent") {
+          setState(() {
+            chaAgentList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
+          });
+          print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
+        }
+      } else {
+        print("response is empty");
+      }
+      setState(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    });
+    // await authService
+    //     .fetchLoginDataPOST(
+    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
+    //     .then((response) {
+    //   print("data received ");
+    //   if (response.body.isNotEmpty) {
+    //     json.decode(response.body);
+    //     print(json.decode(response.body));
+    //   } else {
+    //     print("response is empty");
+    //   }
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    // }).catchError((onError) {
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    //   print(onError);
+    // });
+  }
+
+  saveBookingDetailsExport() async {
+    if(shipmentListExports.isEmpty && vehicleListExports.isEmpty){
+      CustomSnackBar.show(context, message: "Shipment and Vehicle Details are required");
+      return;
+    }
+    if(shipmentListExports.isEmpty){
+      CustomSnackBar.show(context, message: "Shipment Details are required");
+      return;
+    }
+    if(vehicleListExports.isEmpty){
+      CustomSnackBar.show(context, message: "Vehicle Details are required");
+      return;
+    }
+    // setState(() {
+    //   _isLoading = true;
+    // });
+    List<String> vehicleIdList = selectedVehicleList.map((vehicle) => vehicle.id).toList();
+
+    SlotBookingCreationExport bookingCreationExport=SlotBookingCreationExport(
+      bookingId: 0,
+      vehicleType:vehicleIdList,
+      bookingDt: null,
+      noofVehicle: int.parse(noOfVehiclesController.text),
+      isFtl:modeSelected==0,
+      isLtl: modeSelected==1,
+      origin:originMaster,
+      destination: destinationMaster,
+      hsnCode: null,
+      cargoValue: null,
+      shipmentDetailsList: shipmentListExports,
+      vehicalDetailsList: vehicleListExports,
+      chaName:chaNameMaster,
+      chaId: chaIdMaster,
+      unitOfQt: null,
+      portOfDest: null,
+      grossQt: null,
+      orgProdId:loginMaster[0].adminOrgProdId,
+      userId:loginMaster[0].userId,
+      branchCode:loginMaster[0].branchCode,
+      companyCode: loginMaster[0].companyCode,
+      airportId: selectedTerminalId!,
+      paCompanyCode: loginMaster[0].companyCode,
+      screenId: 9065,
+      adminOrgProdId: loginMaster[0].adminOrgProdId,
+      orgId: loginMaster[0].adminOrgId,
+    );
+    Map<String, dynamic> payload = bookingCreationExport.toJson();
+    print(payload);
+    return;
+
+    var queryParams = {
+      "TerminalId": selectedTerminalId,
+      "IsImportShipment": false,
+    };
+    await authService
+        .postData(
+      "api_pcs/ShipmentMaster/UpSertShipment",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+        setState(() {
+          originMaster = jsonData["Origin"];
+          destinationMaster = jsonData["Destination"];
+        });
+        callAllApis();
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
+  getOriginDestination() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    var queryParams = {
+      "TerminalId": selectedTerminalId,
+      "IsImportShipment": false,
+    };
+    await authService
+        .postData(
+      "api_master/Airport/GetAirportOriginDestination",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+        setState(() {
+          originMaster = jsonData["Origin"];
+          destinationMaster = jsonData["Destination"];
+        });
+        callAllApis();
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
 }
 
 class Vehicle {
@@ -1088,9 +1156,4 @@ class Vehicle {
   final String id;
 
   Vehicle({required this.name, required this.id});
-
-  @override
-  String toString() {
-    return 'User(name: $name, id: $id)';
-  }
 }

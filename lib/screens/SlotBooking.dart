@@ -90,7 +90,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
     var queryParams = {
       "CommodityTypeId": 1,
       "ShipmentModeId": widget.isExport? 7198:7199,
-      "Date": Utils.formatDate(selectedDate!),
+      "Date": selectedDate!.toIso8601String(),
       "OrgProdId": loginMaster[0].adminOrgProdId,
       "TerminalId": loginMaster[0].terminalId,
       "VehicleTypeId": widget.vehicleDetails.vehicleTypeId.toString(),
@@ -191,7 +191,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
                           child: const Icon(Icons.arrow_back_ios,
                               color: AppColors.primary),
                           onTap: () {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) =>const BookingCreationExport()));
+                            Navigator.pop(context);
                           },
                         ),
                         SizedBox(
@@ -395,13 +395,15 @@ class _AddBookSlotState extends State<AddBookSlot> {
                       height: 32,
                       child: ElevatedButton(
                         onPressed: () {
-                          widget.vehicleDetails.slotDateTime=slot.bookedTimeSlot;
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => widget.isExport?const BookingCreationExport():const BookingCreationImport(),
-                            ),
-                          );
+                       setState(() {
+                         widget.vehicleDetails.slotDateTime=selectedDate!.toIso8601String();
+                         widget.vehicleDetails.slotConfigId=int.parse(slot.slotConfigId)??0;
+                         widget.vehicleDetails.slotDurationId=int.parse(slot.slotDurationId);
+                         widget.vehicleDetails.slotStartTime=slot.slotStartDateTime;
+                         widget.vehicleDetails.slotEndTime=slot.slotEndDateTime;
+                         widget.vehicleDetails.slotViewDateTime="$slotFilterDate\n${slot.bookedTimeSlot}";
+                       });
+                          Navigator.pop(context,widget.vehicleDetails);
                         },
                         child: const Text(
                           "Book Now",

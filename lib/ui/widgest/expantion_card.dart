@@ -14,9 +14,9 @@ import 'package:lpms/theme/app_color.dart';
 
 import '../../api/auth.dart';
 import '../../models/ShippingList.dart';
-import '../../screens/ShipmentDetailsExport.dart';
+import '../../screens/AddShipmentDetailsExport.dart';
 import '../../screens/SlotBooking.dart';
-import '../../screens/VehicleDetailsExport.dart';
+import '../../screens/AddVehicleDetailsExport.dart';
 import '../../util/Global.dart';
 import 'CustomTextField.dart';
 import 'package:http_parser/http_parser.dart';
@@ -44,6 +44,11 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
 
   @override
   Widget build(BuildContext context) {
+    print("shipmentDetailsList length: ${widget.shipmentDetailsList.length}");
+    print("expanded length: ${expanded.length}");
+    if (expanded.length != widget.shipmentDetailsList.length) {
+      expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+    }
     return ListView.separated(
       separatorBuilder: (context, index) => const SizedBox(height: 2),
       physics: const NeverScrollableScrollPhysics(),
@@ -99,6 +104,7 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                                   setState(() {
                                     widget.shipmentDetailsList[index] =
                                         updatedShipment;
+                                    // expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
                                   });
                                 }
                               });
@@ -266,6 +272,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
         setState(() {
           docDetails.filePath = jsonData["message"];
           docDetails.documentPhysicalFileName=fileName;
+          docDetails.remark=docRemarkController.text;
+          docDetails.documentName=docNameController.text;
           docDetails.documentType=docType;
           if (docType == "RC UPLOAD") {
             docDetails.documentTyepId = 145;
@@ -676,6 +684,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
   @override
   Widget build(BuildContext context) {
+    if (expanded.length != widget.vehicleDetailsList.length) {
+      expanded = List.generate(widget.vehicleDetailsList.length, (index) => false);
+    }
     return ListView.separated(
       separatorBuilder: (context, index) => const SizedBox(height: 2),
       physics: const NeverScrollableScrollPhysics(),
@@ -722,11 +733,11 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           SizedBox(
                             width: MediaQuery.sizeOf(context).width * 0.12,
                           ),
-                          const Column(
+                           Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 "Slot Date/Time",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w400,
@@ -734,8 +745,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 ),
                               ),
                               Text(
-                                "",
-                                style: TextStyle(
+                                vehicleDetails.slotViewDateTime,
+                                style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textColorPrimary,
                                     fontSize: 15),
@@ -761,6 +772,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       setState(() {
                                         widget.vehicleDetailsList[index] =
                                             updateVehicle;
+                                        // expanded =
+                                        //     List.generate(widget.vehicleDetailsList.length, (index) => false);
                                       });
                                     }
                                   });
@@ -886,7 +899,15 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       vehicleDetails: vehicleDetails,
                                     ),
                                   ),
-                                );
+                                ).then((updateVehicle) {
+                                  if (updateVehicle != null) {
+                                    setState(() {
+                                      widget.vehicleDetailsList[index] =
+                                          updateVehicle;
+                                      print("View Date is"+widget.vehicleDetailsList[index].slotViewDateTime);
+                                    });
+                                  }
+                                });;
                               },
                               child: const Text(
                                 "Book Slot",
@@ -1180,7 +1201,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                                 if (newShipment != null) {
                                   setState(() {
                                     // Add new shipment to the list
-                                    shipmentListImports.add(newShipment);
+                                    shipmentListExports.add(newShipment);
                                     expanded.add(false);
                                   });
                                 }
@@ -1252,7 +1273,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
             if (isExpanded)
               SizedBox(
                 child: ShipmentItemNew(
-                  shipmentDetailsList: shipmentListImports,
+                  shipmentDetailsList: shipmentListExports,
                   isExport: widget.isExport,
                 ),
               ),

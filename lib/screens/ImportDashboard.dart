@@ -38,12 +38,12 @@ class _ImportScreenState extends State<ImportScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // List of terminal data with id as int
-  List<SlotBookingShipmentDetailsImport> listShipmentDetails = [];
-  List<SlotBookingShipmentDetailsImport> listShipmentDetailsBind = [];
+  List<SlotBookingShipmentListingImport> listShipmentDetails = [];
+  List<SlotBookingShipmentListingImport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
-  List<SlotBookingShipmentDetailsImport> filteredList = [];
+  List<SlotBookingShipmentListingImport> filteredList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
@@ -369,7 +369,7 @@ class _ImportScreenState extends State<ImportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            SlotBookingShipmentDetailsImport
+                                            SlotBookingShipmentListingImport
                                                 shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -387,7 +387,7 @@ class _ImportScreenState extends State<ImportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            SlotBookingShipmentDetailsImport
+                                            SlotBookingShipmentListingImport
                                                 shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
@@ -520,7 +520,7 @@ class _ImportScreenState extends State<ImportScreen> {
     );
   }
 
-  void exportToExcel(List<SlotBookingShipmentDetailsImport> shipments) async {
+  void exportToExcel(List<SlotBookingShipmentListingImport> shipments) async {
     var excel = ex.Excel.createExcel();
     ex.Sheet sheetObject = excel['Sheet1'];
     sheetObject.appendRow([
@@ -585,8 +585,11 @@ class _ImportScreenState extends State<ImportScreen> {
           hasNoRecord = true;
         });
       }
+      else{
+        hasNoRecord=false;
+      }
       listShipmentDetailsBind = jsonData
-          .map((json) => SlotBookingShipmentDetailsImport.fromJSON(json))
+          .map((json) => SlotBookingShipmentListingImport.fromJSON(json))
           .toList();
       print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
@@ -604,7 +607,7 @@ class _ImportScreenState extends State<ImportScreen> {
   }
 
   Widget buildShipmentDetailsCard(
-      SlotBookingShipmentDetailsExport shipmentDetails, int index) {
+      SlotBookingShipmentListingExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -773,7 +776,7 @@ class _ImportScreenState extends State<ImportScreen> {
   }
 
   Widget buildShipmentDetailsCardV2(
-      SlotBookingShipmentDetailsImport shipmentDetails, int index) {
+      SlotBookingShipmentListingImport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -1271,8 +1274,8 @@ class _ImportScreenState extends State<ImportScreen> {
     });
   }
 
-  List<SlotBookingShipmentDetailsImport> getFilteredShipmentDetails(
-      List<SlotBookingShipmentDetailsImport> listShipmentDetails,
+  List<SlotBookingShipmentListingImport> getFilteredShipmentDetails(
+      List<SlotBookingShipmentListingImport> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {
