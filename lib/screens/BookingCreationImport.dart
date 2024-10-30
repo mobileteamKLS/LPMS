@@ -27,6 +27,7 @@ import 'AddShipmentDetailsImport.dart';
 import 'BookingCreationExport.dart';
 import 'Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
+import 'ImportDashboard.dart';
 
 class BookingCreationImport extends StatefulWidget {
   const BookingCreationImport({super.key});
@@ -133,6 +134,20 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
+    if (int.parse(noOfVehiclesController.text) != vehicleListExports.length) {
+      CustomSnackBar.show(context,
+          message: "Shipment and Vehicle Details are required");
+      return;
+    }
+
+    for (var vehicleDetails in vehicleListExports) {
+      String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
+      if (slotViewDateTimeError != "") {
+        CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}" );
+        return;
+      }
+    }
+
     // setState(() {
     //   _isLoading = true;
     // });
@@ -181,6 +196,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
+        CustomSnackBar.show(context, message: "Data saved successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
       // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
       //   setState(() {
       //     originMaster = jsonData["Origin"];

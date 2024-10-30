@@ -46,7 +46,9 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   @override
   void initState() {
     super.initState();
-    vehicleTypeId=widget.vehicleDetails?.vehicleId ??0;
+    print(widget.vehicleDetails?.vehicleId);
+    vehicleTypeId=widget.vehicleDetails?.vehicleTypeId ??0;
+    print(vehicleTypeId);
     vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleTypeName ?? '');
     vehicleNoController = TextEditingController(text: widget.vehicleDetails?.truckNo ?? '');
     driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.drivingLicenseNo ?? '');

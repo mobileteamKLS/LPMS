@@ -72,6 +72,27 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
     importerId = widget.shipment?.importerId ?? 0;
     cargoTypeId = widget.shipment?.cargoTypeId ?? 0;
     print("isExport shp: ${widget.isExport}");
+    _cityFocusNode.addListener(() async {
+      if (!_cityFocusNode.hasFocus) {
+        final input = exporterNameController.text;
+        final suggestions = await ImporterService.isValidAgent(input);
+        if (!suggestions) {
+          exporterNameController.clear();
+          importerId = 0;
+          // formFieldState.didChange(null);
+        }
+      }
+    });
+    // _cityFocusNode2.addListener(() async {
+    //   if (!_cityFocusNode2.hasFocus) {
+    //     final input = cargoTypeController.text;
+    //     final suggestions = await CargoTypeService.isValidAgent(input);
+    //     if (!suggestions) {
+    //       cargoTypeController.clear();
+    //       cargoTypeId=0;
+    //     }
+    //   }
+    // });
   }
 
   @override
@@ -605,13 +626,12 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:
-                                                false,
+                                            hideSuggestionsOnKeyboardHide:false,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
                                               controller: cargoTypeController,
-                                              focusNode: _cityFocusNode2,
+                                              // focusNode: _cityFocusNode2,
                                               decoration: const InputDecoration(
                                                 contentPadding:
                                                     EdgeInsets.symmetric(

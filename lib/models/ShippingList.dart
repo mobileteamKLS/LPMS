@@ -393,13 +393,13 @@ class ShipmentDetailsExports {
   int quantity;
   String shippingBillNoIgmNno;
   String shippingBillDateIgm;
-  String typeOfGoods;
+  String? typeOfGoods;
   String hsnCode;
   int cargoValue;
   int exporterId;
-  String unitOfQt;
-  String portOfDest;
-  String grossQt;
+  String? unitOfQt;
+  String? portOfDest;
+  String? grossQt;
   bool isUliPverified;
 
   ShipmentDetailsExports({
@@ -447,13 +447,13 @@ class ShipmentDetailsExports {
   Map<String, dynamic> toJson() => {
         "DetailsId": detailsId,
         "CargoDescription": cargoDescription,
-        "CargoTypeId": cargoTypeId,
+        "CargoTypeId": cargoTypeId.toString(),
         "CargoWeight": cargoWeight,
         "ChaName": chaName,
         "NameOfExporterImporter": nameOfExporterImporter,
         "Quantity": quantity,
         "ShippingBillNoIGMNno": shippingBillNoIgmNno,
-        "ShippingBillDateIGM": shippingBillDateIgm,
+        "ShippingBillDateIGM":DateFormat('d MMM yyyy').parse(shippingBillDateIgm).toIso8601String() ,
         "TypeOfGoods": typeOfGoods,
         "HSNCode": hsnCode,
         "CargoValue": cargoValue,
@@ -578,12 +578,12 @@ class VehicleDetailsExports {
   bool isNewSlot;
   String remarksChassisNo;
   bool isGateIn;
-  String registrationDate;
-  String grossWt;
-  String tareWt;
-  String netWt;
-  String isvehicleVerified;
-  String isDriverVerified;
+  String? registrationDate;
+  String? grossWt;
+  String? tareWt;
+  String? netWt;
+  String? isvehicleVerified;
+  String? isDriverVerified;
 
   VehicleDetailsExports({
     this.vehicleId = 0,
@@ -607,12 +607,12 @@ class VehicleDetailsExports {
     this.isNewSlot = true,
     required this.remarksChassisNo,
     this.isGateIn = true,
-    this.registrationDate = "",
-    this.grossWt = "",
-    this.tareWt = "",
-    this.netWt = "",
-    this.isvehicleVerified = "",
-    this.isDriverVerified = "",
+    this.registrationDate=null,
+    this.grossWt=null ,
+    this.tareWt=null,
+    this.netWt =null,
+    this.isvehicleVerified=null,
+    this.isDriverVerified =null,
   });
       // : drivingLicense = drivingLicense ?? DrivingLicense(),
       //   // Assign default DrivingLicense if null
@@ -669,13 +669,25 @@ class VehicleDetailsExports {
         "IsNewSlot": isNewSlot,
         "RemarksChassisNo": remarksChassisNo,
         "IsGateIn": isGateIn,
-        "RegistrationDate": registrationDate,
-        "GrossWt": grossWt,
-        "TareWt": tareWt,
-        "NetWt": netWt,
-        "IsvehicleVerified": isvehicleVerified,
-        "IsDriverVerified": isDriverVerified,
+        "RegistrationDate": null,
+        "GrossWt": null,
+        "TareWt": null,
+        "NetWt": null,
+        "IsvehicleVerified": null,
+        "IsDriverVerified": null,
       };
+
+  String? validateDrivingLicense() {
+    return drivingLicense == null ? 'Driving License is required for vehicle no' : null;
+  }
+
+  String? validateRcScanned() {
+    return rcScanned == null ? 'RC Scanned document is required for vehicle no' : null;
+  }
+
+  String validateSlotViewDateTime() {
+    return slotViewDateTime.isEmpty ? 'Slot DateTime is required for vehicle no' : "";
+  }
 }
 
 class DrivingLicense {
@@ -732,21 +744,21 @@ class DrivingLicense {
       );
 
   Map<String, dynamic> toJson() => {
-        "BookingId": bookingId,
-        "VehicleId": vehicleId,
-        "DLDocConfigId": dlDocConfigId,
+        // "BookingId": bookingId,
+        // "VehicleId": vehicleId,
+        // "DLDocConfigId": dlDocConfigId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        "IsFinanicial": isFinanicial,
+        // "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        "DocumentUploadCriteria": documentUploadCriteria,
-        "FileUOM": fileUom,
-        "FileSize": fileSize,
-        "RCDocConfigId": rcDocConfigId,
+        // "DocumentUploadCriteria": documentUploadCriteria,
+        // "FileUOM": fileUom,
+        // "FileSize": fileSize,
+        // "RCDocConfigId": rcDocConfigId,
       };
 }
 

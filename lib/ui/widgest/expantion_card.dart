@@ -273,6 +273,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
       if (response.body.isNotEmpty) {
         Map<String, dynamic> jsonData = json.decode(response.body);
+        print(jsonData);
         // docDetails ??= DrivingLicense();
         // setState(() {
         //   docDetails?.filePath = jsonData["message"];
@@ -291,7 +292,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           ..filePath = jsonData["message"]
           ..documentPhysicalFileName = fileName
           ..remark = docRemarkController.text
-          ..documentName = docNameController.text
+          ..documentName =fileName
           ..documentType = docType
           ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
 
@@ -676,7 +677,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               width: MediaQuery.of(context).size.width * 0.42,
                               height: 45,
                               child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
                                   child: const Text(
                                     "Save",
                                     style: TextStyle(color: Colors.white),
@@ -1220,6 +1223,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                             onTap: () async {
                               if (isFTlAndOneShipment &&
                                   shipmentListExports.isNotEmpty) {
+                                CustomSnackBar.show(context, message: "Only 1 Shipment is Allowed");
                                 return;
                               } else {
                                 Navigator.push(
@@ -1491,9 +1495,11 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                       1;
                               if (isFTlAndOneShipment &&
                                   vehicleListExports.length >= maxItems) {
+                                CustomSnackBar.show(context, message: "Only $maxItems Vehicle is Allowed");
                                 return;
                               } else if (!isFTlAndOneShipment &&
                                   vehicleListExports.isNotEmpty) {
+                                CustomSnackBar.show(context, message: "Only 1 Vehicle is Allowed");
                                 return;
                               } else {
                                 final result =
@@ -1806,6 +1812,7 @@ class _AddShipmentDetailsListImportsNew
                             onTap: () async {
                               if (isFTlAndOneShipment &&
                                   shipmentListImports.isNotEmpty) {
+                                CustomSnackBar.show(context, message: "Only 1 Shipment is Allowed");
                                 return;
                               } else {
                                 Navigator.push(

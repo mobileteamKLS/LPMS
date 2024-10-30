@@ -25,6 +25,7 @@ import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
 import 'Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
+import 'ExportDashboard.dart';
 
 class BookingCreationExport extends StatefulWidget {
   const BookingCreationExport({super.key});
@@ -40,7 +41,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
-  final FocusNode _cityFocusNode = FocusNode();
+  final FocusNode chaFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
@@ -82,6 +83,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     isFTlAndOneShipment = true;
     getOriginDestination();
     noOfVehiclesController.text = "1";
+
+    chaFocusNode.addListener(() async {
+      if (!chaFocusNode.hasFocus) {
+
+        final input = chaController.text;
+        final suggestions = await CHAAgentService.isValidAgent(input);
+        if (!suggestions) {
+          chaController.clear();
+          chaNameMaster = '';
+          chaIdMaster = 0;
+          // formFieldState.didChange(null);
+        }
+      }
+    });
   }
 
   @override
@@ -555,7 +570,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
                                               controller: chaController,
-                                              // focusNode: _cityFocusNode,
+                                              focusNode: chaFocusNode,
                                               decoration: InputDecoration(
                                                   contentPadding:
                                                       const EdgeInsets
@@ -599,7 +614,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                         const BorderSide(
                                                             color: AppColors
                                                                 .errorRed),
-                                                  )),
+                                                  ),
+                                              ),
                                             ),
                                             suggestionsCallback: (search) =>
                                                 CHAAgentService.find(search),
@@ -1074,6 +1090,30 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
+    for (var vehicleDetails in vehicleListExports) {
+
+      String? drivingLicenseError = vehicleDetails.validateDrivingLicense();
+      if (drivingLicenseError != null) {
+        CustomSnackBar.show(context, message: "$drivingLicenseError ${vehicleDetails.truckNo}");
+        print("Dl");
+        return;
+      }
+
+      String? rcScannedError = vehicleDetails.validateRcScanned();
+      if (rcScannedError != null) {
+        CustomSnackBar.show(context, message: "$rcScannedError ${vehicleDetails.truckNo}");
+        print("rc");
+        return;
+      }
+
+      String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
+      if (slotViewDateTimeError != "") {
+        CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}");
+        print("slotdt");
+        return;
+      }
+    }
+
     // setState(() {
     //   _isLoading = true;
     // });
@@ -1120,6 +1160,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
+      CustomSnackBar.show(context, message: "Data saved successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ExportScreen()));
     }).catchError((onError) {
       setState(() {
         _isLoading = false;

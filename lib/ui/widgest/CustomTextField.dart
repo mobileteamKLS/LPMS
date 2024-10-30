@@ -15,7 +15,7 @@ class CustomTextField extends StatefulWidget {
   final RegExp? validationPattern;
   final String patternErrorMessage;
   final double? customWidth;
-  final bool isValidationRequired; // New flag for validation
+  final bool isValidationRequired;
 
   const CustomTextField({
     Key? key,
@@ -28,8 +28,8 @@ class CustomTextField extends StatefulWidget {
     this.inputFormatters,
     this.validationPattern,
     this.patternErrorMessage = 'Invalid input',
-    this.customWidth, // Optional custom width
-    this.isValidationRequired = true, // Default: validation is required
+    this.customWidth,
+    this.isValidationRequired = true,
   }) : super(key: key);
 
   @override
@@ -38,6 +38,7 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   late double fieldHeight;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -54,44 +55,49 @@ class _CustomTextFieldState extends State<CustomTextField> {
       width: width,
       child: TextFormField(
         controller: widget.controller,
-
         keyboardType: widget.inputType,
         inputFormatters: widget.inputFormatters,
         validator: widget.isValidationRequired
             ? (value) {
-                if (value == null || value.isEmpty) {
-                  setState(() {
-                    fieldHeight = widget.errorHeight;
-                  });
-                  return widget.validationMessage;
-                }
-                if (widget.validationPattern != null &&
-                    !widget.validationPattern!.hasMatch(value)) {
-                  setState(() {
-                    fieldHeight = widget.errorHeight;
-                  });
-                  return widget.patternErrorMessage;
-                }
-                setState(() {
-                  fieldHeight = widget.initialHeight;
-                });
-                return null;
-              }
+          // Check if value is empty
+          if (value == null || value.isEmpty) {
+            setState(() {
+              fieldHeight = widget.errorHeight;
+              errorMessage = widget.validationMessage;
+            });
+            return errorMessage;
+          }
+          // Check if value matches the pattern
+          if (widget.validationPattern != null &&
+              !widget.validationPattern!.hasMatch(value)) {
+            setState(() {
+              fieldHeight = widget.errorHeight;
+              errorMessage = widget.patternErrorMessage;
+            });
+            return errorMessage;
+          }
+          // Clear error and reset height
+          setState(() {
+            fieldHeight = widget.initialHeight;
+            errorMessage = null;
+          });
+          return null;
+        }
             : null,
-        // Skip validation if not required
         decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
           labelText: widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
           ),
+          errorText: errorMessage,
         ),
       ),
     );
   }
 }
+
 
 class DecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
@@ -323,38 +329,49 @@ class CustomSnackBar {
       BuildContext context, {
         required String message,
         Color backgroundColor = Colors.amber,
+        IconData? leftIcon = Icons.info, // Optional left icon
       }) {
     final snackBar = SnackBar(
       content: SizedBox(
-        height: 20,
-        child: Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Row(
                 children: [
-                  const Icon(Icons.info, color: Colors.white),
-                  Text('  $message'),
+                  if (leftIcon != null) // Only display icon if provided
+                    Icon(leftIcon, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: 2, // Set max lines for better control
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
-              GestureDetector(
-                child: const Icon(Icons.close, color: Colors.white),
-                onTap: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                },
-              ),
-            ],
-          ),
+            ),
+            GestureDetector(
+              child: const Icon(Icons.close, color: Colors.white),
+              onTap: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ],
         ),
       ),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
-
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
+
+
 
 
 class ShipmentInfoRow extends StatelessWidget {

@@ -27,8 +27,8 @@ class AddShipmentDetails extends StatefulWidget {
 
 class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   final _formKey = GlobalKey<FormState>();
-  final FocusNode _cityFocusNode = FocusNode();
-  final FocusNode _cityFocusNode2 = FocusNode();
+  final FocusNode exporterFocusNode = FocusNode();
+  final FocusNode cargoTypeFocusNode = FocusNode();
   late TextEditingController billNoController = TextEditingController();
   late TextEditingController billDateController = TextEditingController();
   late TextEditingController exporterNameController = TextEditingController();
@@ -72,6 +72,33 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     exporterId=widget.shipment?.exporterId??0;
     cargoTypeId=widget.shipment?.cargoTypeId??0;
     print("isExport shp: ${widget.isExport}");
+
+    exporterFocusNode.addListener(() async {
+      if (!exporterFocusNode.hasFocus) {
+        final input = exporterNameController.text;
+        final suggestions = await ExporterService.isValidAgent(input);
+        if (!suggestions) {
+          exporterNameController.clear();
+          exporterId = 0;
+          // formFieldState.didChange(null);
+        }
+      }
+    });
+    //
+    // cargoTypeFocusNode.addListener(() async {
+    //   if (!cargoTypeFocusNode.hasFocus) {
+    //     final input = cargoTypeController.text;
+    //     print("cargo type$input");
+    //     final suggestions = await CargoTypeService.isValidAgent(input);
+    //     print("cargo is $suggestions");
+    //     if (!suggestions) {
+    //       cargoTypeController.clear();
+    //       cargoTypeId=0;
+    //
+    //     }
+    //   }
+    // });
+
   }
 
   @override
@@ -381,7 +408,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
                                               controller: exporterNameController,
-                                              focusNode: _cityFocusNode,
+                                              focusNode: exporterFocusNode,
                                               decoration: const InputDecoration(
                                                 contentPadding:
                                                 EdgeInsets.symmetric(
@@ -429,6 +456,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               exporterNameController.text =
                                                   city.description
                                                       .toUpperCase();
+                                              exporterId=int.parse(city.value);
                                               formFieldState
                                                   .didChange(
                                                   exporterNameController.text);
@@ -453,7 +481,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
                                               controller: exporterNameController,
-                                              focusNode: _cityFocusNode,
+                                              focusNode: exporterFocusNode,
                                               decoration: const InputDecoration(
                                                 contentPadding:
                                                 EdgeInsets.symmetric(
@@ -588,7 +616,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
                                               controller: cargoTypeController,
-                                              focusNode: _cityFocusNode2,
+                                              focusNode: cargoTypeFocusNode,
                                               decoration: const InputDecoration(
                                                 contentPadding:
                                                 EdgeInsets.symmetric(
@@ -628,10 +656,11 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               );
                                             },
                                             onSuggestionSelected: (city) {
+                                              print("onSuggestionSelected");
                                               cargoTypeController.text =
                                                   city.description
                                                       .toUpperCase();
-
+                                              cargoTypeId=int.parse(city.value);
                                               formFieldState
                                                   .didChange(
                                                   cargoTypeController.text);
@@ -809,11 +838,11 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               .text),
                                           cargoTypeId: cargoTypeId,
                                           chaName: chaNameMaster,
-                                          typeOfGoods: '',
+                                          typeOfGoods: null,
                                           exporterId:exporterId,
-                                          unitOfQt: '',
-                                          portOfDest: '',
-                                          grossQt: '',
+                                          unitOfQt:null,
+                                          portOfDest: null,
+                                          grossQt: null,
                                           isUliPverified: false,
 
                                         );
