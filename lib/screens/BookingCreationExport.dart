@@ -58,6 +58,17 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     if (modeSelected == 1) {
       noOfVehiclesController.text = '1';
       isFTlAndOneShipment = false;
+    } else {
+      isFTlAndOneShipment = true;
+    }
+    if (isFTlAndOneShipment && shipmentListExports.length > 1) {
+      shipmentListExports = [shipmentListExports.first];
+    }
+    if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
+      int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
+      if (vehicleListExports.length > maxItems) {
+        vehicleListExports = vehicleListExports.sublist(0, maxItems);
+      }
     }
   }
 
@@ -68,7 +79,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     destinationMaster = "";
     noOfVehiclesController.clear();
     Utils.clearMasterList();
-    isFTlAndOneShipment = false;
+    isFTlAndOneShipment = true;
     getOriginDestination();
     noOfVehiclesController.text = "1";
   }
@@ -421,10 +432,17 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                             0) {
                                           noOfVehiclesController.text = "1";
                                         }
-                                        Utils.keepFirstNElements(
-                                            vehicleTypeList,
-                                            int.parse(
-                                                noOfVehiclesController.text));
+                                        setState(() {
+                                          int maxItems =
+                                              int.tryParse(value) ?? 1;
+                                          if (vehicleListExports.length >
+                                              maxItems) {
+                                            vehicleListExports =
+                                                vehicleListExports.sublist(
+                                                    0, maxItems);
+                                          }
+                                        });
+                                        // Utils.keepFirstNElements(vehicleTypeList,int.parse(noOfVehiclesController.text));
                                         // if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
                                         //   setState(() {
                                         //     isFTlAndOneShipment=true;
@@ -531,8 +549,9 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
-                                    ignoreAccessibleNavigation: true,
+                                            hideSuggestionsOnKeyboardHide:
+                                                false,
+                                            ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
                                               controller: chaController,
@@ -582,7 +601,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                                 .errorRed),
                                                   )),
                                             ),
-
                                             suggestionsCallback: (search) =>
                                                 CHAAgentService.find(search),
                                             itemBuilder: (context, city) {
@@ -623,7 +641,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                   .description
                                                   .toUpperCase();
                                               chaNameMaster = city.description;
-                                              chaIdMaster = int.parse(city.value);
+                                              chaIdMaster =
+                                                  int.parse(city.value);
                                               formFieldState.didChange(
                                                   chaController.text);
                                             },
@@ -709,7 +728,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-
                                       if (_formKey.currentState!.validate()) {
                                         saveBookingDetailsExport();
                                       }
@@ -820,7 +838,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     );
   }
 
-
   Future<ShipmentDetailsExports?> validateAndNavigate() async {
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<ShipmentDetailsExports>(
@@ -882,12 +899,12 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     mdl.isTariff = false;
     mdl.isDisabled = false;
     mdl.whereCondition =
-    "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
+        "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
     mdl.description = "Concat(CLOV.Code,'' - '',CLOV.Description)";
 
     SelectionQuery body = SelectionQuery();
     body.query =
-    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
 
     var headers = {
@@ -940,17 +957,17 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     mdl.jointableName = 'Organization_Businessline OB ';
     mdl.allRecord = true;
     mdl.jointableCondition =
-    '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
+        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
     if (basedOnPrevious != null) {
       mdl.whereCondition =
-      '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
+          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
     } else {
       mdl.whereCondition =
-      'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
+          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
     }
     SelectionQuery body = SelectionQuery();
     body.query =
-    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
 
     mdl.query = body.query;
     Utils.printPrettyJson(
@@ -967,9 +984,9 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
 
     await authService
         .sendMultipartRequest(
-        headers: headers,
-        fields: fields,
-        endPoint: "api/GenericDropDown/GetAllOrganizations")
+            headers: headers,
+            fields: fields,
+            endPoint: "api/GenericDropDown/GetAllOrganizations")
         .then((response) {
       if (response.body.isNotEmpty) {
         json.decode(response.body);
@@ -1032,45 +1049,58 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     // });
   }
 
-  saveBookingDetailsExport() async {
-    if(shipmentListExports.isEmpty && vehicleListExports.isEmpty){
-      CustomSnackBar.show(context, message: "Shipment and Vehicle Details are required");
+  bool validateVehicleDetailsList() {
+    for (var obj in vehicleListExports) {
+      if (obj.drivingLicense == null ||
+          obj.rcScanned == null ||
+          obj.slotViewDateTime.isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+    saveBookingDetailsExport() async {
+    if (shipmentListExports.isEmpty && vehicleListExports.isEmpty) {
+      CustomSnackBar.show(context,
+          message: "Shipment and Vehicle Details are required");
       return;
     }
-    if(shipmentListExports.isEmpty){
+    if (shipmentListExports.isEmpty) {
       CustomSnackBar.show(context, message: "Shipment Details are required");
       return;
     }
-    if(vehicleListExports.isEmpty){
+    if (vehicleListExports.isEmpty) {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
     // setState(() {
     //   _isLoading = true;
     // });
-    List<String> vehicleIdList = selectedVehicleList.map((vehicle) => vehicle.id).toList();
+    List<String> vehicleIdList =
+        selectedVehicleList.map((vehicle) => vehicle.id).toList();
 
-    SlotBookingCreationExport bookingCreationExport=SlotBookingCreationExport(
+    SlotBookingCreationExport bookingCreationExport = SlotBookingCreationExport(
       bookingId: 0,
-      vehicleType:vehicleIdList,
+      vehicleType: vehicleIdList,
       bookingDt: null,
       noofVehicle: int.parse(noOfVehiclesController.text),
-      isFtl:modeSelected==0,
-      isLtl: modeSelected==1,
-      origin:originMaster,
+      isFtl: modeSelected == 0,
+      isLtl: modeSelected == 1,
+      origin: originMaster,
       destination: destinationMaster,
       hsnCode: null,
       cargoValue: null,
       shipmentDetailsList: shipmentListExports,
       vehicalDetailsList: vehicleListExports,
-      chaName:chaNameMaster,
+      chaName: chaNameMaster,
       chaId: chaIdMaster,
       unitOfQt: null,
       portOfDest: null,
       grossQt: null,
-      orgProdId:loginMaster[0].adminOrgProdId,
-      userId:loginMaster[0].userId,
-      branchCode:loginMaster[0].branchCode,
+      orgProdId: loginMaster[0].adminOrgProdId,
+      userId: loginMaster[0].userId,
+      branchCode: loginMaster[0].branchCode,
       companyCode: loginMaster[0].companyCode,
       airportId: selectedTerminalId!,
       paCompanyCode: loginMaster[0].companyCode,
@@ -1079,7 +1109,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       orgId: loginMaster[0].adminOrgId,
     );
     Map<String, dynamic> payload = bookingCreationExport.toJson();
-   Utils.printPayload(payload);
+    Utils.printPayload(payload);
 
     await authService
         .postData(
@@ -1090,7 +1120,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
-
     }).catchError((onError) {
       setState(() {
         _isLoading = false;

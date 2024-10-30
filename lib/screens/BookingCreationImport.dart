@@ -67,6 +67,18 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   void _updateTextField() {
     if (modeSelected == 1) {
       noOfVehiclesController.text = '1';
+      isFTlAndOneShipment = false;
+    } else {
+      isFTlAndOneShipment = true;
+    }
+    if (isFTlAndOneShipment && shipmentListExports.length > 1) {
+      shipmentListExports = [shipmentListExports.first];
+    }
+    if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
+      int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
+      if (vehicleListExports.length > maxItems) {
+        vehicleListExports = vehicleListExports.sublist(0, maxItems);
+      }
     }
   }
 
@@ -197,7 +209,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     getOriginDestination();
     destinationMaster = "";
     noOfVehiclesController.clear();
-
+    Utils.clearMasterList();
+    isFTlAndOneShipment = true;
     noOfVehiclesController.text = "1";
   }
 
@@ -764,6 +777,23 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
                                       enabled: modeSelected == 1 ? false : true,
+                                      onChanged: (value){
+                                        if (int.parse(
+                                            noOfVehiclesController.text) ==
+                                            0) {
+                                          noOfVehiclesController.text = "1";
+                                        }
+                                        setState(() {
+                                          int maxItems =
+                                              int.tryParse(value) ?? 1;
+                                          if (vehicleListExports.length >
+                                              maxItems) {
+                                            vehicleListExports =
+                                                vehicleListExports.sublist(
+                                                    0, maxItems);
+                                          }
+                                        });
+                                      },
                                       // Disable based on switch state
                                       decoration: InputDecoration(
                                         isDense: true,
@@ -859,6 +889,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
+                                            hideSuggestionsOnKeyboardHide:
+                                            false,
+                                            ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
                                               controller: chaController,

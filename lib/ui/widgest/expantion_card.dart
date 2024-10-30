@@ -48,7 +48,8 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
     print("shipmentDetailsList length: ${widget.shipmentDetailsList.length}");
     print("expanded length: ${expanded.length}");
     if (expanded.length != widget.shipmentDetailsList.length) {
-      expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+      expanded =
+          List.generate(widget.shipmentDetailsList.length, (index) => false);
     }
     return ListView.separated(
       separatorBuilder: (context, index) => const SizedBox(height: 2),
@@ -224,7 +225,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   File? pickedFile;
   Uint8List? fileBytes;
 
-  Future<void> _pickFile(setState, DrivingLicense? vehicleDetails, String docType) async {
+  Future<void> _pickFile(
+      setState, VehicleDetailsExports vehicleDetails, String docType) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png'],
@@ -248,13 +250,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           fileSize = null;
         });
       }
-      Upload(file2,vehicleDetails,fileName!,docType);
+      Upload(file2, vehicleDetails, fileName!, docType);
     } else {
       // User canceled the picker
     }
   }
 
-  Future<void> Upload(File file,DrivingLicense? docDetails,String fileName, String docType) async {
+  Future<void> Upload(File file, VehicleDetailsExports vehicleDetails, String fileName,
+      String docType) async {
     await Future.delayed(const Duration(seconds: 2));
     var headers = {
       'Accept': 'text/plain',
@@ -270,34 +273,49 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
       if (response.body.isNotEmpty) {
         Map<String, dynamic> jsonData = json.decode(response.body);
-        docDetails ??= DrivingLicense();
-        setState(() {
-          docDetails?.filePath = jsonData["message"];
-          docDetails?.documentPhysicalFileName=fileName;
-          docDetails?.remark=docRemarkController.text;
-          docDetails?.documentName=docNameController.text;
-          docDetails?.documentType=docType;
-          if (docType == "RC UPLOAD") {
-            docDetails?.documentTyepId = 145;
-          } else {
-            docDetails?.documentTyepId = 144;
-          }
-          print("DocType");
-        });
+        // docDetails ??= DrivingLicense();
+        // setState(() {
+        //   docDetails?.filePath = jsonData["message"];
+        //   docDetails?.documentPhysicalFileName = fileName;
+        //   docDetails?.remark = docRemarkController.text;
+        //   docDetails?.documentName = docNameController.text;
+        //   docDetails?.documentType = docType;
+        //   if (docType == "RC UPLOAD") {
+        //     docDetails?.documentTyepId = 145;
+        //   } else {
+        //     docDetails?.documentTyepId = 144;
+        //   }
+        //   print("DocType");
 
+        DrivingLicense document = DrivingLicense()
+          ..filePath = jsonData["message"]
+          ..documentPhysicalFileName = fileName
+          ..remark = docRemarkController.text
+          ..documentName = docNameController.text
+          ..documentType = docType
+          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
+
+        setState(() {
+          if (docType == "RC UPLOAD") {
+            vehicleDetails.rcScanned = document;
+          } else {
+            vehicleDetails.drivingLicense = document;
+          }
+
+          print("Document uploaded for: $docType");
+        });
       } else {
         print("Response is empty");
       }
     } catch (error) {
       print("Error: $error");
     } finally {
-      setState(() {
-
-      });
+      setState(() {});
     }
   }
 
-  void showUploadRCSheet(BuildContext context, VehicleDetailsExports vehicleDetails) {
+  void showUploadRCSheet(
+      BuildContext context, VehicleDetailsExports vehicleDetails) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -414,7 +432,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState,vehicleDetails.rcScanned,"RC UPLOAD");
+                                _pickFile(setState, vehicleDetails,
+                                    "RC UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -491,7 +510,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
     });
   }
 
-  void showUploadDLSheet(BuildContext context,VehicleDetailsExports vehicleDetails) {
+  void showUploadDLSheet(
+      BuildContext context, VehicleDetailsExports vehicleDetails) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -605,7 +625,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState,vehicleDetails.drivingLicense,"DL UPLOAD");
+                                _pickFile(setState,
+                                    vehicleDetails, "DL UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -690,7 +711,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   @override
   Widget build(BuildContext context) {
     if (expanded.length != widget.vehicleDetailsList.length) {
-      expanded = List.generate(widget.vehicleDetailsList.length, (index) => false);
+      expanded =
+          List.generate(widget.vehicleDetailsList.length, (index) => false);
     }
     return ListView.separated(
       separatorBuilder: (context, index) => const SizedBox(height: 2),
@@ -699,7 +721,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       itemCount: widget.vehicleDetailsList.length,
       itemBuilder: (BuildContext context, int index) {
         var vehicleDetails = widget.vehicleDetailsList[index];
-        print("${vehicleDetails.truckNo}-PRASAD--${vehicleDetails.vehicleTypeId}");
+        print(
+            "${vehicleDetails.truckNo}-PRASAD--${vehicleDetails.vehicleTypeId}");
 
         return Column(
           children: [
@@ -738,7 +761,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           SizedBox(
                             width: MediaQuery.sizeOf(context).width * 0.12,
                           ),
-                           Column(
+                          Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -830,7 +853,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              showUploadRCSheet(context,vehicleDetails);
+                              showUploadRCSheet(context, vehicleDetails);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -862,7 +885,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              showUploadDLSheet(context,vehicleDetails);
+                              showUploadDLSheet(context, vehicleDetails);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -909,10 +932,13 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     setState(() {
                                       widget.vehicleDetailsList[index] =
                                           updateVehicle;
-                                      print("View Date is"+widget.vehicleDetailsList[index].slotViewDateTime);
+                                      print("View Date is" +
+                                          widget.vehicleDetailsList[index]
+                                              .slotViewDateTime);
                                     });
                                   }
-                                });;
+                                });
+                                ;
                               },
                               child: const Text(
                                 "Book Slot",
@@ -1059,28 +1085,26 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                   //       )
                   //     :
                   GestureDetector(
-                          onTap: () async {
-
-                              final result = await widget.validateAndNavigate();
-                              if (result != null) {
-                                setState(() {
-                                  widget.shipmentDetailsList.add(result);
-                                });
-                              }
-
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Icon(
-                              size: 28,
-                              Icons.add,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
+                    onTap: () async {
+                      final result = await widget.validateAndNavigate();
+                      if (result != null) {
+                        setState(() {
+                          widget.shipmentDetailsList.add(result);
+                        });
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Icon(
+                        size: 28,
+                        Icons.add,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -1194,23 +1218,28 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                           // ):
                           GestureDetector(
                             onTap: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddShipmentDetails(
-                                    shipment: null,
-                                    isExport: widget.isExport,
+                              if (isFTlAndOneShipment &&
+                                  shipmentListExports.isNotEmpty) {
+                                return;
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddShipmentDetails(
+                                      shipment: null,
+                                      isExport: widget.isExport,
+                                    ),
                                   ),
-                                ),
-                              ).then((newShipment) {
-                                if (newShipment != null) {
-                                  setState(() {
-                                    // Add new shipment to the list
-                                    shipmentListExports.add(newShipment);
-                                    expanded.add(false);
-                                  });
-                                }
-                              });
+                                ).then((newShipment) {
+                                  if (newShipment != null) {
+                                    setState(() {
+                                      // Add new shipment to the list
+                                      shipmentListExports.add(newShipment);
+                                      expanded.add(false);
+                                    });
+                                  }
+                                });
+                              }
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -1457,11 +1486,23 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              final result = await widget.validateAndNavigate();
-                              if (result != null) {
-                                setState(() {
-                                  widget.vehicleDetailsList.add(result);
-                                });
+                              int maxItems =
+                                  int.tryParse(noOfVehiclesController.text) ??
+                                      1;
+                              if (isFTlAndOneShipment &&
+                                  vehicleListExports.length >= maxItems) {
+                                return;
+                              } else if (!isFTlAndOneShipment &&
+                                  vehicleListExports.isNotEmpty) {
+                                return;
+                              } else {
+                                final result =
+                                    await widget.validateAndNavigate();
+                                if (result != null) {
+                                  setState(() {
+                                    widget.vehicleDetailsList.add(result);
+                                  });
+                                }
                               }
                             },
                             child: Container(
@@ -1541,7 +1582,6 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
   }
 }
 
-
 //Imports
 
 class AddShipmentDetailsListImportsNew extends StatefulWidget {
@@ -1557,10 +1597,12 @@ class AddShipmentDetailsListImportsNew extends StatefulWidget {
   });
 
   @override
-  _AddShipmentDetailsListImportsNew createState() => _AddShipmentDetailsListImportsNew();
+  _AddShipmentDetailsListImportsNew createState() =>
+      _AddShipmentDetailsListImportsNew();
 }
 
-class _AddShipmentDetailsListImportsNew extends State<AddShipmentDetailsListImportsNew> {
+class _AddShipmentDetailsListImportsNew
+    extends State<AddShipmentDetailsListImportsNew> {
   List<bool> expanded = [];
   bool isExpanded = false;
 
@@ -1630,14 +1672,12 @@ class _AddShipmentDetailsListImportsNew extends State<AddShipmentDetailsListImpo
                   //     :
                   GestureDetector(
                     onTap: () async {
-
                       final result = await widget.validateAndNavigate();
                       if (result != null) {
                         setState(() {
                           widget.shipmentDetailsList.add(result);
                         });
                       }
-
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -1692,7 +1732,7 @@ class _AddShipmentDetailsListImportsNew extends State<AddShipmentDetailsListImpo
           children: [
             Container(
               padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
@@ -1764,23 +1804,29 @@ class _AddShipmentDetailsListImportsNew extends State<AddShipmentDetailsListImpo
                           // ):
                           GestureDetector(
                             onTap: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddShipmentDetailsImports(
-                                    shipment: null,
-                                    isExport: widget.isExport,
+                              if (isFTlAndOneShipment &&
+                                  shipmentListImports.isNotEmpty) {
+                                return;
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddShipmentDetailsImports(
+                                      shipment: null,
+                                      isExport: widget.isExport,
+                                    ),
                                   ),
-                                ),
-                              ).then((newShipment) {
-                                if (newShipment != null) {
-                                  setState(() {
-                                    // Add new shipment to the list
-                                    shipmentListExports.add(newShipment);
-                                    expanded.add(false);
-                                  });
-                                }
-                              });
+                                ).then((newShipment) {
+                                  if (newShipment != null) {
+                                    setState(() {
+                                      // Add new shipment to the list
+                                      shipmentListExports.add(newShipment);
+                                      expanded.add(false);
+                                    });
+                                  }
+                                });
+                              }
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -1869,6 +1915,7 @@ class ShipmentItemNewImports extends StatefulWidget {
   @override
   _ShipmentItemNewImportsState createState() => _ShipmentItemNewImportsState();
 }
+
 class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
   List<bool> expanded = [];
 
@@ -1884,7 +1931,8 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
     print("shipmentDetailsList length: ${widget.shipmentDetailsList.length}");
     print("expanded length: ${expanded.length}");
     if (expanded.length != widget.shipmentDetailsList.length) {
-      expanded = List.generate(widget.shipmentDetailsList.length, (index) => false);
+      expanded =
+          List.generate(widget.shipmentDetailsList.length, (index) => false);
     }
     return ListView.separated(
       separatorBuilder: (context, index) => const SizedBox(height: 2),
@@ -1897,7 +1945,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
           children: [
             Container(
               padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1931,7 +1979,8 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AddShipmentDetailsImports(
+                                  builder: (context) =>
+                                      AddShipmentDetailsImports(
                                     shipment: shipmentDetails,
                                     isExport: widget.isExport,
                                   ),
@@ -1948,7 +1997,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                             },
                             child: Container(
                                 margin:
-                                const EdgeInsets.symmetric(horizontal: 8),
+                                    const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
@@ -1987,7 +2036,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
               Container(
                 width: MediaQuery.sizeOf(context).width,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
