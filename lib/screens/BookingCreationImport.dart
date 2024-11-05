@@ -140,13 +140,13 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       return;
     }
 
-    for (var vehicleDetails in vehicleListExports) {
-      String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
-      if (slotViewDateTimeError != "") {
-        CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}" );
-        return;
-      }
-    }
+    // for (var vehicleDetails in vehicleListExports) {
+    //   String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
+    //   if (slotViewDateTimeError != "") {
+    //     CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}" );
+    //     return;
+    //   }
+    // }
 
     // setState(() {
     //   _isLoading = true;
@@ -226,7 +226,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     getOriginDestination();
     destinationMaster = "";
     noOfVehiclesController.clear();
-    Utils.clearMasterList();
+    Utils.clearMasterData();
     isFTlAndOneShipment = true;
     noOfVehiclesController.text = "1";
   }
@@ -767,7 +767,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           setState(() {
                                             isValid = false;
                                           });
-                                          return 'Required';
+                                          return 'Field is Required';
                                         }
                                         return null;
                                       },
@@ -831,7 +831,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           setState(() {
                                             _textFieldHeight2 = 65;
                                           });
-                                          return 'Required';
+                                          return 'Field is Required';
                                         }
                                         setState(() {
                                           _textFieldHeight2 = 45;
@@ -887,7 +887,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return 'Required';
+                                      return 'Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -907,7 +907,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
                                             hideSuggestionsOnKeyboardHide:
-                                            false,
+                                            true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
@@ -1070,7 +1070,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                   child: OutlinedButton(
                                     onPressed: () {
                                       multiSelectController.clearAll();
-                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
                                     },
                                     child: const Text("Cancel"),
                                   ),

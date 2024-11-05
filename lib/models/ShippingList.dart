@@ -478,6 +478,7 @@ class ShipmentDetailsImports {
   String boeDt;
   String? typeOfGoods;
   String hsnCode;
+  String cargoValue;
   int importerId;
   String? unitOfQt;
   String? grossWt;
@@ -500,6 +501,7 @@ class ShipmentDetailsImports {
     required this.boeDt,
     required this.typeOfGoods,
     required this.hsnCode,
+    required this.cargoValue,
     required this.importerId,
     required this.unitOfQt,
     required this.portOfDest,
@@ -523,6 +525,7 @@ class ShipmentDetailsImports {
         boeDt: json["BOEDt"],
         typeOfGoods: json["TypeOfGoods"],
         hsnCode: json["HSNCode"],
+        cargoValue: json["CargoValue"],
         importerId: json["ImporterId"],
         unitOfQt: json["UnitOfQt"],
         portOfDest: json["PortOfDest"],
@@ -545,6 +548,7 @@ class ShipmentDetailsImports {
         "BOEDt": DateFormat('d MMM yyyy').parse(boeDt).toIso8601String(),
         "TypeOfGoods": typeOfGoods,
         "HSNCode": hsnCode,
+        "CargoValue": cargoValue,
         "ImporterId": importerId,
         "UnitOfQt": unitOfQt,
         "PortOfDest": portOfDest,
@@ -559,7 +563,7 @@ class ShipmentDetailsImports {
 class VehicleDetailsExports {
   int vehicleId;
   String vehicleTypeName;
-  String driverAadhaar;
+  String? driverAadhaar;
   String driverContact;
   String driverDob;
   String driverName;
@@ -568,10 +572,10 @@ class VehicleDetailsExports {
   String slotViewDateTime;
   String truckNo;
   int vehicleTypeId;
-  int slotConfigId;
-  int slotDurationId;
-  String slotStartTime;
-  String slotEndTime;
+  int? slotConfigId;
+  int? slotDurationId;
+  String? slotStartTime;
+  String? slotEndTime;
   DrivingLicense? drivingLicense;
   DrivingLicense? rcScanned;
   bool isModifySlot;
@@ -588,7 +592,7 @@ class VehicleDetailsExports {
   VehicleDetailsExports({
     this.vehicleId = 0,
     this.vehicleTypeName = "",
-    this.driverAadhaar = "",
+    this.driverAadhaar,
     required this.driverContact,
     required this.driverDob,
     required this.driverName,
@@ -597,10 +601,10 @@ class VehicleDetailsExports {
     this.slotViewDateTime = "",
     required this.truckNo,
     required this.vehicleTypeId,
-    this.slotConfigId = 0,
-    this.slotDurationId = 0,
-    this.slotStartTime = "",
-    this.slotEndTime = "",
+    this.slotConfigId ,
+    this.slotDurationId,
+    this.slotStartTime ,
+    this.slotEndTime,
     DrivingLicense? drivingLicense,
     DrivingLicense? rcScanned,
     this.isModifySlot = false,
@@ -653,12 +657,12 @@ class VehicleDetailsExports {
         "VehicleId": vehicleId,
         "DriverAadhaar": driverAadhaar,
         "DriverContact": driverContact,
-        "DriverDOB": driverDob,
+        "DriverDOB":DateFormat('d MMM yyyy').parse(driverDob).toIso8601String(),
         "DriverName": driverName,
         "DrivingLicenseNo": drivingLicenseNo,
         "SlotDateTime": slotDateTime,
         "TruckNo": truckNo,
-        "VehicleType": vehicleTypeId,
+        "VehicleType": vehicleTypeId.toString(),
         "SlotConfigId": slotConfigId,
         "SlotDurationId": slotDurationId,
         "SlotStartTime": slotStartTime,

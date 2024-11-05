@@ -79,7 +79,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     originMaster = "";
     destinationMaster = "";
     noOfVehiclesController.clear();
-    Utils.clearMasterList();
+    multiSelectController.clearAll();
+    Utils.clearMasterData();
     isFTlAndOneShipment = true;
     getOriginDestination();
     noOfVehiclesController.text = "1";
@@ -97,6 +98,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         }
       }
     });
+  }
+  @override
+  void dispose() {
+    chaController.dispose();
   }
 
   @override
@@ -414,7 +419,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           setState(() {
                                             isValid = false;
                                           });
-                                          return 'Required';
+                                          return 'Field is Required';
                                         }
                                         return null;
                                       },
@@ -489,7 +494,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           setState(() {
                                             _textFieldHeight2 = 65;
                                           });
-                                          return 'Required';
+                                          return 'Field is Required';
                                         }
                                         setState(() {
                                           _textFieldHeight2 = 45;
@@ -545,125 +550,94 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return 'Required';
+                                      return 'Field is Required';
                                     }
                                     setState(() {
-                                      _textFieldHeight =
-                                          initialHeight; // Reset to initial height if valid
+                                      _textFieldHeight = initialHeight; // Reset to initial height if valid
                                     });
                                     return null; // Valid input
                                   },
                                   builder: (formFieldState) {
+
+                                    chaController.addListener(() {
+                                      if (formFieldState.hasError && chaController.text.isNotEmpty) {
+                                        formFieldState.didChange(chaController.text); // Clear error
+                                      }
+                                    });
+
                                     return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         AnimatedContainer(
                                           duration: Duration(milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:
-                                                false,
+                                          height: _textFieldHeight, // Dynamic height based on validation
+                                          child: TypeAheadField<CargoTypeExporterImporterAgent>(
+                                            hideSuggestionsOnKeyboardHide: true,
                                             ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                                TextFieldConfiguration(
+                                            textFieldConfiguration: TextFieldConfiguration(
                                               controller: chaController,
                                               focusNode: chaFocusNode,
                                               decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 12.0,
-                                                          horizontal: 10.0),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                    vertical: 12.0, horizontal: 10.0),
+                                                labelText: 'CHA Name',
+                                                labelStyle: TextStyle(
+                                                  color: formFieldState.hasError
+                                                      ? AppColors.errorRed
+                                                      : Colors.black87,
+                                                ),
+                                                // Set border depending on the error state
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  borderSide: BorderSide(
+                                                    color: formFieldState.hasError
+                                                        ? AppColors.errorRed
+                                                        : Colors.grey,
                                                   ),
-                                                  labelText: 'CHA Name',
-                                                  labelStyle: formFieldState
-                                                          .hasError
-                                                      ? const TextStyle(
-                                                          color: AppColors
-                                                              .errorRed)
-                                                      : const TextStyle(
-                                                          color:
-                                                              Colors.black87),
-                                                  errorBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
-                                                  ),
-                                                  focusedErrorBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
-                                                  ),
+                                                ),
+                                                // Apply these borders only if there's an error
+                                                errorBorder: formFieldState.hasError
+                                                    ? OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  borderSide: BorderSide(color: AppColors.errorRed),
+                                                )
+                                                    : null,
+                                                focusedErrorBorder: formFieldState.hasError
+                                                    ? OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  borderSide: BorderSide(color: AppColors.errorRed),
+                                                )
+                                                    : null,
                                               ),
                                             ),
-                                            suggestionsCallback: (search) =>
-                                                CHAAgentService.find(search),
+                                            suggestionsCallback: (search) => CHAAgentService.find(search),
                                             itemBuilder: (context, city) {
                                               return Container(
                                                 decoration: const BoxDecoration(
                                                   border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
+                                                    top: BorderSide(color: Colors.black, width: 0.2),
+                                                    left: BorderSide(color: Colors.black, width: 0.2),
+                                                    right: BorderSide(color: Colors.black, width: 0.2),
+                                                    bottom: BorderSide.none, // No border on the bottom
                                                   ),
                                                 ),
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                                padding: const EdgeInsets.all(8.0),
                                                 child: Row(
                                                   children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
+                                                    Text(city.code.toUpperCase()),
+                                                    const SizedBox(width: 10),
+                                                    Text(city.description.toUpperCase()),
                                                   ],
                                                 ),
                                               );
                                             },
                                             onSuggestionSelected: (city) {
-                                              print("CHA trigger");
-                                              chaController.text = city
-                                                  .description
-                                                  .toUpperCase();
+                                              chaController.text = city.description.toUpperCase();
                                               chaNameMaster = city.description;
-                                              chaIdMaster =
-                                                  int.parse(city.value);
-                                              formFieldState.didChange(
-                                                  chaController.text);
+                                              chaIdMaster = int.parse(city.value);
+                                              formFieldState.didChange(chaController.text);
                                             },
-                                            noItemsFoundBuilder: (context) =>
-                                                const Padding(
+                                            noItemsFoundBuilder: (context) => const Padding(
                                               padding: EdgeInsets.all(8.0),
                                               child: Text('No CHA Found'),
                                             ),
@@ -671,19 +645,19 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         ),
                                         if (formFieldState.hasError)
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 4.0, left: 16),
+                                            padding: const EdgeInsets.only(top: 4.0, left: 16),
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: AppColors.errorRed,
-                                                  fontSize: 12),
+                                                  color: AppColors.errorRed, fontSize: 12),
                                             ),
                                           ),
                                       ],
                                     );
                                   },
-                                ),
+                                )
+
+                                ,
                               ),
                             ],
                           ),

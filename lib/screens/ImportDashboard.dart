@@ -1155,6 +1155,7 @@ class _ImportScreenState extends State<ImportScreen> {
                         CustomTextField(
                           controller: bookingNoController,
                           labelText: "Booking No.",
+                          isValidationRequired: false,
                         ),
                         const SizedBox(height: 16),
                         CustomTextField(

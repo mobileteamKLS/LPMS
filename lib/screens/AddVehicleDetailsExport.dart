@@ -41,7 +41,16 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
   bool isValid = true;
   late RegExp hsnPattern = RegExp(r'^\d{6,8}$');
   late RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
+  final List<VoidCallback> _markFieldsTouched = [];
+  void _addMarkTouchedCallback(VoidCallback callback) {
+    _markFieldsTouched.add(callback);
+  }
 
+  void _markAllFieldsTouched() {
+    for (var callback in _markFieldsTouched) {
+      callback();
+    }
+  }
 
   @override
   void initState() {
@@ -61,6 +70,13 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
       return Vehicle(id:item.value.id, name:item.value.name);
     }).toList();
 
+  }
+
+  @override
+  void dispose() {
+    // vehicleTypeController.dispose();
+    // driverLicenseNoController.dispose();
+    // driverMobNoController.dispose();
   }
 
   @override
@@ -322,7 +338,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Required';
+                                      return '  Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -341,7 +357,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               Vehicle>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
@@ -353,7 +369,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                                     vertical: 12.0,
                                                     horizontal: 10.0),
                                                 border: OutlineInputBorder(),
-                                                labelText: 'Vehicle Type',
+                                                labelText: 'Types of Vehicle',
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -407,7 +423,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red,fontSize: 12),
+                                                  color: AppColors.errorRed,fontSize: 12),
                                             ),
                                           ),
                                       ],
@@ -425,9 +441,9 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                 labelText: "Vehicle No.",
                                 inputType: TextInputType.text,
                                 inputFormatters: [
-
                                   LengthLimitingTextInputFormatter(10)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -441,6 +457,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
 
                                   LengthLimitingTextInputFormatter(16)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -464,6 +481,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
 
                                   LengthLimitingTextInputFormatter(50)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -477,6 +495,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -491,6 +510,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
 
                                   LengthLimitingTextInputFormatter(16)
                                 ],
+
                               ),
                             ],
                           ),
@@ -536,7 +556,7 @@ class _AddVehicleDetailsState extends State<AddVehicleDetails> {
                                   MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
+                                      if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
                                         final newVehicle = VehicleDetailsExports(
                                           vehicleTypeId:  vehicleTypeId,

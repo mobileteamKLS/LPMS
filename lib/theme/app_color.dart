@@ -19,7 +19,7 @@ class AppColors{
   static const containerBgColor= Color(0xffCCF1F6);
   static const textFieldBorderColor= Color(0xff9AA5B1);
   static const warningColor= Color(0xffFD8D00);
-  static const errorRed= Color(0xffD32F2F);
+  static const errorRed= Color(0xffB00020);
  static const MaterialColor primaryColorSwatch = MaterialColor(0xff0060e6, <int, Color>{
   50: Color(0xff0060e6),
   100: Color(0xff0060e6),

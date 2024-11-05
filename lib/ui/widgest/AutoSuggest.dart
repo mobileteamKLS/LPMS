@@ -61,6 +61,7 @@ return input.replaceAll(RegExp(r'[^a-zA-Z0-9\s]'), '').toLowerCase().trim();
 class ExporterService {
   static List<CargoTypeExporterImporterAgent> find(String search) {
     String normalizedSearch = Utils.normalizeString(search);
+    print("____$normalizedSearch");
     return exporterList.where((agent) {
       String normalizedAgentName =  Utils.normalizeString(agent.nameDisplay);
       return normalizedAgentName.contains(normalizedSearch);
@@ -98,8 +99,9 @@ class CargoTypeService {
 
   static List<CargoTypeExporterImporterAgent> find(String search) {
     String normalizedSearch = Utils.normalizeString(search);
+    print("____$normalizedSearch");
     return cargoTypeList.where((agent) {
-      String normalizedAgentName =  Utils.normalizeString(agent.nameDisplay);
+      String normalizedAgentName =  Utils.normalizeString(agent.description);
       return normalizedAgentName.contains(normalizedSearch);
     }).toList();
   }

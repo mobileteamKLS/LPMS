@@ -236,6 +236,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       PlatformFile file = result.files.first;
       String filePath = result.files.single.path!;
       File file2 = File(filePath);
+      print("________$file2");
       if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
         setState(() {
           fileName = file.name;

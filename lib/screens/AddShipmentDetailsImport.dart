@@ -47,7 +47,16 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
   int importerId = 0;
   int cargoTypeId = 0;
+  final List<VoidCallback> _markFieldsTouched = [];
+  void _addMarkTouchedCallback(VoidCallback callback) {
+    _markFieldsTouched.add(callback);
+  }
 
+  void _markAllFieldsTouched() {
+    for (var callback in _markFieldsTouched) {
+      callback();
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -64,11 +73,11 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
     cargoDescriptionController =
         TextEditingController(text: widget.shipment?.cargoDescription ?? '');
     qualityController =
-        TextEditingController(text: widget.shipment?.quantity.toString() ?? '');
+        TextEditingController(text: widget.shipment?.quantity.toString() ?? "0");
     weightController = TextEditingController(
-        text: widget.shipment?.cargoWeight.toString() ?? '');
-    // valueController = TextEditingController(
-    //     text: widget.shipment?.cargoValue.toString() ?? '');
+        text: widget.shipment?.cargoWeight.toString() ?? '0');
+    valueController = TextEditingController(
+        text: widget.shipment?.cargoValue.toString() ?? '');
     importerId = widget.shipment?.importerId ?? 0;
     cargoTypeId = widget.shipment?.cargoTypeId ?? 0;
     print("isExport shp: ${widget.isExport}");
@@ -339,6 +348,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(15)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
 
                               SizedBox(
@@ -371,7 +381,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Required';
+                                      return '  Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -393,7 +403,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                 child: TypeAheadField<
                                                     CargoTypeExporterImporterAgent>(
                                                   hideSuggestionsOnKeyboardHide:
-                                                      false,
+                                                      true,
                                                   ignoreAccessibleNavigation:
                                                       true,
                                                   textFieldConfiguration:
@@ -459,7 +469,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                             .text =
                                                         city.description
                                                             .toUpperCase();
-                                                    cargoTypeId=int.parse(city.value);
+
                                                     formFieldState.didChange(
                                                         exporterNameController
                                                             .text);
@@ -481,7 +491,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                 child: TypeAheadField<
                                                     CargoTypeExporterImporterAgent>(
                                                   hideSuggestionsOnKeyboardHide:
-                                                      false,
+                                                      true,
                                                   ignoreAccessibleNavigation:
                                                       true,
                                                   textFieldConfiguration:
@@ -592,6 +602,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   LengthLimitingTextInputFormatter(10)
                                 ],
                                 validationPattern: hsnPattern,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                                 patternErrorMessage: 'Enter a valid HSN code',
                               ),
                               SizedBox(
@@ -606,7 +617,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Required';
+                                      return '  Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -626,7 +637,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                                 TextFieldConfiguration(
@@ -674,7 +685,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                               cargoTypeController.text = city
                                                   .description
                                                   .toUpperCase();
-
+                                              cargoTypeId=int.parse(city.value);
                                               formFieldState.didChange(
                                                   cargoTypeController.text);
                                             },
@@ -710,6 +721,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                 controller: cargoDescriptionController,
                                 labelText: "Cargo Description",
                                 inputType: TextInputType.text,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -726,7 +738,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                         MediaQuery.of(context).size.width *
                                             0.43,
                                     inputType: TextInputType.number,
-                                    isValidationRequired: false,
+                                    registerTouchedCallback: _addMarkTouchedCallback,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                       LengthLimitingTextInputFormatter(10)
@@ -735,7 +747,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   CustomTextField(
                                     controller: weightController,
                                     labelText: 'Cargo Weight',
-                                    isValidationRequired: false,
+                                    registerTouchedCallback: _addMarkTouchedCallback,
                                     customWidth:
                                         MediaQuery.of(context).size.width *
                                             0.43,
@@ -766,6 +778,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                             ],
                           ),
@@ -811,7 +824,9 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
+                                      _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
+                                        print(cargoTypeId);
                                         final newShipment =
                                             ShipmentDetailsImports(
                                           boeNo: billNoController.text,
@@ -819,6 +834,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                           nameOfExporterImporter:
                                               exporterNameController.text,
                                           hsnCode: hsnCodeController.text,
+                                          cargoValue: valueController.text,
                                           cargoType: cargoTypeController.text,
                                           cargoDescription:
                                               cargoDescriptionController.text,

@@ -46,7 +46,16 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
   int exporterId=0;
   int cargoTypeId=0;
+  final List<VoidCallback> _markFieldsTouched = [];
+  void _addMarkTouchedCallback(VoidCallback callback) {
+    _markFieldsTouched.add(callback);
+  }
 
+  void _markAllFieldsTouched() {
+    for (var callback in _markFieldsTouched) {
+      callback();
+    }
+  }
 
   @override
   void initState() {
@@ -345,6 +354,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(15)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
 
                               SizedBox(
@@ -361,6 +371,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 allowFutureDates: false,
                                 initialHeight: 45,
                                 errorHeight: 65,
+
                               ),
                               SizedBox(
                                 height:
@@ -383,7 +394,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Required';
+                                      return '  Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -403,7 +414,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
@@ -462,9 +473,9 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                   exporterNameController.text);
                                             },
                                             noItemsFoundBuilder: (context) =>
-                                                Padding(
+                                                const Padding(
                                                   padding: EdgeInsets.all(8.0),
-                                                  child: const Text(
+                                                  child: Text(
                                                       'No Exporter Found'),
                                                 ),
                                           ),
@@ -476,7 +487,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
@@ -548,7 +559,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red,
+                                                  color:AppColors.errorRed,
                                                   fontSize: 12),
                                             ),
                                           ),
@@ -567,11 +578,12 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 controller: hsnCodeController,
                                 labelText: 'HSN Code',
                                 inputType: TextInputType.number,
-
+                                isValidationRequired: true,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                                 validationPattern: hsnPattern,
                                 patternErrorMessage:
                                 'Enter a valid HSN code',
@@ -592,7 +604,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Required';
+                                      return '  Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -611,7 +623,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           // Dynamic height based on validation
                                           child: TypeAheadField<
                                               CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:false,
+                                            hideSuggestionsOnKeyboardHide:true,
                                             ignoreAccessibleNavigation: true,
                                             textFieldConfiguration:
                                             TextFieldConfiguration(
@@ -681,7 +693,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red,
+                                                  color: AppColors.errorRed,
                                                   fontSize: 12),
                                             ),
                                           ),
@@ -700,6 +712,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                 controller: cargoDescriptionController,
                                 labelText: "Cargo Description",
                                 inputType: TextInputType.text,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
@@ -726,6 +739,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                       FilteringTextInputFormatter.digitsOnly,
                                       LengthLimitingTextInputFormatter(10)
                                     ],
+                                    registerTouchedCallback: _addMarkTouchedCallback,
                                   ),
                                   CustomTextField(
                                     controller: weightController,
@@ -749,6 +763,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           decimalRange: 2),
                                     ],
                                     validationPattern: doublePattern,
+                                    registerTouchedCallback: _addMarkTouchedCallback,
                                     patternErrorMessage: 'Enter a valid number',
                                   ),
                                 ],
@@ -767,6 +782,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                             ],
                           ),
@@ -818,6 +834,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                       .width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
+                                      _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
                                         final newShipment = ShipmentDetailsExports(
                                           shippingBillNoIgmNno: billNoController

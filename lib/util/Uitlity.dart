@@ -75,9 +75,11 @@ import 'Global.dart';
         .trim()                              // Remove leading and trailing spaces
         .replaceAll(RegExp(r'\s+'), ' ');    // Replace multiple spaces with a single space
   }
-  static clearMasterList(){
+  static clearMasterData(){
     vehicleListExports=[];
     shipmentListExports=[];
+    shipmentListImports=[];
+    multiSelectController.clearAll();
   }
 
   // static void printLongString(String text) {

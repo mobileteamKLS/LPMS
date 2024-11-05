@@ -4,7 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/theme/app_color.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextFieldOld extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final double initialHeight;
@@ -17,7 +17,7 @@ class CustomTextField extends StatefulWidget {
   final double? customWidth;
   final bool isValidationRequired;
 
-  const CustomTextField({
+  const CustomTextFieldOld({
     Key? key,
     required this.controller,
     required this.labelText,
@@ -33,17 +33,133 @@ class CustomTextField extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  _CustomTextFieldStateOld createState() => _CustomTextFieldStateOld();
+}
+
+class _CustomTextFieldStateOld extends State<CustomTextFieldOld> {
+  late double fieldHeight;
+  String? errorMessage;
+
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    fieldHeight = widget.initialHeight;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double width = widget.customWidth ?? MediaQuery.of(context).size.width;
+
+    return Form(
+      key: _formKey,
+      child: SizedBox(
+        height: fieldHeight,
+        width: width,
+        child: TextFormField(
+          controller: widget.controller,
+          keyboardType: widget.inputType,
+          inputFormatters: widget.inputFormatters,
+          validator: widget.isValidationRequired
+              ? (value) {
+            if (value == null || value.isEmpty) {
+              setState(() {
+                fieldHeight = widget.errorHeight;
+                errorMessage = widget.validationMessage;
+              });
+              return errorMessage;
+            }
+            if (widget.validationPattern != null &&
+                !widget.validationPattern!.hasMatch(value)) {
+              setState(() {
+                fieldHeight = widget.errorHeight;
+                errorMessage = widget.patternErrorMessage;
+              });
+              return errorMessage;
+            }
+            setState(() {
+              fieldHeight = widget.initialHeight;
+              errorMessage = null;
+            });
+            return null;
+          }
+              : null,
+          onChanged: (value) {
+            if (widget.isValidationRequired) {
+              _formKey.currentState?.validate();
+            }
+          },
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+            errorStyle: const TextStyle(height: 0),
+            labelText: widget.labelText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            errorText: errorMessage,
+          ),
+        ),
+      ),
+    );
+  }
+}
+class CustomTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String labelText;
+  final double initialHeight;
+  final double errorHeight;
+  final String validationMessage;
+  final TextInputType inputType;
+  final List<TextInputFormatter>? inputFormatters;
+  final RegExp? validationPattern;
+  final String patternErrorMessage;
+  final double? customWidth;
+  final bool isValidationRequired;
+  final Function(VoidCallback)? registerTouchedCallback;
+
+  CustomTextField({
+    Key? key,
+    required this.controller,
+    required this.labelText,
+    this.initialHeight = 45,
+    this.errorHeight = 65,
+    this.validationMessage = 'Field is Required',
+    this.inputType = TextInputType.text,
+    this.inputFormatters,
+    this.validationPattern,
+    this.patternErrorMessage = 'Invalid input',
+    this.customWidth,
+    this.isValidationRequired = true,
+    this.registerTouchedCallback,
+  }) : assert(
+  !isValidationRequired || registerTouchedCallback != null,
+  'registerTouchedCallback must be provided when isValidationRequired is true',
+  ),
+        super(key: key);
+
+  @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
   late double fieldHeight;
   String? errorMessage;
+  bool _isTouched = false;
 
   @override
   void initState() {
     super.initState();
     fieldHeight = widget.initialHeight;
+    if (widget.isValidationRequired && widget.registerTouchedCallback != null) {
+      widget.registerTouchedCallback!(_markTouched); // Register the callback if required
+    }
+  }
+
+  void _markTouched() {
+    setState(() {
+      _isTouched = true;
+    });
   }
 
   @override
@@ -59,7 +175,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         inputFormatters: widget.inputFormatters,
         validator: widget.isValidationRequired
             ? (value) {
-          // Check if value is empty
+          if (!_isTouched) return null;
+
           if (value == null || value.isEmpty) {
             setState(() {
               fieldHeight = widget.errorHeight;
@@ -67,7 +184,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
             });
             return errorMessage;
           }
-          // Check if value matches the pattern
           if (widget.validationPattern != null &&
               !widget.validationPattern!.hasMatch(value)) {
             setState(() {
@@ -76,7 +192,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
             });
             return errorMessage;
           }
-          // Clear error and reset height
           setState(() {
             fieldHeight = widget.initialHeight;
             errorMessage = null;
@@ -84,19 +199,156 @@ class _CustomTextFieldState extends State<CustomTextField> {
           return null;
         }
             : null,
+        onChanged: (value) {
+          setState(() {
+            _isTouched = true;
+          });
+          if (widget.isValidationRequired) {
+            final isValid = widget.validationPattern?.hasMatch(value) ?? true;
+            setState(() {
+              if (value.isEmpty) {
+                fieldHeight = widget.errorHeight;
+                errorMessage = widget.validationMessage;
+              } else if (!isValid) {
+                fieldHeight = widget.errorHeight;
+                errorMessage = widget.patternErrorMessage;
+              } else {
+                fieldHeight = widget.initialHeight;
+                errorMessage = null;
+              }
+            });
+            Form.of(context)?.validate();
+          }
+        },
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
-          labelText: widget.labelText,
+          labelText:widget.isValidationRequired?"${widget.labelText}*":widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
           ),
-          errorText: errorMessage,
+          errorText: _isTouched ? errorMessage : null,
         ),
       ),
     );
   }
 }
+
+
+// class CustomTextField extends StatefulWidget {
+//   final TextEditingController controller;
+//   final String labelText;
+//   final double initialHeight;
+//   final double errorHeight;
+//   final String validationMessage;
+//   final TextInputType inputType;
+//   final List<TextInputFormatter>? inputFormatters;
+//   final RegExp? validationPattern;
+//   final String patternErrorMessage;
+//   final double? customWidth;
+//   final bool isValidationRequired;
+//
+//   const CustomTextField({
+//     Key? key,
+//     required this.controller,
+//     required this.labelText,
+//     this.initialHeight = 45,
+//     this.errorHeight = 65,
+//     this.validationMessage = 'Field is Required',
+//     this.inputType = TextInputType.text,
+//     this.inputFormatters,
+//     this.validationPattern,
+//     this.patternErrorMessage = 'Invalid input',
+//     this.customWidth,
+//     this.isValidationRequired = true,
+//   }) : super(key: key);
+//
+//   @override
+//   _CustomTextFieldState createState() => _CustomTextFieldState();
+// }
+//
+// class _CustomTextFieldState extends State<CustomTextField> {
+//   late double fieldHeight;
+//   String? errorMessage;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fieldHeight = widget.initialHeight;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     double width = widget.customWidth ?? MediaQuery.of(context).size.width;
+//
+//     return SizedBox(
+//       height: fieldHeight,
+//       width: width,
+//       child: TextFormField(
+//         controller: widget.controller,
+//         keyboardType: widget.inputType,
+//         inputFormatters: widget.inputFormatters,
+//         validator: widget.isValidationRequired
+//             ? (value) {
+//           if (value == null || value.isEmpty) {
+//             setState(() {
+//               fieldHeight = widget.errorHeight;
+//               errorMessage = widget.validationMessage;
+//             });
+//             return errorMessage;
+//           }
+//           if (widget.validationPattern != null &&
+//               !widget.validationPattern!.hasMatch(value)) {
+//             setState(() {
+//               fieldHeight = widget.errorHeight;
+//               errorMessage = widget.patternErrorMessage;
+//             });
+//             return errorMessage;
+//           }
+//           // Reset field height and error message if validation passes
+//           setState(() {
+//             fieldHeight = widget.initialHeight;
+//             errorMessage = null;
+//           });
+//           return null;
+//         }
+//             : null,
+//         onChanged: (value) {
+//           if (widget.isValidationRequired) {
+//             // Check validation on change
+//             final isValid = widget.validationPattern?.hasMatch(value) ?? true;
+//             setState(() {
+//               if (value.isEmpty) {
+//                 fieldHeight = widget.errorHeight;
+//                 errorMessage = widget.validationMessage;
+//               } else if (!isValid) {
+//                 fieldHeight = widget.errorHeight;
+//                 errorMessage = widget.patternErrorMessage;
+//               } else {
+//                 fieldHeight = widget.initialHeight;
+//                 errorMessage = null;
+//               }
+//             });
+//             // Revalidate the form to clear any previous errors
+//             Form.of(context)?.validate();
+//           }
+//         },
+//         decoration: InputDecoration(
+//           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+//           errorStyle: const TextStyle(height: 0), // Adjust error style if needed
+//           labelText: widget.labelText,
+//           border: OutlineInputBorder(
+//             borderRadius: BorderRadius.circular(4),
+//           ),
+//           errorText: errorMessage,
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
 
 
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -144,7 +396,7 @@ class CustomDatePicker extends StatefulWidget {
     required this.labelText,
     this.initialHeight = 45,
     this.errorHeight = 65,
-    this.validationMessage = 'Required',
+    this.validationMessage = 'Field is Required',
     this.customWidth,
     this.allowPastDates = true,
     this.allowFutureDates = true,
