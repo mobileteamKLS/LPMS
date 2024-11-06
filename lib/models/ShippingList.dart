@@ -14,7 +14,7 @@ class SlotBookingCreationExport {
   dynamic hsnCode;
   dynamic cargoValue;
   List<ShipmentDetailsExports> shipmentDetailsList;
-  List<VehicleDetailsImports> vehicalDetailsList;
+  List<VehicleDetailsExports> vehicalDetailsList;
   String chaName;
   int chaId;
   dynamic unitOfQt;
@@ -74,9 +74,9 @@ class SlotBookingCreationExport {
         shipmentDetailsList: List<ShipmentDetailsExports>.from(
             json["ShipmentDetailsList"]
                 .map((x) => ShipmentDetailsExports.fromJson(x))),
-        vehicalDetailsList: List<VehicleDetailsImports>.from(
+        vehicalDetailsList: List<VehicleDetailsExports>.from(
             json["VehicalDetailsList"]
-                .map((x) => VehicleDetailsImports.fromJson(x))),
+                .map((x) => VehicleDetailsExports.fromJson(x))),
         chaName: json["ChaName"],
         chaId: json["CHAId"],
         unitOfQt: json["UnitOfQt"],
@@ -161,7 +161,7 @@ class SlotBookingCreationImport {
   int bookingId;
   List<String> vehicleType;
   dynamic bookingDt;
-  String noofVehicle;
+  int noofVehicle;
   bool isFtl;
   bool isLtl;
   String origin;

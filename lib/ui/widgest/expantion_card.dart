@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'dart:io';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +15,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lpms/theme/app_color.dart';
-
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 import '../../api/auth.dart';
 import '../../models/ShippingList.dart';
 import '../../screens/AddShipmentDetailsExport.dart';
@@ -203,8 +209,6 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
     );
   }
 }
-
-
 
 class AddShipmentDetailsListNew extends StatefulWidget {
   final List<ShipmentDetailsExports> shipmentDetailsList;
@@ -426,7 +430,8 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                             onTap: () async {
                               if (isFTlAndOneShipment &&
                                   shipmentListExports.isNotEmpty) {
-                                CustomSnackBar.show(context, message: "Only 1 Shipment is Allowed");
+                                CustomSnackBar.show(context,
+                                    message: "Only 1 Shipment is Allowed");
                                 return;
                               } else {
                                 Navigator.push(
@@ -538,10 +543,12 @@ class AddVehicleDetailsListExportsNew extends StatefulWidget {
   });
 
   @override
-  _AddVehicleDetailsListExportsNew createState() => _AddVehicleDetailsListExportsNew();
+  _AddVehicleDetailsListExportsNew createState() =>
+      _AddVehicleDetailsListExportsNew();
 }
 
-class _AddVehicleDetailsListExportsNew extends State<AddVehicleDetailsListExportsNew> {
+class _AddVehicleDetailsListExportsNew
+    extends State<AddVehicleDetailsListExportsNew> {
   List<bool> expanded = [];
   bool isExpanded = false;
 
@@ -653,7 +660,7 @@ class _AddVehicleDetailsListExportsNew extends State<AddVehicleDetailsListExport
           children: [
             Container(
               padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
@@ -697,15 +704,18 @@ class _AddVehicleDetailsListExportsNew extends State<AddVehicleDetailsListExport
                                       1;
                               if (isFTlAndOneShipment &&
                                   vehicleListExports.length >= maxItems) {
-                                CustomSnackBar.show(context, message: "Only $maxItems Vehicle is Allowed");
+                                CustomSnackBar.show(context,
+                                    message:
+                                        "Only $maxItems Vehicle is Allowed");
                                 return;
                               } else if (!isFTlAndOneShipment &&
                                   vehicleListExports.isNotEmpty) {
-                                CustomSnackBar.show(context, message: "Only 1 Vehicle is Allowed");
+                                CustomSnackBar.show(context,
+                                    message: "Only 1 Vehicle is Allowed");
                                 return;
                               } else {
                                 final result =
-                                await widget.validateAndNavigate();
+                                    await widget.validateAndNavigate();
                                 if (result != null) {
                                   setState(() {
                                     widget.vehicleDetailsList.add(result);
@@ -767,7 +777,7 @@ class _AddVehicleDetailsListExportsNew extends State<AddVehicleDetailsListExport
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child:
-                          Text(widget.vehicleDetailsList.length.toString()),
+                              Text(widget.vehicleDetailsList.length.toString()),
                         ),
                       ),
                     ],
@@ -804,13 +814,29 @@ class VehicleItemExportsNew extends StatefulWidget {
 class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
   List<bool> expanded = [];
   String? fileName;
+  String? fileName2;
   String? fileSize;
+  String? fileSize2;
   final AuthService authService = AuthService();
   final TextEditingController docNameController = TextEditingController();
   final TextEditingController docRemarkController = TextEditingController();
-
+  late String _localPath;
+  late bool _permissionReady;
+  late TargetPlatform? targetPlatform;
   File? pickedFile;
   Uint8List? fileBytes;
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  Future<String> copyFileWithNewName(
+      PlatformFile file, String newFileName) async {
+    String originalFilePath = file.path!;
+    File originalFile = File(originalFilePath);
+    String newFilePath = path.join(path.dirname(originalFilePath), newFileName);
+    File newFile = await originalFile.copy(newFilePath);
+
+    print("New file created at: ${newFile.path}");
+    return newFile.path;
+  }
 
   Future<void> _pickFile(
       setState, VehicleDetailsExports vehicleDetails, String docType) async {
@@ -822,15 +848,33 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
     if (result != null) {
       PlatformFile file = result.files.first;
       String filePath = result.files.single.path!;
-      File file2 = File(filePath);
+      DateTime now = DateTime.now();
+      String formattedDateTime = DateFormat('yyyyMMddHHmmss').format(now);
+      String filePathWithoutExtension =
+          filePath.substring(0, filePath.lastIndexOf('.'));
+      String finalPath = "${filePathWithoutExtension}_$formattedDateTime.png";
+      print("---new path----$finalPath");
+      String reFileName = await copyFileWithNewName(file, finalPath);
+      File file2 = File(reFileName);
+      // copyFileWithNewName(file,finalPath);
       print("________$file2");
       if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
         setState(() {
-          fileName = file.name;
-          print(fileName);
-          fileBytes = result.files.single.bytes;
-          pickedFile = File(result.files.single.path!);
-          fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          if((docType == "RC UPLOAD")){
+            fileName = file.name;
+            print(fileName);
+            // fileBytes = result.files.single.bytes;
+            // pickedFile = File(result.files.single.path!);
+            fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          }
+          else{
+            fileName2 = file.name;
+            print(fileName2);
+            // fileBytes = result.files.single.bytes;
+            // pickedFile = File(result.files.single.path!);
+            fileSize2 = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          }
+
         });
       } else {
         setState(() {
@@ -838,14 +882,14 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           fileSize = null;
         });
       }
-      Upload(file2, vehicleDetails, fileName!, docType);
+      Upload(file2, vehicleDetails,docType == "RC UPLOAD"? fileName!:fileName2!, docType);
     } else {
       // User canceled the picker
     }
   }
 
-  Future<void> Upload(File file, VehicleDetailsExports vehicleDetails, String fileName,
-      String docType) async {
+  Future<void> Upload(File file, VehicleDetailsExports vehicleDetails,
+      String fileName, String docType) async {
     await Future.delayed(const Duration(seconds: 2));
     var headers = {
       'Accept': 'text/plain',
@@ -880,7 +924,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           ..filePath = jsonData["message"]
           ..documentPhysicalFileName = fileName
           ..remark = docRemarkController.text
-          ..documentName =fileName
+          ..documentName = fileName
           ..documentType = docType
           ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
 
@@ -977,12 +1021,12 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? const Text(
-                                        "File Format & Size :",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors
-                                                .textColorSecondary),
-                                      )
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
                                           : const Text(""),
                                     ),
                                     const SizedBox(
@@ -994,35 +1038,44 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? Text(
-                                        "PNG & $fileSize",
-                                        style: const TextStyle(
-                                            color: AppColors
-                                                .textColorPrimary,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700),
-                                      )
+                                              "PNG & $fileSize",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
                                           : const Text(""),
                                     ),
                                   ],
                                 ),
                                 fileName != null
-                                    ? Text(
-                                  " $fileName",
-                                  style: const TextStyle(
-                                      color: AppColors.textColorPrimary,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700),
-                                )
+                                    ? GestureDetector(
+                                      child: Text(
+                                          "$fileName",
+                                          style: const TextStyle(
+                                              decoration: TextDecoration.underline,
+                                              decorationStyle: TextDecorationStyle.solid,
+                                              decorationThickness: 2,
+                                              decorationColor: AppColors.primary,
+                                              color: AppColors.primary,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                  onTap: (){
+                                        fileDownload(fileName!,vehicleDetails.rcScanned!.filePath);
+                                  },
+                                    )
                                     : const Text(""),
                               ],
                             ),
                             const SizedBox(
-                              height: 10,
+                              height: 20,
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState, vehicleDetails,
-                                    "RC UPLOAD");
+                                _pickFile(
+                                    setState, vehicleDetails, "RC UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -1093,8 +1146,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
       },
     ).whenComplete(() {
       setState(() {
-        fileName = null;
-        fileSize = null;
+        // fileName = null;
+        // fileSize = null;
       });
     });
   }
@@ -1170,12 +1223,12 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? const Text(
-                                        "File Format & Size :",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors
-                                                .textColorSecondary),
-                                      )
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
                                           : const Text(""),
                                     ),
                                     const SizedBox(
@@ -1185,27 +1238,30 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize != null
+                                      child: fileSize2 != null
                                           ? Text(
-                                        "PNG & $fileSize",
-                                        style: const TextStyle(
-                                            color: AppColors
-                                                .textColorPrimary,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700),
-                                      )
+                                              "PNG & $fileSize2",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
                                           : const Text(""),
                                     ),
                                   ],
                                 ),
-                                fileName != null
+                                fileName2 != null
                                     ? Text(
-                                  " $fileName",
-                                  style: const TextStyle(
-                                      color: AppColors.textColorPrimary,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700),
-                                )
+                                        "$fileName2",
+                                        style: const TextStyle(
+                                            decoration: TextDecoration.underline,
+                                            decorationStyle: TextDecorationStyle.solid,
+                                            decorationThickness: 2,
+                                            color: AppColors.primary,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700),
+                                      )
                                     : const Text(""),
                               ],
                             ),
@@ -1214,8 +1270,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState,
-                                    vehicleDetails, "DL UPLOAD");
+                                _pickFile(
+                                    setState, vehicleDetails, "DL UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -1286,17 +1342,112 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
       },
     ).whenComplete(() {
       setState(() {
-        fileName = null;
-        fileSize = null;
+        // fileName = null;
+        // fileSize = null;
       });
     });
   }
 
+  Future<bool> _checkPermission() async {
+    if (targetPlatform == TargetPlatform.android) {
+      final status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+  Future<String?> findLocalPath() async {
+    if (targetPlatform == TargetPlatform.android) {
+      return "/storage/emulated/0/Download";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download';
+    }
+  }
+  Future<void> prepareSaveDir() async {
+    _localPath = (await findLocalPath())!;
+
+    print(_localPath);
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }
+  Future<void> showNotification(String filePath) async {
+    var androidDetails = const AndroidNotificationDetails(
+      'channelId',
+      'channelName',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    // var iosDetails = IOSNotificationDetails();
+
+    var platformDetails = NotificationDetails(
+      android: androidDetails,
+      // iOS: iosDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Download Complete',
+      'The file has been saved to $filePath',
+      platformDetails,
+    );
+  }
+  Future<void> fileDownload(String fileName,String filePath) async {
+    if (true) {
+      await prepareSaveDir();
+      print("Downloading");
+    }
+    try {
+      final response = await authService.downloadFileFromApi(
+          fileName: fileName,
+          filePath:
+          filePath,
+          folderUrl: "Upload/ImportFiles/",
+          downloadPath: _localPath);
+
+      print(response.statusCode);
+      if(response.statusCode==200){
+        print("noti");
+        showNotification(_localPath);
+      }
+    } catch (e) {
+      print("Download Failed.\n\n$e");
+    }
+  }
   @override
   void initState() {
     super.initState();
     expanded =
         List.generate(widget.vehicleDetailsList.length, (index) => false);
+    if (Platform.isAndroid) {
+      targetPlatform = TargetPlatform.android;
+    } else {
+      targetPlatform = TargetPlatform.iOS;
+    }
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid =
+    const AndroidInitializationSettings('@mipmap/ic_launcher');
+    // var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      // iOS: initializationSettingsIOS,
+    );
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    // fileDownload();
   }
 
   @override
@@ -1319,7 +1470,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           children: [
             Container(
               padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               color: Colors.white,
               child: Column(
                 children: [
@@ -1383,8 +1534,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => AddVehicleDetailsExports(
-                                          vehicleDetails: vehicleDetails),
+                                      builder: (context) =>
+                                          AddVehicleDetailsExports(
+                                              vehicleDetails: vehicleDetails),
                                     ),
                                   ).then((updateVehicle) {
                                     if (updateVehicle != null) {
@@ -1457,16 +1609,24 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                         Icons.account_box_outlined,
                                         size: 28,
-                                        color: AppColors.primary)),
-                                const Text(
+                                        color: (vehicleDetails.rcScanned?.filePath ??
+                                            "")
+                                            .isEmpty
+                                            ? AppColors.primary
+                                            : Colors.green)),
+                                Text(
                                   "Reg. Cert.",
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.primary,
-                                  ),
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                          (vehicleDetails.rcScanned?.filePath ??
+                                                      "")
+                                                  .isEmpty
+                                              ? AppColors.primary
+                                              : Colors.green),
                                 ),
                               ],
                             ),
@@ -1487,15 +1647,25 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                         Icons.account_box_outlined,
                                         size: 28,
-                                        color: AppColors.primary)),
-                                const Text(
+                                        color: (vehicleDetails
+                                            .drivingLicense?.filePath ??
+                                            "")
+                                            .isEmpty
+                                            ? AppColors.primary
+                                            : Colors.green,)),
+                                Text(
                                   "DL",
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                    color: (vehicleDetails
+                                                    .drivingLicense?.filePath ??
+                                                "")
+                                            .isEmpty
+                                        ? AppColors.primary
+                                        : Colors.green,
                                   ),
                                 ),
                               ],
@@ -1523,8 +1693,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     setState(() {
                                       widget.vehicleDetailsList[index] =
                                           updateVehicle;
-                                      print("View Date is${widget.vehicleDetailsList[index]
-                                              .slotViewDateTime}");
+                                      print(
+                                          "View Date is${widget.vehicleDetailsList[index].slotViewDateTime}");
                                     });
                                   }
                                 });
@@ -1548,7 +1718,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
               Container(
                 width: MediaQuery.sizeOf(context).width,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1589,7 +1759,6 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
     );
   }
 }
-
 
 //Imports
 
@@ -1815,7 +1984,8 @@ class _AddShipmentDetailsListImportsNew
                             onTap: () async {
                               if (isFTlAndOneShipment &&
                                   shipmentListImports.isNotEmpty) {
-                                CustomSnackBar.show(context, message: "Only 1 Shipment is Allowed");
+                                CustomSnackBar.show(context,
+                                    message: "Only 1 Shipment is Allowed");
                                 return;
                               } else {
                                 Navigator.push(
@@ -2226,7 +2396,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
           children: [
             Container(
               padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
@@ -2270,15 +2440,18 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                       1;
                               if (isFTlAndOneShipment &&
                                   vehicleListImports.length >= maxItems) {
-                                CustomSnackBar.show(context, message: "Only $maxItems Vehicle is Allowed");
+                                CustomSnackBar.show(context,
+                                    message:
+                                        "Only $maxItems Vehicle is Allowed");
                                 return;
                               } else if (!isFTlAndOneShipment &&
                                   vehicleListImports.isNotEmpty) {
-                                CustomSnackBar.show(context, message: "Only 1 Vehicle is Allowed");
+                                CustomSnackBar.show(context,
+                                    message: "Only 1 Vehicle is Allowed");
                                 return;
                               } else {
                                 final result =
-                                await widget.validateAndNavigate();
+                                    await widget.validateAndNavigate();
                                 if (result != null) {
                                   setState(() {
                                     widget.vehicleDetailsList.add(result);
@@ -2340,7 +2513,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child:
-                          Text(widget.vehicleDetailsList.length.toString()),
+                              Text(widget.vehicleDetailsList.length.toString()),
                         ),
                       ),
                     ],
@@ -2377,13 +2550,29 @@ class VehicleItemNew extends StatefulWidget {
 class _VehicleItemNewState extends State<VehicleItemNew> {
   List<bool> expanded = [];
   String? fileName;
+  String? fileName2;
   String? fileSize;
+  String? fileSize2;
   final AuthService authService = AuthService();
   final TextEditingController docNameController = TextEditingController();
   final TextEditingController docRemarkController = TextEditingController();
-
+  late String _localPath;
+  late bool _permissionReady;
+  late TargetPlatform? targetPlatform;
   File? pickedFile;
   Uint8List? fileBytes;
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  Future<String> copyFileWithNewName(
+      PlatformFile file, String newFileName) async {
+    String originalFilePath = file.path!;
+    File originalFile = File(originalFilePath);
+    String newFilePath = path.join(path.dirname(originalFilePath), newFileName);
+    File newFile = await originalFile.copy(newFilePath);
+
+    print("New file created at: ${newFile.path}");
+    return newFile.path;
+  }
 
   Future<void> _pickFile(
       setState, VehicleDetailsImports vehicleDetails, String docType) async {
@@ -2395,15 +2584,32 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
     if (result != null) {
       PlatformFile file = result.files.first;
       String filePath = result.files.single.path!;
-      File file2 = File(filePath);
+      DateTime now = DateTime.now();
+      String formattedDateTime = DateFormat('yyyyMMddHHmmss').format(now);
+      String filePathWithoutExtension =
+          filePath.substring(0, filePath.lastIndexOf('.'));
+      String finalPath = "${filePathWithoutExtension}_$formattedDateTime.png";
+      print("---new path----$finalPath");
+      String reFileName = await copyFileWithNewName(file, finalPath);
+      File file2 = File(reFileName);
+      // copyFileWithNewName(file,finalPath);
       print("________$file2");
       if (file.extension == 'png' && file.size <= 2 * 1024 * 1024) {
         setState(() {
-          fileName = file.name;
-          print(fileName);
-          fileBytes = result.files.single.bytes;
-          pickedFile = File(result.files.single.path!);
-          fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          if((docType == "RC UPLOAD")){
+            fileName = file.name;
+            print(fileName);
+            // fileBytes = result.files.single.bytes;
+            // pickedFile = File(result.files.single.path!);
+            fileSize = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          }
+          else{
+            fileName2 = file.name;
+            print(fileName);
+            // fileBytes = result.files.single.bytes;
+            // pickedFile = File(result.files.single.path!);
+            fileSize2 = '${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB';
+          }
         });
       } else {
         setState(() {
@@ -2411,14 +2617,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           fileSize = null;
         });
       }
-      Upload(file2, vehicleDetails, fileName!, docType);
+      Upload(file2, vehicleDetails, docType == "RC UPLOAD"? fileName!:fileName2!, docType);
     } else {
       // User canceled the picker
     }
   }
 
-  Future<void> Upload(File file, VehicleDetailsImports vehicleDetails, String fileName,
-      String docType) async {
+  Future<void> Upload(File file, VehicleDetailsImports vehicleDetails,
+      String fileName, String docType) async {
     await Future.delayed(const Duration(seconds: 2));
     var headers = {
       'Accept': 'text/plain',
@@ -2453,7 +2659,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           ..filePath = jsonData["message"]
           ..documentPhysicalFileName = fileName
           ..remark = docRemarkController.text
-          ..documentName =fileName
+          ..documentName = fileName
           ..documentType = docType
           ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
 
@@ -2550,12 +2756,12 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? const Text(
-                                        "File Format & Size :",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors
-                                                .textColorSecondary),
-                                      )
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
                                           : const Text(""),
                                     ),
                                     const SizedBox(
@@ -2567,35 +2773,44 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? Text(
-                                        "PNG & $fileSize",
-                                        style: const TextStyle(
-                                            color: AppColors
-                                                .textColorPrimary,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700),
-                                      )
+                                              "PNG & $fileSize",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
                                           : const Text(""),
                                     ),
                                   ],
                                 ),
                                 fileName != null
-                                    ? Text(
-                                  " $fileName",
-                                  style: const TextStyle(
-                                      color: AppColors.textColorPrimary,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700),
-                                )
+                                    ? GestureDetector(
+                                      child: Text(
+                                          "$fileName",
+                                          style: const TextStyle(
+                                              decoration: TextDecoration.underline,
+                                              decorationStyle: TextDecorationStyle.solid,
+                                              decorationColor: AppColors.primary,
+                                              decorationThickness: 2,
+                                              color: AppColors.primary,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                  onTap: (){
+                                    fileDownload(fileName!,vehicleDetails.rcScanned!.filePath);
+                                  },
+                                    )
                                     : const Text(""),
                               ],
                             ),
                             const SizedBox(
-                              height: 10,
+                              height: 20,
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState, vehicleDetails,
-                                    "RC UPLOAD");
+                                _pickFile(
+                                    setState, vehicleDetails, "RC UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -2666,8 +2881,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       },
     ).whenComplete(() {
       setState(() {
-        fileName = null;
-        fileSize = null;
+        // fileName = null;
+        // fileSize = null;
       });
     });
   }
@@ -2743,12 +2958,12 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       height: 45,
                                       child: fileSize != null
                                           ? const Text(
-                                        "File Format & Size :",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors
-                                                .textColorSecondary),
-                                      )
+                                              "File Format & Size :",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors
+                                                      .textColorSecondary),
+                                            )
                                           : const Text(""),
                                     ),
                                     const SizedBox(
@@ -2758,27 +2973,30 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize != null
+                                      child: fileSize2 != null
                                           ? Text(
-                                        "PNG & $fileSize",
-                                        style: const TextStyle(
-                                            color: AppColors
-                                                .textColorPrimary,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700),
-                                      )
+                                              "PNG & $fileSize2",
+                                              style: const TextStyle(
+                                                  color: AppColors
+                                                      .textColorPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                            )
                                           : const Text(""),
                                     ),
                                   ],
                                 ),
-                                fileName != null
+                                fileName2 != null
                                     ? Text(
-                                  " $fileName",
-                                  style: const TextStyle(
-                                      color: AppColors.textColorPrimary,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700),
-                                )
+                                        "$fileName2",
+                                        style: const TextStyle(
+                                            decoration: TextDecoration.underline,
+                                            decorationStyle: TextDecorationStyle.solid,
+                                            decorationThickness: 2,
+                                            color: AppColors.primary,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700),
+                                      )
                                     : const Text(""),
                               ],
                             ),
@@ -2787,8 +3005,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                _pickFile(setState,
-                                    vehicleDetails, "DL UPLOAD");
+                                _pickFile(
+                                    setState, vehicleDetails, "DL UPLOAD");
                               },
                               child: const Row(
                                 children: [
@@ -2859,10 +3077,90 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       },
     ).whenComplete(() {
       setState(() {
-        fileName = null;
-        fileSize = null;
+        // fileName = null;
+        // fileSize = null;
       });
     });
+  }
+
+  Future<bool> _checkPermission() async {
+    if (targetPlatform == TargetPlatform.android) {
+      final status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+  Future<String?> findLocalPath() async {
+    if (targetPlatform == TargetPlatform.android) {
+      return "/storage/emulated/0/Download";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download';
+    }
+  }
+  Future<void> prepareSaveDir() async {
+    _localPath = (await findLocalPath())!;
+
+    print(_localPath);
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }
+  Future<void> showNotification(String filePath) async {
+    var androidDetails = const AndroidNotificationDetails(
+      'channelId',
+      'channelName',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+
+    // var iosDetails = IOSNotificationDetails();
+
+    var platformDetails = NotificationDetails(
+      android: androidDetails,
+      // iOS: iosDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Download Complete',
+      'The file has been saved to $filePath',
+      platformDetails,
+    );
+  }
+  Future<void> fileDownload(String fileName,String filePath) async {
+    if (true) {
+      await prepareSaveDir();
+      print("Downloading");
+    }
+    try {
+      final response = await authService.downloadFileFromApi(
+          fileName: fileName,
+          filePath:
+          filePath,
+          folderUrl: "Upload/ImportFiles/",
+          downloadPath: _localPath);
+
+      print(response.statusCode);
+      if(response.statusCode==200){
+        print("noti");
+        showNotification(_localPath);
+      }
+    } catch (e) {
+      print("Download Failed.\n\n$e");
+    }
   }
 
   @override
@@ -2870,6 +3168,21 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
     super.initState();
     expanded =
         List.generate(widget.vehicleDetailsList.length, (index) => false);
+    if (Platform.isAndroid) {
+      targetPlatform = TargetPlatform.android;
+    } else {
+      targetPlatform = TargetPlatform.iOS;
+    }
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid =
+    const AndroidInitializationSettings('@mipmap/ic_launcher');
+    // var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      // iOS: initializationSettingsIOS,
+    );
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   @override
@@ -2885,14 +3198,13 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       itemCount: widget.vehicleDetailsList.length,
       itemBuilder: (BuildContext context, int index) {
         var vehicleDetails = widget.vehicleDetailsList[index];
-        print(
-            "${vehicleDetails.truckNo}-PM--${vehicleDetails.vehicleTypeId}");
+        print("${vehicleDetails.truckNo}-PM--${vehicleDetails.vehicleTypeId}");
 
         return Column(
           children: [
             Container(
               padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               color: Colors.white,
               child: Column(
                 children: [
@@ -2956,8 +3268,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => AddVehicleDetailsImports(
-                                          vehicleDetails: vehicleDetails),
+                                      builder: (context) =>
+                                          AddVehicleDetailsImports(
+                                              vehicleDetails: vehicleDetails),
                                     ),
                                   ).then((updateVehicle) {
                                     if (updateVehicle != null) {
@@ -3122,7 +3435,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
               Container(
                 width: MediaQuery.sizeOf(context).width,
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

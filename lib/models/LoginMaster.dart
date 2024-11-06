@@ -4,6 +4,7 @@ class LoginDetailsMaster {
   int adminOrgId;
   int userId;
   String branchCode;
+  String roleId;
   String branchName;
   String companyCode;
   int terminalId;
@@ -15,6 +16,7 @@ class LoginDetailsMaster {
     required this.adminOrgProdId,
     required this.adminOrgId,
     required this.userId,
+    required this.roleId,
     required this.branchCode,
     required this.branchName,
     required this.companyCode,
@@ -28,6 +30,7 @@ class LoginDetailsMaster {
     adminOrgProdId: json["Admin_OrgProdId"]??0,
     adminOrgId:json["Admin_OrgId"]??0,
     userId:json["UserId"]??0,
+    roleId:json["RoleId"]??"0",
     branchCode: json["BranchCode"]??"",
     branchName: json["BranchName"]??"",
     companyCode: json["CompanyCode"]??"",
@@ -41,6 +44,7 @@ class LoginDetailsMaster {
     "Admin_OrgProdId": adminOrgProdId,
     "Admin_OrgId":adminOrgId,
     "UserId":userId,
+    "RoleId":roleId,
     "BranchCode": branchCode,
     "BranchName": branchName,
     "CompanyCode": companyCode,

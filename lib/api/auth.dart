@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lpms/util/Uitlity.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import '../models/IPInfo.dart';
 import '../models/SelectionModel.dart';
@@ -42,12 +45,39 @@ class AuthService {
   Future<Post> fetchDataPOST(apiName, payload) async {
     var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
     debugPrint("fetch data for API = $newURL");
+    // final headers = {
+    //   'Content-Type': 'application/json',
+    //   'Accept': 'application/json',
+    //   'Authorization': 'Bearer ${loginMaster[0].token}',
+    // };
     final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
       'Authorization': 'Bearer ${loginMaster[0].token}',
-      // Use your token type (Bearer, Basic, etc.)
+      'Browser': 'Edge',
+      'CommunityAdminOrgId': '${loginMaster[0].adminOrgId}',
+      'Content-Type': 'application/json',
+      'IPAddress': ipInfo.ip,
+      'IPCity': ipInfo.city,
+      'IPCountry':ipInfo.country=="IN"? 'India':"",
+      'IPOrg': ipInfo.org,
+      'Offset': '1726062551',
+      'Priority': 'u=1, i',
+      'RoleId': loginMaster[0].roleId,
+      'ScreenId': 'null',
+      'ScreenName': 'null',
+      'Sec-CH-UA': '"Chromium";v="128", "Not;A=Brand";v="24", "Microsoft Edge";v="128"',
+      'Sec-CH-UA-Mobile': '?0',
+      'Sec-CH-UA-Platform': '"Windows"',
+      'Sec-Fetch-Dest': 'empty',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Site': 'cross-site',
+      'TZ': 'India Standard Time',
+      'UserId': '${loginMaster[0].userId}',
+      'Referer': 'http://localhost:4219/',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
     };
+
 
     if (payload == "") {
       debugPrint("payload blank");
@@ -214,6 +244,97 @@ class AuthService {
       throw Exception("Failed to send multipart request: $e");
     }
   }
+
+  Future<Post> downloadFileFromApi({
+    required String fileName,
+    required String filePath,
+    required String folderUrl,
+    required String downloadPath,
+  }) async {
+    const String apiUrl = 'https://acsintapigateway.kalelogistics.com/api/ReturnRootPath/Download/Download';
+
+    try {
+      final Map<String, dynamic> requestBody = {
+        'FileName': fileName,
+        'FilePath': filePath,
+        'FolderUrl': folderUrl,
+      };
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print('File download initiated successfully');
+        final Uint8List fileData = response.bodyBytes;
+        String fullPath = '$downloadPath/$fileName';
+        print('Saving file to $fullPath');
+        File file = File(fullPath);
+        await file.writeAsBytes(fileData);
+        return Post.fromJson(response.body, response.statusCode);
+      } else {
+        print('Failed to initiate file download. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return Post.fromJson(response.body, response.statusCode);
+      }
+    } catch (e) {
+      print('Error initiating file download: $e');
+      return Post(
+        statusCode: 500,
+        body: 'Error initiating file download: $e',
+      );
+    }
+  }
+
+
+  // Future<Post> downloadFileFromApi({
+  //   required String fileName,
+  //   required String filePath,
+  //   required String folderUrl,
+  //   required String downloadPath
+  // }) async {
+  //   const String apiUrl = 'https://acsintapigateway.kalelogistics.com/api/ReturnRootPath/Download/Download';
+  //
+  //   try {
+  //     final Map<String, dynamic> requestBody = {
+  //       'FileName': fileName,
+  //       'FilePath': filePath,
+  //       'FolderUrl': folderUrl,
+  //     };
+  //
+  //     final response = await http.post(
+  //       Uri.parse(apiUrl),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode(requestBody),
+  //     );
+  //     final int statusCode = response.statusCode;
+  //     if (statusCode == 401) {
+  //       return Post.fromJson(response.body, statusCode);
+  //     }
+  //     if (statusCode < 200 || statusCode > 400) {
+  //       return Post.fromJson(response.body, statusCode);
+  //     }
+  //     if (response.statusCode == 200) {
+  //       print('File download initiated successfully');
+  //       final Uint8List fileData = response.bodyBytes;
+  //
+  //       String filePath = '$downloadPath/${fileName}';
+  //       print(filePath);
+  //       File file = File(filePath);
+  //       await file.writeAsBytes(fileData);
+  //       return Post.fromJson(response.body, response.statusCode);
+  //     } else {
+  //       print('Failed to initiate file download. Status code: ${response.statusCode}');
+  //       print('Response body: ${response.body}');
+  //       return Post.fromJson(response.body, response.statusCode);
+  //     }
+  //   } catch (e) {
+  //     print('Error initiating file download: $e');
+  //   }
+  // }
+
 
   Future<Post> handleResponse(http.StreamedResponse response) async {
     final int statusCode = response.statusCode;

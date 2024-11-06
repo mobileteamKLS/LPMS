@@ -56,6 +56,17 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
       callback();
     }
   }
+  clearControllers(){
+    billNoController.clear();
+    billDateController.clear();
+    exporterNameController.clear();
+    hsnCodeController.clear();
+    cargoTypeController.clear();
+    cargoDescriptionController.clear();
+    valueController.clear();
+    qualityController.text="0";
+    weightController.text="0";
+  }
 
   @override
   void initState() {
@@ -109,6 +120,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     // });
 
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -180,13 +192,27 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Row(
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Shipment Details',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
+                        GestureDetector(
+                          child: const Row(
+                            children: [Icon(Icons.restart_alt_outlined, color: Colors.grey,),
+                              Text(
+                                'Clear',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal, fontSize: 18),
+                              ),],
+                          ),
+                          onTap: (){
+                            clearControllers();
+                          },
+                        )
                       ],
                     ),
                     const SizedBox(

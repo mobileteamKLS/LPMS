@@ -1061,11 +1061,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       CustomSnackBar.show(context, message: "Shipment Details are required");
       return;
     }
-    if (vehicleListImports.isEmpty) {
+    if (vehicleListExports.isEmpty) {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
-    for (var vehicleDetails in vehicleListImports) {
+    for (var vehicleDetails in vehicleListExports) {
 
       String? drivingLicenseError = vehicleDetails.validateDrivingLicense();
       if (drivingLicenseError != null) {
@@ -1081,12 +1081,12 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         return;
       }
 
-      String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
-      if (slotViewDateTimeError != "") {
-        CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}");
-        print("slotdt");
-        return;
-      }
+      // String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
+      // if (slotViewDateTimeError != "") {
+      //   CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}");
+      //   print("slotdt");
+      //   return;
+      // }
     }
 
     // setState(() {
@@ -1107,7 +1107,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       hsnCode: null,
       cargoValue: null,
       shipmentDetailsList: shipmentListExports,
-      vehicalDetailsList: vehicleListImports,
+      vehicalDetailsList: vehicleListExports,
       chaName: chaNameMaster,
       chaId: chaIdMaster,
       unitOfQt: null,
@@ -1135,7 +1135,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
-      CustomSnackBar.show(context, message: "Data saved successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+      CustomSnackBar.show(context, message: "Export Shipment Booking Created Successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
       Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ExportScreen()));
     }).catchError((onError) {
       setState(() {

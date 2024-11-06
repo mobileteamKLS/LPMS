@@ -158,7 +158,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       bookingId: 0,
       vehicleType: vehicleIdList,
       bookingDt: null,
-      noofVehicle: noOfVehiclesController.text,
+      noofVehicle: int.parse(noOfVehiclesController.text),
       isFtl: modeSelected == 0,
       isLtl: modeSelected == 1,
       origin: originMaster,
@@ -196,7 +196,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
-        CustomSnackBar.show(context, message: "Data saved successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+        CustomSnackBar.show(context, message: "Import Shipment Booking Created Successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
       Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
       // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
       //   setState(() {

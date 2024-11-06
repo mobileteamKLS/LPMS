@@ -57,6 +57,17 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
       callback();
     }
   }
+  clearControllers(){
+    billNoController.clear();
+    billDateController.clear();
+    exporterNameController.clear();
+    hsnCodeController.clear();
+    cargoTypeController.clear();
+    cargoDescriptionController.clear();
+    valueController.clear();
+    qualityController.text="0";
+    weightController.text="0";
+  }
   @override
   void initState() {
     super.initState();
@@ -174,13 +185,27 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Row(
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Shipment Details',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
+                        GestureDetector(
+                          child: const Row(
+                            children: [Icon(Icons.restart_alt_outlined, color: Colors.grey,),
+                              Text(
+                                'Clear',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal, fontSize: 18),
+                              ),],
+                          ),
+                          onTap: (){
+                            clearControllers();
+                          },
+                        )
                       ],
                     ),
                     const SizedBox(
@@ -381,7 +406,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Field is Required';
+                                      return ' Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -580,7 +605,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red,
+                                                  color: AppColors.errorRed,
                                                   fontSize: 12),
                                             ),
                                           ),
@@ -617,7 +642,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       setState(() {
                                         _textFieldHeight = 45;
                                       });
-                                      return '  Field is Required';
+                                      return ' Field is Required';
                                     }
                                     setState(() {
                                       _textFieldHeight =
@@ -704,7 +729,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             child: Text(
                                               formFieldState.errorText ?? '',
                                               style: const TextStyle(
-                                                  color: Colors.red,
+                                                color: AppColors.errorRed,
                                                   fontSize: 12),
                                             ),
                                           ),

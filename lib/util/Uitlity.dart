@@ -77,6 +77,7 @@ import 'Global.dart';
   }
   static clearMasterData(){
     vehicleListImports=[];
+    vehicleListExports=[];
     shipmentListExports=[];
     shipmentListImports=[];
     multiSelectController.clearAll();

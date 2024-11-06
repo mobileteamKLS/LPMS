@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isPasswordVisible = true;
   bool _rememberMe = false;
   String? _errorMessage;
-  late IpInfo ipInfo;
+
   late int key;
   bool isSwitched = false;
   final AuthService authService = AuthService();

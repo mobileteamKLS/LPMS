@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
+import '../models/IPInfo.dart';
 import '../models/LoginMaster.dart';
 import '../models/ShippingList.dart';
 import '../screens/BookingCreationExport.dart';
 
+
+late IpInfo ipInfo;
 List<LoginDetailsMaster> loginMaster = [];
 List<AllVehicleTypes> vehicleTypeList = [];
 List<CargoTypeExporterImporterAgent> cargoTypeList = [];

@@ -72,6 +72,17 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
 
   }
 
+  clearControllers(){
+    vehicleTypeController.clear();
+    vehicleNoController.clear();
+    driverLicenseNoController.clear();
+    driverDOBController.clear();
+    driverMobNoController.clear();
+    driverNameController.clear();
+    remarkController.clear();
+
+  }
+
   @override
   void dispose() {
     // vehicleTypeController.dispose();
@@ -149,13 +160,27 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Row(
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Vehicle Details',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
+                        GestureDetector(
+                          child: const Row(
+                            children: [Icon(Icons.restart_alt_outlined, color: Colors.grey,),
+                              Text(
+                                'Clear',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal, fontSize: 18),
+                              ),],
+                          ),
+                          onTap: (){
+                            clearControllers();
+                          },
+                        )
                       ],
                     ),
                     const SizedBox(

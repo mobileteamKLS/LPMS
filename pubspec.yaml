@@ -50,6 +50,9 @@ dependencies:
   expansion_tile_card: ^3.0.0
   flutter_typeahead: ^4.3.0
   file_picker: ^7.0.0
+  permission_handler: ^11.3.1
+  dio: ^5.7.0
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
