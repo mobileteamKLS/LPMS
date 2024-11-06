@@ -76,7 +76,7 @@ import 'Global.dart';
         .replaceAll(RegExp(r'\s+'), ' ');    // Replace multiple spaces with a single space
   }
   static clearMasterData(){
-    vehicleListExports=[];
+    vehicleListImports=[];
     shipmentListExports=[];
     shipmentListImports=[];
     multiSelectController.clearAll();

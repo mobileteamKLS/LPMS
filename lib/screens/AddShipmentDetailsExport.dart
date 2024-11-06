@@ -73,9 +73,9 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     cargoDescriptionController =
         TextEditingController(text: widget.shipment?.cargoDescription ?? '');
     qualityController =
-        TextEditingController(text: widget.shipment?.quantity.toString() ?? '');
+        TextEditingController(text: widget.shipment?.quantity.toString() ?? '0');
     weightController = TextEditingController(
-        text: widget.shipment?.cargoWeight.toString() ?? '');
+        text: widget.shipment?.cargoWeight.toString() ?? '0');
     valueController = TextEditingController(
         text: widget.shipment?.cargoValue.toString() ?? '');
     exporterId=widget.shipment?.exporterId??0;
@@ -734,7 +734,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                         .width *
                                         0.43,
                                     inputType: TextInputType.number,
-                                    isValidationRequired: false,
+                                    isValidationRequired: true,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                       LengthLimitingTextInputFormatter(10)
@@ -744,7 +744,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                   CustomTextField(
                                     controller: weightController,
                                     labelText: 'Cargo Weight',
-                                    isValidationRequired: false,
+                                    isValidationRequired: true,
                                     customWidth:
                                     MediaQuery
                                         .of(context)

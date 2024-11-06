@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/AddVehicleDetailsExport.dart';
+import 'package:lpms/screens/AddVehicleDetailsImport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
@@ -23,6 +23,7 @@ import '../theme/app_theme.dart';
 import '../ui/widgest/AutoSuggest.dart';
 import '../ui/widgest/expantion_card.dart';
 import '../util/Global.dart';
+import 'AddVehicleDetailsExport.dart';
 import 'Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
 import 'ExportDashboard.dart';
@@ -67,8 +68,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     }
     if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
       int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
-      if (vehicleListExports.length > maxItems) {
-        vehicleListExports = vehicleListExports.sublist(0, maxItems);
+      if (vehicleListImports.length > maxItems) {
+        vehicleListImports = vehicleListImports.sublist(0, maxItems);
       }
     }
   }
@@ -455,10 +456,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         setState(() {
                                           int maxItems =
                                               int.tryParse(value) ?? 1;
-                                          if (vehicleListExports.length >
+                                          if (vehicleListImports.length >
                                               maxItems) {
-                                            vehicleListExports =
-                                                vehicleListExports.sublist(
+                                            vehicleListImports =
+                                                vehicleListImports.sublist(
                                                     0, maxItems);
                                           }
                                         });
@@ -675,7 +676,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddVehicleDetailsListNew(
+                    AddVehicleDetailsListExportsNew(
                       vehicleDetailsList: vehicleListExports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: true,
@@ -849,11 +850,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       return await Navigator.push<VehicleDetailsExports>(
         context,
         MaterialPageRoute(
-          builder: (context) => const AddVehicleDetails(),
+          builder: (context) => const AddVehicleDetailsExports(),
         ),
       );
     } else {
-      // Return null if validation fails
+
       return null;
     }
   }
@@ -1040,7 +1041,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
   bool validateVehicleDetailsList() {
-    for (var obj in vehicleListExports) {
+    for (var obj in vehicleListImports) {
       if (obj.drivingLicense == null ||
           obj.rcScanned == null ||
           obj.slotViewDateTime.isEmpty) {
@@ -1051,7 +1052,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
     saveBookingDetailsExport() async {
-    if (shipmentListExports.isEmpty && vehicleListExports.isEmpty) {
+    if (shipmentListExports.isEmpty && vehicleListImports.isEmpty) {
       CustomSnackBar.show(context,
           message: "Shipment and Vehicle Details are required");
       return;
@@ -1060,11 +1061,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       CustomSnackBar.show(context, message: "Shipment Details are required");
       return;
     }
-    if (vehicleListExports.isEmpty) {
+    if (vehicleListImports.isEmpty) {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
-    for (var vehicleDetails in vehicleListExports) {
+    for (var vehicleDetails in vehicleListImports) {
 
       String? drivingLicenseError = vehicleDetails.validateDrivingLicense();
       if (drivingLicenseError != null) {
@@ -1106,7 +1107,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       hsnCode: null,
       cargoValue: null,
       shipmentDetailsList: shipmentListExports,
-      vehicalDetailsList: vehicleListExports,
+      vehicalDetailsList: vehicleListImports,
       chaName: chaNameMaster,
       chaId: chaIdMaster,
       unitOfQt: null,

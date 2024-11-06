@@ -14,7 +14,7 @@ class SlotBookingCreationExport {
   dynamic hsnCode;
   dynamic cargoValue;
   List<ShipmentDetailsExports> shipmentDetailsList;
-  List<VehicleDetailsExports> vehicalDetailsList;
+  List<VehicleDetailsImports> vehicalDetailsList;
   String chaName;
   int chaId;
   dynamic unitOfQt;
@@ -74,9 +74,9 @@ class SlotBookingCreationExport {
         shipmentDetailsList: List<ShipmentDetailsExports>.from(
             json["ShipmentDetailsList"]
                 .map((x) => ShipmentDetailsExports.fromJson(x))),
-        vehicalDetailsList: List<VehicleDetailsExports>.from(
+        vehicalDetailsList: List<VehicleDetailsImports>.from(
             json["VehicalDetailsList"]
-                .map((x) => VehicleDetailsExports.fromJson(x))),
+                .map((x) => VehicleDetailsImports.fromJson(x))),
         chaName: json["ChaName"],
         chaId: json["CHAId"],
         unitOfQt: json["UnitOfQt"],
@@ -169,7 +169,7 @@ class SlotBookingCreationImport {
   dynamic hsnCode;
   dynamic cargoValue;
   List<ShipmentDetailsImports> impBoeDetails;
-  List<VehicleDetailsExports> impVehicleDetails;
+  List<VehicleDetailsImports> impVehicleDetails;
   String chaName;
   String chaId;
   bool isYes;
@@ -230,7 +230,7 @@ class SlotBookingCreationImport {
     hsnCode: json["HSNCode"],
     cargoValue: json["CargoValue"],
     impBoeDetails: List<ShipmentDetailsImports>.from(json["ImpBOEDetails"].map((x) => ShipmentDetailsImports.fromJson(x))),
-    impVehicleDetails: List<VehicleDetailsExports>.from(json["ImpVehicleDetails"].map((x) => VehicleDetailsExports.fromJson(x))),
+    impVehicleDetails: List<VehicleDetailsImports>.from(json["ImpVehicleDetails"].map((x) => VehicleDetailsImports.fromJson(x))),
     chaName: json["ChaName"],
     chaId: json["CHAId"],
     isYes: json["IsYes"],
@@ -484,7 +484,7 @@ class ShipmentDetailsImports {
   String? grossWt;
   String? countryOrig;
   bool isUliPverified;
-  int whRequestId;
+  int? whRequestId;
   String? bookingId;
   String? portOfDest;
 
@@ -553,9 +553,9 @@ class ShipmentDetailsImports {
         "UnitOfQt": unitOfQt,
         "PortOfDest": portOfDest,
         "GrossWt": grossWt,
-        "CountryOrig": grossWt,
-        "WHRequestId": grossWt,
-        "BookingId": grossWt,
+        "CountryOrig": countryOrig,
+        "WHRequestId": grossWt??0,
+        "BookingId": bookingId,
         "IsULIPverified": isUliPverified,
       };
 }
@@ -618,9 +618,9 @@ class VehicleDetailsExports {
     this.isvehicleVerified=null,
     this.isDriverVerified =null,
   });
-      // : drivingLicense = drivingLicense ?? DrivingLicense(),
-      //   // Assign default DrivingLicense if null
-      //   rcScanned = rcScanned ?? DrivingLicense();
+  // : drivingLicense = drivingLicense ?? DrivingLicense(),
+  //   // Assign default DrivingLicense if null
+  //   rcScanned = rcScanned ?? DrivingLicense();
 
   factory VehicleDetailsExports.fromJson(Map<String, dynamic> json) =>
       VehicleDetailsExports(
@@ -654,6 +654,140 @@ class VehicleDetailsExports {
       );
 
   Map<String, dynamic> toJson() => {
+    "VehicleId": vehicleId,
+    "DriverAadhaar": driverAadhaar,
+    "DriverContact": driverContact,
+    "DriverDOB":DateFormat('d MMM yyyy').parse(driverDob).toIso8601String(),
+    "DriverName": driverName,
+    "DrivingLicenseNo": drivingLicenseNo,
+    "SlotDateTime": slotDateTime,
+    "TruckNo": truckNo,
+    "VehicleType": vehicleTypeId.toString(),
+    "SlotConfigId": slotConfigId,
+    "SlotDurationId": slotDurationId,
+    "SlotStartTime": slotStartTime,
+    "SlotEndTime": slotEndTime,
+    "DrivingLicense": drivingLicense?.toJson(),
+    "RCScanned": rcScanned?.toJson(),
+    "IsModifySlot": isModifySlot,
+    "IsNewSlot": isNewSlot,
+    "RemarksChassisNo": remarksChassisNo,
+    "IsGateIn": isGateIn,
+    "RegistrationDate": null,
+    "GrossWt": null,
+    "TareWt": null,
+    "NetWt": null,
+    "IsvehicleVerified": null,
+    "IsDriverVerified": null,
+  };
+
+  String? validateDrivingLicense() {
+    return drivingLicense == null ? 'Driving License is required for vehicle no' : null;
+  }
+
+  String? validateRcScanned() {
+    return rcScanned == null ? 'RC Scanned document is required for vehicle no' : null;
+  }
+
+  String validateSlotViewDateTime() {
+    return slotViewDateTime.isEmpty ? 'Slot DateTime is required for vehicle no' : "";
+  }
+}
+
+class VehicleDetailsImports {
+  int vehicleId;
+  String vehicleTypeName;
+  String? driverAadhaar;
+  String driverContact;
+  String driverDob;
+  String driverName;
+  String drivingLicenseNo;
+  String? slotDateTime;
+  String slotViewDateTime;
+  String truckNo;
+  int vehicleTypeId;
+  int? slotConfigId;
+  int? slotDurationId;
+  String? slotStartTime;
+  String? slotEndTime;
+  DrivingLicense? drivingLicense;
+  DrivingLicense? rcScanned;
+  bool isModifySlot;
+  bool isNewSlot;
+  String remarksChassisNo;
+  bool isGateIn;
+  // String? registrationDate;
+  // String? grossWt;
+  // String? tareWt;
+  // String? netWt;
+  // String? isvehicleVerified;
+  // String? isDriverVerified;
+
+  VehicleDetailsImports({
+    this.vehicleId = 0,
+    this.vehicleTypeName = "",
+    this.driverAadhaar,
+    required this.driverContact,
+    required this.driverDob,
+    required this.driverName,
+    required this.drivingLicenseNo,
+    this.slotDateTime,
+    this.slotViewDateTime = "",
+    required this.truckNo,
+    required this.vehicleTypeId,
+    this.slotConfigId ,
+    this.slotDurationId,
+    this.slotStartTime ,
+    this.slotEndTime,
+    DrivingLicense? drivingLicense,
+    DrivingLicense? rcScanned,
+    this.isModifySlot = false,
+    this.isNewSlot = true,
+    required this.remarksChassisNo,
+    this.isGateIn = true,
+    // this.registrationDate=null,
+    // this.grossWt=null ,
+    // this.tareWt=null,
+    // this.netWt =null,
+    // this.isvehicleVerified=null,
+    // this.isDriverVerified =null,
+  });
+      // : drivingLicense = drivingLicense ?? DrivingLicense(),
+      //   // Assign default DrivingLicense if null
+      //   rcScanned = rcScanned ?? DrivingLicense();
+
+  factory VehicleDetailsImports.fromJson(Map<String, dynamic> json) =>
+      VehicleDetailsImports(
+        vehicleId: json["VehicleId"],
+        driverAadhaar: json["DriverAadhaar"],
+        driverContact: json["DriverContact"],
+        driverDob: json["DriverDOB"],
+        driverName: json["DriverName"],
+        drivingLicenseNo: json["DrivingLicenseNo"],
+        slotDateTime: json["SlotDateTime"],
+        truckNo: json["TruckNo"],
+        vehicleTypeId: json["VehicleType"],
+        slotConfigId: json["SlotConfigId"],
+        slotDurationId: json["SlotDurationId"],
+        slotStartTime: json["SlotStartTime"],
+        slotEndTime: json["SlotEndTime"],
+        drivingLicense: json["DrivingLicense"] != null
+            ? DrivingLicense.fromJson(json["DrivingLicense"])
+            : null,
+        rcScanned: DrivingLicense.fromJson(json["RCScanned"]),
+        isModifySlot: json["IsModifySlot"],
+        isNewSlot: json["IsNewSlot"],
+        remarksChassisNo: json["RemarksChassisNo"],
+        isGateIn: json["IsGateIn"],
+        // registrationDate: json["RegistrationDate"],
+        // grossWt: json["GrossWt"],
+        // tareWt: json["TareWt"],
+        // netWt: json["NetWt"],
+        // isvehicleVerified: json["IsvehicleVerified"],
+        // isDriverVerified: json["IsDriverVerified"],
+      );
+
+  Map<String, dynamic> toJson() => {
         "VehicleId": vehicleId,
         "DriverAadhaar": driverAadhaar,
         "DriverContact": driverContact,
@@ -673,12 +807,12 @@ class VehicleDetailsExports {
         "IsNewSlot": isNewSlot,
         "RemarksChassisNo": remarksChassisNo,
         "IsGateIn": isGateIn,
-        "RegistrationDate": null,
-        "GrossWt": null,
-        "TareWt": null,
-        "NetWt": null,
-        "IsvehicleVerified": null,
-        "IsDriverVerified": null,
+        // "RegistrationDate": null,
+        // "GrossWt": null,
+        // "TareWt": null,
+        // "NetWt": null,
+        // "IsvehicleVerified": null,
+        // "IsDriverVerified": null,
       };
 
   String? validateDrivingLicense() {

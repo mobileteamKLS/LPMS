@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/AddVehicleDetailsExport.dart';
+import 'package:lpms/screens/AddVehicleDetailsImport.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -77,8 +77,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     }
     if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
       int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
-      if (vehicleListExports.length > maxItems) {
-        vehicleListExports = vehicleListExports.sublist(0, maxItems);
+      if (vehicleListImports.length > maxItems) {
+        vehicleListImports = vehicleListImports.sublist(0, maxItems);
       }
     }
   }
@@ -121,7 +121,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   }
 
   saveBookingDetailsImport() async {
-    if (shipmentListImports.isEmpty && vehicleListExports.isEmpty) {
+    if (shipmentListImports.isEmpty && vehicleListImports.isEmpty) {
       CustomSnackBar.show(context,
           message: "Shipment and Vehicle Details are required");
       return;
@@ -130,11 +130,11 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       CustomSnackBar.show(context, message: "Shipment Details are required");
       return;
     }
-    if (vehicleListExports.isEmpty) {
+    if (vehicleListImports.isEmpty) {
       CustomSnackBar.show(context, message: "Vehicle Details are required");
       return;
     }
-    if (int.parse(noOfVehiclesController.text) != vehicleListExports.length) {
+    if (int.parse(noOfVehiclesController.text) != vehicleListImports.length) {
       CustomSnackBar.show(context,
           message: "Shipment and Vehicle Details are required");
       return;
@@ -166,7 +166,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       hsnCode: null,
       cargoValue: null,
       impBoeDetails: shipmentListImports,
-      impVehicleDetails: vehicleListExports,
+      impVehicleDetails: vehicleListImports,
       chaName: chaNameMaster,
       chaId: chaIdMaster.toString(),
       orgProdId: loginMaster[0].adminOrgProdId,
@@ -247,12 +247,12 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     }
   }
 
-  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
+  Future<VehicleDetailsImports?> validateAndNavigateV2() async {
     if (_formKey.currentState!.validate()) {
-      return await Navigator.push<VehicleDetailsExports>(
+      return await Navigator.push<VehicleDetailsImports>(
         context,
         MaterialPageRoute(
-          builder: (context) => const AddVehicleDetails(),
+          builder: (context) => const AddVehicleDetailsImports(),
         ),
       );
     } else {
@@ -803,10 +803,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         setState(() {
                                           int maxItems =
                                               int.tryParse(value) ?? 1;
-                                          if (vehicleListExports.length >
+                                          if (vehicleListImports.length >
                                               maxItems) {
-                                            vehicleListExports =
-                                                vehicleListExports.sublist(
+                                            vehicleListImports =
+                                                vehicleListImports.sublist(
                                                     0, maxItems);
                                           }
                                         });
@@ -1042,7 +1042,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
                     AddVehicleDetailsListNew(
-                      vehicleDetailsList: vehicleListExports,
+                      vehicleDetailsList: vehicleListImports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: false,
                     ),

@@ -16,15 +16,15 @@ import '../util/Global.dart';
 import 'BookingCreationExport.dart';
 
 
-class AddVehicleDetailsExports extends StatefulWidget {
-  final VehicleDetailsExports? vehicleDetails;
-  const AddVehicleDetailsExports({super.key, this.vehicleDetails});
+class AddVehicleDetailsImports extends StatefulWidget {
+  final VehicleDetailsImports? vehicleDetails;
+  const AddVehicleDetailsImports({super.key, this.vehicleDetails});
 
   @override
-  State<AddVehicleDetailsExports> createState() => _AddVehicleDetailsExportsState();
+  State<AddVehicleDetailsImports> createState() => _AddVehicleDetailsImportsState();
 }
 
-class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
+class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
   final _formKey = GlobalKey<FormState>();
   late int vehicleTypeId;
   late TextEditingController vehicleTypeController = TextEditingController();
@@ -84,7 +84,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Imports',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
@@ -397,7 +397,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                                   children: [
 
                                                     Text(city.name
-                                                    ),
+                                                        ),
                                                   ],
                                                 ),
                                               );
@@ -558,7 +558,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                     onPressed: () {
                                       if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
-                                        final newVehicle = VehicleDetailsExports(
+                                        final newVehicle = VehicleDetailsImports(
                                           vehicleTypeId:  vehicleTypeId,
                                           vehicleTypeName: vehicleTypeController.text,
                                           truckNo: vehicleNoController.text,
@@ -570,7 +570,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
 
                                         );
                                         Navigator.pop(context,
-                                            newVehicle);
+                                            newVehicle); // Pass the object back
                                       }
                                     },
                                     child: const Text(
