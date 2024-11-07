@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Global.dart';
+import '../api/auth.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
@@ -46,6 +48,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
   int exporterId=0;
   int cargoTypeId=0;
+  final AuthService authService = AuthService();
   final List<VoidCallback> _markFieldsTouched = [];
   void _addMarkTouchedCallback(VoidCallback callback) {
     _markFieldsTouched.add(callback);
@@ -973,6 +976,44 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
         ),
       ),
     );
+  }
+
+  CheckDuplicateShipBillNoAndDate() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    var queryParams = {
+      "TerminalId": selectedTerminalId,
+      "IsImportShipment": false,
+    };
+    await authService
+        .postData(
+      "api_master/Airport/GetAirportOriginDestination",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+        setState(() {
+          originMaster = jsonData["Origin"];
+          destinationMaster = jsonData["Destination"];
+        });
+
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
   }
 }
 

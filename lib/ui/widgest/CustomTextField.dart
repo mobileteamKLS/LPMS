@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/theme/app_color.dart';
+import 'dart:async';
 
 class CustomTextFieldOld extends StatefulWidget {
   final TextEditingController controller;
@@ -104,6 +105,8 @@ class _CustomTextFieldStateOld extends State<CustomTextFieldOld> {
     );
   }
 }
+
+
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
@@ -117,6 +120,7 @@ class CustomTextField extends StatefulWidget {
   final double? customWidth;
   final bool isValidationRequired;
   final Function(VoidCallback)? registerTouchedCallback;
+  final Function(String)? onApiCall;
 
   CustomTextField({
     Key? key,
@@ -132,6 +136,7 @@ class CustomTextField extends StatefulWidget {
     this.customWidth,
     this.isValidationRequired = true,
     this.registerTouchedCallback,
+    this.onApiCall,
   }) : assert(
   !isValidationRequired || registerTouchedCallback != null,
   'registerTouchedCallback must be provided when isValidationRequired is true',
@@ -146,6 +151,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   late double fieldHeight;
   String? errorMessage;
   bool _isTouched = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -159,6 +165,42 @@ class _CustomTextFieldState extends State<CustomTextField> {
   void _markTouched() {
     setState(() {
       _isTouched = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    setState(() {
+      _isTouched = true;
+    });
+
+    if (widget.isValidationRequired) {
+      final isValid = widget.validationPattern?.hasMatch(value) ?? true;
+      setState(() {
+        if (value.isEmpty) {
+          fieldHeight = widget.errorHeight;
+          errorMessage = widget.validationMessage;
+        } else if (!isValid) {
+          fieldHeight = widget.errorHeight;
+          errorMessage = widget.patternErrorMessage;
+        } else {
+          fieldHeight = widget.initialHeight;
+          errorMessage = null;
+        }
+      });
+      Form.of(context)?.validate();
+    }
+
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (widget.onApiCall != null) {
+        widget.onApiCall!(value);
+      }
     });
   }
 
@@ -199,31 +241,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
           return null;
         }
             : null,
-        onChanged: (value) {
-          setState(() {
-            _isTouched = true;
-          });
-          if (widget.isValidationRequired) {
-            final isValid = widget.validationPattern?.hasMatch(value) ?? true;
-            setState(() {
-              if (value.isEmpty) {
-                fieldHeight = widget.errorHeight;
-                errorMessage = widget.validationMessage;
-              } else if (!isValid) {
-                fieldHeight = widget.errorHeight;
-                errorMessage = widget.patternErrorMessage;
-              } else {
-                fieldHeight = widget.initialHeight;
-                errorMessage = null;
-              }
-            });
-            Form.of(context)?.validate();
-          }
-        },
+        onChanged: _onChanged,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
-          labelText:widget.isValidationRequired?"${widget.labelText}*":widget.labelText,
+          labelText: widget.isValidationRequired ? "${widget.labelText}*" : widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
           ),
@@ -233,6 +255,137 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
+
+
+// class CustomTextField extends StatefulWidget {
+//   final TextEditingController controller;
+//   final String labelText;
+//   final double initialHeight;
+//   final double errorHeight;
+//   final String validationMessage;
+//   final TextInputType inputType;
+//   final List<TextInputFormatter>? inputFormatters;
+//   final RegExp? validationPattern;
+//   final String patternErrorMessage;
+//   final double? customWidth;
+//   final bool isValidationRequired;
+//   final Function(VoidCallback)? registerTouchedCallback;
+//
+//   CustomTextField({
+//     Key? key,
+//     required this.controller,
+//     required this.labelText,
+//     this.initialHeight = 45,
+//     this.errorHeight = 65,
+//     this.validationMessage = 'Field is Required',
+//     this.inputType = TextInputType.text,
+//     this.inputFormatters,
+//     this.validationPattern,
+//     this.patternErrorMessage = 'Invalid input',
+//     this.customWidth,
+//     this.isValidationRequired = true,
+//     this.registerTouchedCallback,
+//   }) : assert(
+//   !isValidationRequired || registerTouchedCallback != null,
+//   'registerTouchedCallback must be provided when isValidationRequired is true',
+//   ),
+//         super(key: key);
+//
+//   @override
+//   _CustomTextFieldState createState() => _CustomTextFieldState();
+// }
+//
+// class _CustomTextFieldState extends State<CustomTextField> {
+//   late double fieldHeight;
+//   String? errorMessage;
+//   bool _isTouched = false;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fieldHeight = widget.initialHeight;
+//     if (widget.isValidationRequired && widget.registerTouchedCallback != null) {
+//       widget.registerTouchedCallback!(_markTouched); // Register the callback if required
+//     }
+//   }
+//
+//   void _markTouched() {
+//     setState(() {
+//       _isTouched = true;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     double width = widget.customWidth ?? MediaQuery.of(context).size.width;
+//
+//     return SizedBox(
+//       height: fieldHeight,
+//       width: width,
+//       child: TextFormField(
+//         controller: widget.controller,
+//         keyboardType: widget.inputType,
+//         inputFormatters: widget.inputFormatters,
+//         validator: widget.isValidationRequired
+//             ? (value) {
+//           if (!_isTouched) return null;
+//
+//           if (value == null || value.isEmpty) {
+//             setState(() {
+//               fieldHeight = widget.errorHeight;
+//               errorMessage = widget.validationMessage;
+//             });
+//             return errorMessage;
+//           }
+//           if (widget.validationPattern != null &&
+//               !widget.validationPattern!.hasMatch(value)) {
+//             setState(() {
+//               fieldHeight = widget.errorHeight;
+//               errorMessage = widget.patternErrorMessage;
+//             });
+//             return errorMessage;
+//           }
+//           setState(() {
+//             fieldHeight = widget.initialHeight;
+//             errorMessage = null;
+//           });
+//           return null;
+//         }
+//             : null,
+//         onChanged: (value) {
+//           setState(() {
+//             _isTouched = true;
+//           });
+//           if (widget.isValidationRequired) {
+//             final isValid = widget.validationPattern?.hasMatch(value) ?? true;
+//             setState(() {
+//               if (value.isEmpty) {
+//                 fieldHeight = widget.errorHeight;
+//                 errorMessage = widget.validationMessage;
+//               } else if (!isValid) {
+//                 fieldHeight = widget.errorHeight;
+//                 errorMessage = widget.patternErrorMessage;
+//               } else {
+//                 fieldHeight = widget.initialHeight;
+//                 errorMessage = null;
+//               }
+//             });
+//             Form.of(context)?.validate();
+//           }
+//         },
+//         decoration: InputDecoration(
+//           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+//           errorStyle: const TextStyle(height: 0),
+//           labelText:widget.isValidationRequired?"${widget.labelText}*":widget.labelText,
+//           border: OutlineInputBorder(
+//             borderRadius: BorderRadius.circular(4),
+//           ),
+//           errorText: _isTouched ? errorMessage : null,
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
 // class CustomTextField extends StatefulWidget {

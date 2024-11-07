@@ -926,7 +926,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           ..remark = docRemarkController.text
           ..documentName = fileName
           ..documentType = docType
-          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
+          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+          ..documentDescription = docNameController.text;
 
         setState(() {
           if (docType == "RC UPLOAD") {
@@ -958,8 +959,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
+              padding: MediaQuery.of(context).viewInsets,//const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
                 height: 400,
                 width: double.infinity,
                 child: Column(
@@ -1116,6 +1118,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
+                                  fileName=null;
+                                  fileSize=null;
+                                  vehicleDetails.rcScanned=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -1126,6 +1131,10 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.rcScanned?.documentDescription=docNameController.text;
+                                    vehicleDetails.rcScanned?.remark=docRemarkController.text;
+                                    docNameController.clear();
+                                    docRemarkController.clear();
                                     Navigator.pop(context);
                                   },
                                   child: const Text(
@@ -1163,8 +1172,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
                 height: 400,
                 width: double.infinity,
                 child: Column(
@@ -1312,6 +1322,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
+                                  fileName2=null;
+                                  fileSize2=null;
+                                  vehicleDetails.drivingLicense=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -1322,6 +1335,10 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.drivingLicense?.documentDescription=docNameController.text;
+                                    vehicleDetails.drivingLicense?.remark=docRemarkController.text;
+                                    docNameController.clear();
+                                    docRemarkController.clear();
                                     Navigator.pop(context);
                                   },
                                   child: const Text(
@@ -2661,7 +2678,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           ..remark = docRemarkController.text
           ..documentName = fileName
           ..documentType = docType
-          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144;
+          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+          ..documentDescription = docNameController.text;
 
         setState(() {
           if (docType == "RC UPLOAD") {
@@ -2693,8 +2711,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
                 height: 400,
                 width: double.infinity,
                 child: Column(
@@ -2851,6 +2870,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
+                                  fileName=null;
+                                  fileSize=null;
+                                  vehicleDetails.rcScanned=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -2861,6 +2883,10 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.rcScanned?.documentDescription=docNameController.text;
+                                    vehicleDetails.rcScanned?.remark=docRemarkController.text;
+                                    docNameController.clear();
+                                    docRemarkController.clear();
                                     Navigator.pop(context);
                                   },
                                   child: const Text(
@@ -2898,8 +2924,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
                 height: 400,
                 width: double.infinity,
                 child: Column(
@@ -3047,6 +3074,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
+                                  fileName2=null;
+                                  fileSize2=null;
+                                  vehicleDetails.drivingLicense=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -3057,6 +3087,10 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.drivingLicense?.documentDescription=docNameController.text;
+                                    vehicleDetails.drivingLicense?.remark=docRemarkController.text;
+                                    docNameController.clear();
+                                    docRemarkController.clear();
                                     Navigator.pop(context);
                                   },
                                   child: const Text(

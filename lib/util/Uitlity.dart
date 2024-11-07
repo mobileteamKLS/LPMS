@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_color.dart';
 import 'Global.dart';
  class Utils{
-
+   static bool _isDialogShowing = false;
   static Icon getStatusIcon(String status) {
     switch (status) {
       case 'GATED-IN':
@@ -82,6 +82,41 @@ import 'Global.dart';
     shipmentListImports=[];
     multiSelectController.clearAll();
   }
+
+   static void showLoadingDialog(BuildContext context, {String? message}) {
+     if (!_isDialogShowing) {
+       _isDialogShowing = true;
+       showDialog(
+         context: context,
+         barrierDismissible: false,
+         builder: (BuildContext context) {
+           return Center(
+             child: Column(
+               mainAxisSize: MainAxisSize.min,
+               children: [
+                 const CircularProgressIndicator(color: AppColors.primary),
+                 if (message != null)
+                   const Padding(
+                     padding: EdgeInsets.only(top: 20),
+                     child: Text("Loading...",
+                       style: TextStyle(color: Colors.white),
+
+                     ),
+                   ),
+               ],
+             ),
+           );
+         },
+       );
+     }
+   }
+
+   static void hideLoadingDialog(BuildContext context) {
+     if (_isDialogShowing) {
+       _isDialogShowing = false;
+       Navigator.of(context, rootNavigator: true).pop();
+     }
+   }
 
   // static void printLongString(String text) {
   //   const int chunkSize = 1000;
