@@ -64,7 +64,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
     hsnCodeController.clear();
     cargoTypeController.clear();
     cargoDescriptionController.clear();
-    valueController.clear();
+    valueController.text="0";
     qualityController.text="0";
     weightController.text="0";
   }
@@ -88,7 +88,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
     weightController = TextEditingController(
         text: widget.shipment?.cargoWeight.toString() ?? '0');
     valueController = TextEditingController(
-        text: widget.shipment?.cargoValue.toString() ?? '');
+        text: widget.shipment?.cargoValue.toString() ?? '0');
     importerId = widget.shipment?.importerId ?? 0;
     cargoTypeId = widget.shipment?.cargoTypeId ?? 0;
     print("isExport shp: ${widget.isExport}");
@@ -384,7 +384,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                 controller: billDateController,
                                 labelText: widget.isExport
                                     ? 'Shipping Bill Date'
-                                    : "BOE Date",
+                                    : "BOE Date*",
                                 allowFutureDates: false,
                                 initialHeight: 45,
                                 errorHeight: 65,
@@ -445,7 +445,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                       border:
                                                           OutlineInputBorder(),
                                                       labelText:
-                                                          'Name of Exporter',
+                                                          'Name of Exporter*',
                                                     ),
                                                   ),
                                                   suggestionsCallback:
@@ -533,7 +533,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                       border:
                                                           OutlineInputBorder(),
                                                       labelText:
-                                                          'Name of Importer',
+                                                          'Name of Importer*',
                                                     ),
                                                   ),
                                                   suggestionsCallback:
@@ -674,7 +674,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                                         vertical: 12.0,
                                                         horizontal: 10.0),
                                                 border: OutlineInputBorder(),
-                                                labelText: 'Cargo Type',
+                                                labelText: 'Cargo Type*',
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -798,12 +798,13 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                               CustomTextField(
                                 controller: valueController,
                                 labelText: "Cargo Value",
+                                isValidationRequired: false,
                                 inputType: TextInputType.number,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
-                                registerTouchedCallback: _addMarkTouchedCallback,
+
                               ),
                             ],
                           ),

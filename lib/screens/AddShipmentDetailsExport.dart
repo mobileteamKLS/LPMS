@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Global.dart';
+import 'package:lpms/util/Uitlity.dart';
 import '../api/auth.dart';
 import '../models/ShippingList.dart';
 import '../theme/app_color.dart';
@@ -66,7 +68,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     hsnCodeController.clear();
     cargoTypeController.clear();
     cargoDescriptionController.clear();
-    valueController.clear();
+    valueController.text="0";
     qualityController.text="0";
     weightController.text="0";
   }
@@ -91,7 +93,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     weightController = TextEditingController(
         text: widget.shipment?.cargoWeight.toString() ?? '0');
     valueController = TextEditingController(
-        text: widget.shipment?.cargoValue.toString() ?? '');
+        text: widget.shipment?.cargoValue.toString() ?? '0');
     exporterId=widget.shipment?.exporterId??0;
     cargoTypeId=widget.shipment?.cargoTypeId??0;
     print("isExport shp: ${widget.isExport}");
@@ -384,6 +386,9 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                   LengthLimitingTextInputFormatter(15)
                                 ],
                                 registerTouchedCallback: _addMarkTouchedCallback,
+                                // onApiCall: (v){
+                                //   checkDuplicateShipBillNoAndDate();
+                                // },
                               ),
 
                               SizedBox(
@@ -395,12 +400,12 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               CustomDatePicker(
                                 controller: billDateController,
                                 labelText: widget.isExport
-                                    ? 'Shipping Bill Date'
+                                    ? 'Shipping Bill Date*'
                                     : "BOE Date",
                                 allowFutureDates: false,
                                 initialHeight: 45,
                                 errorHeight: 65,
-
+                                // onDatePicked: onDatePicked(),
                               ),
                               SizedBox(
                                 height:
@@ -455,7 +460,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                     vertical: 12.0,
                                                     horizontal: 10.0),
                                                 border: OutlineInputBorder(),
-                                                labelText: 'Name of Exporter',
+                                                labelText: 'Name of Exporter*',
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -664,7 +669,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                     vertical: 12.0,
                                                     horizontal: 10.0),
                                                 border: OutlineInputBorder(),
-                                                labelText: 'Cargo Type',
+                                                labelText: 'Cargo Type*',
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -806,12 +811,13 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               CustomTextField(
                                 controller: valueController,
                                 labelText: "Cargo Value",
+                                isValidationRequired: false,
                                 inputType: TextInputType.number,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
-                                registerTouchedCallback: _addMarkTouchedCallback,
+
                               ),
                             ],
                           ),
@@ -880,8 +886,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               .text),
                                           cargoWeight: int.parse(
                                               weightController.text),
-                                          cargoValue: int.parse(valueController
-                                              .text),
+                                          cargoValue: valueController.text,
                                           cargoTypeId: cargoTypeId,
                                           chaName: chaNameMaster,
                                           typeOfGoods: null,
@@ -977,41 +982,41 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
       ),
     );
   }
+   onDatePicked() {
+    checkDuplicateShipBillNoAndDate();
+  }
 
-  CheckDuplicateShipBillNoAndDate() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await Future.delayed(const Duration(seconds: 2));
-    var queryParams = {
-      "TerminalId": selectedTerminalId,
-      "IsImportShipment": false,
+  checkDuplicateShipBillNoAndDate() async {
+    if(billNoController.text.isEmpty){
+
+      return;
+    }
+    if(billDateController.text.isEmpty){
+      return;
+    }
+    Utils.showLoadingDialog(context);
+    var queryParams ={
+      "SBillNo":billNoController.text,
+      "SBillDt": DateFormat('d MMM yyyy').parse(billDateController.text).toIso8601String(),
+      "DetailId": "0"
     };
     await authService
         .postData(
-      "api_master/Airport/GetAirportOriginDestination",
+      "api_pcs/ShipmentMaster/CheckDuplicateShipBillNoAndDate",
       queryParams,
     )
         .then((response) {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
-      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
-        setState(() {
-          originMaster = jsonData["Origin"];
-          destinationMaster = jsonData["Destination"];
-        });
+      print(jsonData["ResponseMessage"]);
+      if (jsonData["ResponseMessage"] =="msg15") {
 
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        CustomSnackBar.show(context, message: "No Data Found");
-        Navigator.pop(context);
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "Shipping bill no already exists.");
       }
+      Utils.hideLoadingDialog(context);
     }).catchError((onError) {
-      setState(() {
-        _isLoading = false;
-      });
+      Utils.hideLoadingDialog(context);
       print(onError);
     });
   }

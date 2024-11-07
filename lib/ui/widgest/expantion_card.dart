@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:lpms/util/Uitlity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
@@ -458,10 +459,10 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(
+                              child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: AppColors.primary,
+                                color:(isFTlAndOneShipment && shipmentListExports.isNotEmpty)?Colors.grey: AppColors.primary,
                               ),
                             ),
                           ),
@@ -728,10 +729,11 @@ class _AddVehicleDetailsListExportsNew
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(
+                              child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: AppColors.primary,
+                                color: (!isFTlAndOneShipment &&
+                                    vehicleListExports.isNotEmpty)?Colors.grey:AppColors.primary,
                               ),
                             ),
                           ),
@@ -882,6 +884,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           fileSize = null;
         });
       }
+      Utils.showLoadingDialog(context);
       Upload(file2, vehicleDetails,docType == "RC UPLOAD"? fileName!:fileName2!, docType);
     } else {
       // User canceled the picker
@@ -896,6 +899,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
       'Content-Type': 'multipart/form-data',
       'Authorization': 'Bearer ${loginMaster[0].token}',
     };
+
     try {
       final response = await authService.uploadFile(
         headers: headers,
@@ -935,13 +939,16 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
           } else {
             vehicleDetails.drivingLicense = document;
           }
-
           print("Document uploaded for: $docType");
         });
+        Utils.hideLoadingDialog(context);
+        CustomSnackBarTop.show(context, message: "Document uploaded successfully",backgroundColor: AppColors.successColor);
       } else {
         print("Response is empty");
+        Utils.hideLoadingDialog(context);
       }
     } catch (error) {
+      Utils.hideLoadingDialog(context);
       print("Error: $error");
     } finally {
       setState(() {});
@@ -1072,7 +1079,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               ],
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 30,
                             ),
                             GestureDetector(
                               onTap: () {
@@ -1231,7 +1238,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize != null
+                                      child: fileSize2 != null
                                           ? const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
@@ -1268,6 +1275,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                             decoration: TextDecoration.underline,
                                             decorationStyle: TextDecorationStyle.solid,
                                             decorationThickness: 2,
+                                            decorationColor: AppColors.primary,
                                             color: AppColors.primary,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700),
@@ -1276,7 +1284,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               ],
                             ),
                             const SizedBox(
-                              height: 10,
+                              height: 30,
                             ),
                             GestureDetector(
                               onTap: () {
@@ -1633,7 +1641,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                             "")
                                             .isEmpty
                                             ? AppColors.primary
-                                            : Colors.green)),
+                                            : AppColors.successColor)),
                                 Text(
                                   "Reg. Cert.",
                                   style: TextStyle(
@@ -1643,7 +1651,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                                       "")
                                                   .isEmpty
                                               ? AppColors.primary
-                                              : Colors.green),
+                                              : AppColors.successColor),
                                 ),
                               ],
                             ),
@@ -1672,7 +1680,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                             "")
                                             .isEmpty
                                             ? AppColors.primary
-                                            : Colors.green,)),
+                                            : AppColors.successColor,)),
                                 Text(
                                   "DL",
                                   style: TextStyle(
@@ -1682,7 +1690,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                                 "")
                                             .isEmpty
                                         ? AppColors.primary
-                                        : Colors.green,
+                                        : AppColors.successColor,
                                   ),
                                 ),
                               ],
@@ -2030,10 +2038,11 @@ class _AddShipmentDetailsListImportsNew
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(
+                              child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: AppColors.primary,
+                                color: (isFTlAndOneShipment &&
+                                    shipmentListImports.isNotEmpty)?Colors.grey:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2481,10 +2490,11 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(
+                              child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: AppColors.primary,
+                                color: (!isFTlAndOneShipment &&
+                                    vehicleListImports.isNotEmpty)?Colors.grey:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2634,6 +2644,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
           fileSize = null;
         });
       }
+      Utils.showLoadingDialog(context);
       Upload(file2, vehicleDetails, docType == "RC UPLOAD"? fileName!:fileName2!, docType);
     } else {
       // User canceled the picker
@@ -2648,6 +2659,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       'Content-Type': 'multipart/form-data',
       'Authorization': 'Bearer ${loginMaster[0].token}',
     };
+
     try {
       final response = await authService.uploadFile(
         headers: headers,
@@ -2690,10 +2702,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
           print("Document uploaded for: $docType");
         });
+        Utils.hideLoadingDialog(context);
+        CustomSnackBarTop.show(context, message: "Document uploaded successfully",backgroundColor: AppColors.successColor);
       } else {
+        Utils.hideLoadingDialog(context);
         print("Response is empty");
       }
     } catch (error) {
+      Utils.hideLoadingDialog(context);
       print("Error: $error");
     } finally {
       setState(() {});
@@ -2824,7 +2840,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               ],
                             ),
                             const SizedBox(
-                              height: 20,
+                              height: 30,
                             ),
                             GestureDetector(
                               onTap: () {
@@ -2983,7 +2999,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize != null
+                                      child: fileSize2 != null
                                           ? const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
@@ -3028,7 +3044,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               ],
                             ),
                             const SizedBox(
-                              height: 10,
+                              height: 30,
                             ),
                             GestureDetector(
                               onTap: () {

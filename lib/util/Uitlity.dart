@@ -71,9 +71,9 @@ import 'Global.dart';
 
   static String normalizeString(String input) {
     return input
-        .toLowerCase()                      // Convert to lowercase
-        .trim()                              // Remove leading and trailing spaces
-        .replaceAll(RegExp(r'\s+'), ' ');    // Replace multiple spaces with a single space
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
   static clearMasterData(){
     vehicleListImports=[];

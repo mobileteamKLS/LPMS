@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lpms/screens/ExportDashboard.dart';
 
 import 'package:lpms/theme/app_color.dart';
+import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/auth.dart';
@@ -124,39 +125,7 @@ class _LoginPageState extends State<LoginPage> {
             headers)
         .then((response) {
       if (response.body.isEmpty) {
-        final snackBar = SnackBar(
-          content: Container(
-            height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            margin:   EdgeInsets.symmetric(horizontal: 48),
-            decoration: const BoxDecoration(
-              color: Colors.red, // Background color for the snackbar content
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.info, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(' Invalid Login Details ', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-                SizedBox(width: 8),
-                GestureDetector(
-                  child: const Icon(Icons.close, color: Colors.white),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  },
-                ),
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating, // Makes it float
-          backgroundColor: Colors.transparent, // Make background transparent to avoid default background
-          elevation: 0, // Remove shadow
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        CustomSnackBar.show(context, message: "Invalid Login Details",backgroundColor: Colors.red);
         return;
       }
       final Map<String, dynamic> jsonData = json.decode(response.body);
@@ -225,40 +194,7 @@ class _LoginPageState extends State<LoginPage> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       if (jsonData["Key"] == null) {
-        final snackBar = SnackBar(
-          content: Container(
-            height: 40,
-
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            margin:   EdgeInsets.symmetric(horizontal: 48),
-            decoration: const BoxDecoration(
-              color: Colors.red, // Background color for the snackbar content
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.info, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(' Invalid Login Details ', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-                SizedBox(width: 8),
-                GestureDetector(
-                  child: const Icon(Icons.close, color: Colors.white),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  },
-                ),
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating, // Makes it float
-          backgroundColor: Colors.transparent, // Make background transparent to avoid default background
-          elevation: 0, // Remove shadow
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        CustomSnackBar.show(context, message: "Invalid Login Details",backgroundColor: Colors.red);
         setState(() {
           _isLoading = false;
         });

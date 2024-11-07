@@ -531,16 +531,17 @@ class DecimalTextInputFormatter extends TextInputFormatter {
 
 class CustomDatePicker extends StatefulWidget {
   final TextEditingController controller;
-  final TextEditingController? otherDateController; // For comparison
+  final TextEditingController? otherDateController;
   final String labelText;
   final double initialHeight;
   final double errorHeight;
   final String validationMessage;
   final double? customWidth;
   final bool allowPastDates;
-  final bool allowFutureDates; // New parameter to allow/disallow future dates
+  final bool allowFutureDates;
   final bool isRequiredField;
   final bool isFromDate;
+  final VoidCallback? onDatePicked;
 
   const CustomDatePicker({
     Key? key,
@@ -555,12 +556,12 @@ class CustomDatePicker extends StatefulWidget {
     this.allowFutureDates = true,
     this.isRequiredField = true,
     this.isFromDate = false,
+    this.onDatePicked,
   }) : super(key: key);
 
   @override
   _CustomDatePickerState createState() => _CustomDatePickerState();
 }
-
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
   late double fieldHeight;
@@ -574,50 +575,17 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    FocusScope.of(context).unfocus();
     DateTime currentDate = DateTime.now();
-    DateTime initialDate;
-
-    if (widget.controller.text.isNotEmpty) {
-
-      try {
-        initialDate = DateFormat('d MMM yyyy').parse(widget.controller.text);
-      } catch (e) {
-        initialDate = currentDate;
-      }
-    } else {
-
-      if (_isFirstCall && widget.isFromDate) {
-        initialDate = currentDate.subtract(const Duration(days: 2));
-        _isFirstCall = false;
-      } else {
-        initialDate = currentDate;
-      }
-    }
+    DateTime initialDate = _getInitialDate(currentDate);
 
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: widget.allowPastDates ? DateTime(2000) : currentDate,
-      lastDate: widget.allowFutureDates ? DateTime(2100) : currentDate, // Control future dates based on new parameter
+      lastDate: widget.allowFutureDates ? DateTime(2100) : currentDate,
       builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData(
-            useMaterial3: false,
-            primaryColor: AppColors.primary,
-            dialogBackgroundColor: Colors.white,
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primary,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-              ),
-            ),
-          ),
-          child: child!,
-        );
+        return _datePickerTheme(child);
       },
     );
 
@@ -625,9 +593,49 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       String formattedDate = DateFormat('d MMM yyyy').format(pickedDate);
       widget.controller.text = formattedDate;
       _validateDate(pickedDate, context);
+
+      // Call the API via the callback after date is picked and validated
+      if (widget.onDatePicked != null) {
+        widget.onDatePicked!();
+      }
     }
   }
 
+  DateTime _getInitialDate(DateTime currentDate) {
+    if (widget.controller.text.isNotEmpty) {
+      try {
+        return DateFormat('d MMM yyyy').parse(widget.controller.text);
+      } catch (e) {
+        return currentDate;
+      }
+    }
+    if (_isFirstCall && widget.isFromDate) {
+      _isFirstCall = false;
+      return currentDate.subtract(const Duration(days: 2));
+    }
+    return currentDate;
+  }
+
+  Widget _datePickerTheme(Widget? child) {
+    return Theme(
+      data: ThemeData(
+        useMaterial3: false,
+        primaryColor: AppColors.primary,
+        dialogBackgroundColor: Colors.white,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primary,
+          onPrimary: Colors.white,
+          onSurface: Colors.black,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+          ),
+        ),
+      ),
+      child: child!,
+    );
+  }
 
   void _validateDate(DateTime selectedDate, BuildContext context) {
     if (widget.otherDateController != null &&
@@ -656,33 +664,31 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    // Display the SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: SizedBox(
-            height: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.info, color: Colors.white),
-                    Text('  $message'),
-                  ],
-                ),
-                GestureDetector(
-                  child: const Icon(Icons.close, color: Colors.white),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  },
-                ),
-              ],
-            ),
+      SnackBar(
+        content: SizedBox(
+          height: 20,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.info, color: Colors.white),
+                  Text('  $message'),
+                ],
+              ),
+              GestureDetector(
+                child: const Icon(Icons.close, color: Colors.white),
+                onTap: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+              ),
+            ],
           ),
-          backgroundColor: AppColors.warningColor,
-          behavior: SnackBarBehavior.floating,
-
-        )
+        ),
+        backgroundColor: AppColors.warningColor,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -719,8 +725,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
           ),
           suffixIcon: IconButton(
             onPressed: () => _selectDate(context),
-            icon: const Icon(Icons.calendar_today,
-                color: AppColors.primary),
+            icon: const Icon(Icons.calendar_today, color: AppColors.primary),
           ),
         ),
         readOnly: true, // Prevent manual text input
@@ -729,16 +734,16 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   }
 }
 
+
 class CustomSnackBar {
   static void show(
       BuildContext context, {
         required String message,
-        Color backgroundColor = Colors.amber,
+        Color backgroundColor =AppColors.warningColor,
         IconData? leftIcon = Icons.info, // Optional left icon
       }) {
     final snackBar = SnackBar(
       content: SizedBox(
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -768,8 +773,63 @@ class CustomSnackBar {
           ],
         ),
       ),
+      // margin: EdgeInsets.only(
+      //     bottom: MediaQuery.of(context).size.height - 225,
+      //     left: 10,
+      //     right: 10),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+class CustomSnackBarTop {
+  static void show(
+      BuildContext context, {
+        required String message,
+        Color backgroundColor = AppColors.warningColor,
+        IconData? leftIcon = Icons.info, // Optional left icon
+      }) {
+    final snackBar = SnackBar(
+      content: SizedBox(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Row(
+                children: [
+                  if (leftIcon != null) // Only display icon if provided
+                    Icon(leftIcon, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: 2, // Set max lines for better control
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              child: const Icon(Icons.close, color: Colors.white),
+              onTap: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ],
+        ),
+      ),
+      margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height - 225,
+          left: 10,
+          right: 10),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(milliseconds: 1500),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

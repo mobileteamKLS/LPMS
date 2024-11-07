@@ -121,24 +121,27 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   }
 
   saveBookingDetailsImport() async {
-    if (shipmentListImports.isEmpty && vehicleListImports.isEmpty) {
-      CustomSnackBar.show(context,
-          message: "Shipment and Vehicle Details are required");
-      return;
-    }
+    // if (shipmentListImports.isEmpty && vehicleListImports.isEmpty) {
+    //   CustomSnackBar.show(context,
+    //       message: "Shipment and Vehicle Details are required");
+    //   return;
+    // }
     if (shipmentListImports.isEmpty) {
-      CustomSnackBar.show(context, message: "Shipment Details are required");
+      CustomSnackBar.show(context, message: "Please add details for remaining shipments.");
       return;
     }
-    if (vehicleListImports.isEmpty) {
-      CustomSnackBar.show(context, message: "Vehicle Details are required");
-      return;
+    // if (vehicleListImports.isEmpty) {
+    //   CustomSnackBar.show(context, message: "Vehicle Details are required");
+    //   return;
+    // }
+    if (vehicleListImports.isNotEmpty){
+      if (int.parse(noOfVehiclesController.text) != vehicleListImports.length) {
+        CustomSnackBar.show(context,
+            message: "Please add details for remaining vehicles.");
+        return;
+      }
     }
-    if (int.parse(noOfVehiclesController.text) != vehicleListImports.length) {
-      CustomSnackBar.show(context,
-          message: "Shipment and Vehicle Details are required");
-      return;
-    }
+
 
     // for (var vehicleDetails in vehicleListExports) {
     //   String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
@@ -186,7 +189,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     );
     Map<String, dynamic> payload = bookingCreationImport.toJson();
     Utils.printPayload(payload);
-
+    Utils.showLoadingDialog(context);
     await authService
         .postData(
       "api_pcs/ImpShipment/UpSert",
@@ -196,7 +199,13 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
-        CustomSnackBar.show(context, message: "Import Shipment Booking Created Successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+      if (jsonData["ResponseMessage"] =="msg15") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "BOE no already exists.");
+        return;
+      }
+      Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "Import Shipment Booking Created Successfully",backgroundColor: AppColors.successColor,leftIcon: Icons.check_circle);
       Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
       // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
       //   setState(() {
@@ -213,7 +222,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       // }
     }).catchError((onError) {
       setState(() {
-        _isLoading = false;
+        Utils.hideLoadingDialog(context);
       });
       print(onError);
     });
@@ -711,7 +720,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         spacing: 4,
                                       ),
                                       fieldDecoration: FieldDecoration(
-                                        hintText: 'Types of Vehicles',
+                                        hintText: 'Types of Vehicles*',
                                         errorBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(4),
@@ -758,7 +767,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                           DropdownItemDecoration(
                                         selectedIcon: const Icon(
                                             Icons.check_box,
-                                            color: Colors.green),
+                                            color: AppColors.successColor),
                                         disabledIcon: Icon(Icons.lock,
                                             color: Colors.grey.shade300),
                                       ),
@@ -928,7 +937,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                                             color: AppColors
                                                                 .errorRed),
                                                   ),
-                                                  labelText: 'CHA Name',
+                                                  labelText: 'CHA Name*',
                                                   labelStyle: formFieldState
                                                           .hasError
                                                       ? const TextStyle(

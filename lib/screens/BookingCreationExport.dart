@@ -68,8 +68,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     }
     if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
       int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
-      if (vehicleListImports.length > maxItems) {
-        vehicleListImports = vehicleListImports.sublist(0, maxItems);
+      if (vehicleListExports.length > maxItems) {
+        vehicleListExports = vehicleListExports.sublist(0, maxItems);
       }
     }
   }
@@ -364,7 +364,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         spacing: 4,
                                       ),
                                       fieldDecoration: FieldDecoration(
-                                        hintText: 'Types of Vehicles',
+                                        hintText: 'Types of Vehicles*',
                                         errorBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(4),
@@ -411,7 +411,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           DropdownItemDecoration(
                                         selectedIcon: const Icon(
                                             Icons.check_box,
-                                            color: Colors.green),
+                                            color: AppColors.successColor),
                                         disabledIcon: Icon(Icons.lock,
                                             color: Colors.grey.shade300),
                                       ),
@@ -456,10 +456,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         setState(() {
                                           int maxItems =
                                               int.tryParse(value) ?? 1;
-                                          if (vehicleListImports.length >
+                                          if (vehicleListExports.length >
                                               maxItems) {
-                                            vehicleListImports =
-                                                vehicleListImports.sublist(
+                                            vehicleListExports =
+                                                vehicleListExports.sublist(
                                                     0, maxItems);
                                           }
                                         });
@@ -581,7 +581,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               decoration: InputDecoration(
                                                 contentPadding: const EdgeInsets.symmetric(
                                                     vertical: 12.0, horizontal: 10.0),
-                                                labelText: 'CHA Name',
+                                                labelText: 'CHA Name*',
                                                 labelStyle: TextStyle(
                                                   color: formFieldState.hasError
                                                       ? AppColors.errorRed
@@ -1041,7 +1041,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
   bool validateVehicleDetailsList() {
-    for (var obj in vehicleListImports) {
+    for (var obj in vehicleListExports) {
       if (obj.drivingLicense == null ||
           obj.rcScanned == null ||
           obj.slotViewDateTime.isEmpty) {
@@ -1052,21 +1052,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
     saveBookingDetailsExport() async {
-    if (shipmentListExports.isEmpty && vehicleListImports.isEmpty) {
-      CustomSnackBar.show(context,
-          message: "Shipment and Vehicle Details are required");
-      return;
-    }
+    // if (shipmentListExports.isEmpty && vehicleListExports.isEmpty) {
+    //   CustomSnackBar.show(context,
+    //       message: "Shipment and Vehicle Details are required");
+    //   return;
+    // }
     if (shipmentListExports.isEmpty) {
-      CustomSnackBar.show(context, message: "Shipment Details are required");
+      CustomSnackBar.show(context, message: "Please add details for remaining shipments.");
       return;
     }
-    if (vehicleListExports.isEmpty) {
-      CustomSnackBar.show(context, message: "Vehicle Details are required");
-      return;
-    }
+    // if (vehicleListExports.isEmpty) {
+    //   CustomSnackBar.show(context, message: "Vehicle Details are required");
+    //   return;
+    // }
     for (var vehicleDetails in vehicleListExports) {
-
       String? drivingLicenseError = vehicleDetails.validateDrivingLicense();
       if (drivingLicenseError != null) {
         CustomSnackBar.show(context, message: "$drivingLicenseError ${vehicleDetails.truckNo}");
@@ -1080,6 +1079,14 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         print("rc");
         return;
       }
+      if (vehicleListExports.isNotEmpty){
+        if (int.parse(noOfVehiclesController.text) != vehicleListExports.length) {
+          CustomSnackBar.show(context,
+              message: "Please add details for remaining vehicles.");
+          return;
+        }
+      }
+
 
       // String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
       // if (slotViewDateTimeError != "") {
@@ -1092,6 +1099,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     // setState(() {
     //   _isLoading = true;
     // });
+
+    Utils.showLoadingDialog(context);
     List<String> vehicleIdList =
         selectedVehicleList.map((vehicle) => vehicle.id).toList();
 
@@ -1135,7 +1144,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print("data received ");
       Map<String, dynamic> jsonData = json.decode(response.body);
       print(jsonData);
-      CustomSnackBar.show(context, message: "Export Shipment Booking Created Successfully",backgroundColor: Colors.green,leftIcon: Icons.check_circle);
+      if (jsonData["ResponseMessage"] =="msg15") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "Shipping bill no already exists.");
+        return;
+      }
+      Utils.hideLoadingDialog(context);
+      CustomSnackBar.show(context, message: "Export Shipment Booking Created Successfully",backgroundColor: AppColors.successColor,leftIcon: Icons.check_circle);
       Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ExportScreen()));
     }).catchError((onError) {
       setState(() {

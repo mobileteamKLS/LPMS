@@ -277,38 +277,7 @@ class _ImportScreenState extends State<ImportScreen> {
                             onTap: () {
                               if (filteredList.isEmpty &&
                                   listShipmentDetails.isEmpty) {
-                                final snackBar = SnackBar(
-                                  content: SizedBox(
-                                    height: 20,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Row(
-                                          children: [
-                                            Icon(Icons.info,
-                                                color: Colors.white),
-                                            Text('  No Data Found'),
-                                          ],
-                                        ),
-                                        GestureDetector(
-                                          child: const Icon(Icons.close,
-                                              color: Colors.white),
-                                          onTap: () {
-                                            ScaffoldMessenger.of(context)
-                                                .hideCurrentSnackBar();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  backgroundColor: AppColors.warningColor,
-                                  behavior: SnackBarBehavior.floating,
-                                  width: 200,
-                                );
-
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
+                                CustomSnackBar.show(context, message: "No Data Found");
                                 return;
                               }
                               if (filteredList.isNotEmpty) {

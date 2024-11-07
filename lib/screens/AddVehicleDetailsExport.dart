@@ -516,11 +516,12 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 controller: driverMobNoController,
                                 labelText: "Driver Mobile No.",
                                 inputType: TextInputType.phone,
+                                isValidationRequired: false,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(10)
                                 ],
-                                registerTouchedCallback: _addMarkTouchedCallback,
+
                               ),
                               SizedBox(
                                 height:
@@ -581,6 +582,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                   MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
+                                      _markAllFieldsTouched();
                                       if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
                                         final newVehicle = VehicleDetailsExports(

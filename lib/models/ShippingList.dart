@@ -395,7 +395,7 @@ class ShipmentDetailsExports {
   String shippingBillDateIgm;
   String? typeOfGoods;
   String hsnCode;
-  int cargoValue;
+  dynamic cargoValue;
   int exporterId;
   String? unitOfQt;
   String? portOfDest;
@@ -571,7 +571,7 @@ class VehicleDetailsExports {
   String slotDateTime;
   String slotViewDateTime;
   String truckNo;
-  int vehicleTypeId;
+  int? vehicleTypeId;
   int? slotConfigId;
   int? slotDurationId;
   String? slotStartTime;
@@ -682,11 +682,11 @@ class VehicleDetailsExports {
   };
 
   String? validateDrivingLicense() {
-    return drivingLicense == null ? 'Driving License is required for vehicle no' : null;
+    return drivingLicense == null ? 'Please Upload Driving License Document for vehicle no' : null;
   }
 
   String? validateRcScanned() {
-    return rcScanned == null ? 'RC Scanned document is required for vehicle no' : null;
+    return rcScanned == null ? 'Please Upload Registration Certificate Document for vehicle no' : null;
   }
 
   String validateSlotViewDateTime() {
@@ -705,7 +705,7 @@ class VehicleDetailsImports {
   String? slotDateTime;
   String slotViewDateTime;
   String truckNo;
-  int vehicleTypeId;
+  int? vehicleTypeId;
   int? slotConfigId;
   int? slotDurationId;
   String? slotStartTime;
@@ -816,7 +816,7 @@ class VehicleDetailsImports {
       };
 
   String? validateDrivingLicense() {
-    return drivingLicense == null ? 'Driving License is required for vehicle no' : null;
+    return drivingLicense == null ? 'Driving License document is required for vehicle no' : null;
   }
 
   String? validateRcScanned() {

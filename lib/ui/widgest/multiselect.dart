@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:multi_dropdown/multi_dropdown.dart';
 
+import '../../theme/app_color.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -102,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         dropdownItemDecoration: DropdownItemDecoration(
                           selectedIcon:
-                          const Icon(Icons.check_box, color: Colors.green),
+                           const Icon(Icons.check_box, color: AppColors.successColor),
                           disabledIcon:
                           Icon(Icons.lock, color: Colors.grey.shade300),
                         ),
