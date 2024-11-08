@@ -493,6 +493,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 labelText: "Driver DOB",
                                 allowPastDates: true,
                                 allowFutureDates: false,
+                                isRequiredField: false,
                               ),
                               SizedBox(
                                 height:

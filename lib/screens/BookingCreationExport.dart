@@ -72,6 +72,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         vehicleListExports = vehicleListExports.sublist(0, maxItems);
       }
     }
+    Utils.clearMasterDataForToggle();
   }
 
   @override
@@ -351,7 +352,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                 children: [
                                   SizedBox(
                                     width:
-                                        MediaQuery.sizeOf(context).width * 0.87,
+                                        MediaQuery.sizeOf(context).width * 0.88,
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
@@ -425,7 +426,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         return null;
                                       },
                                       onSelectionChange: (selectedItems) {
-                                        // Your selection logic here
+                                        print("Selection changed");
                                       },
                                     ),
                                   ),
@@ -463,17 +464,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                     0, maxItems);
                                           }
                                         });
-                                        // Utils.keepFirstNElements(vehicleTypeList,int.parse(noOfVehiclesController.text));
-                                        // if(int.parse(noOfVehiclesController.text)>1 || modeSelected==0){
-                                        //   setState(() {
-                                        //     isFTlAndOneShipment=true;
-                                        //   });
-                                        // }
-                                        // else{
-                                        //   setState(() {
-                                        //     isFTlAndOneShipment=false;
-                                        //   });
-                                        // }
+
                                       },
                                       // Disable based on switch state
                                       decoration: InputDecoration(
@@ -1058,7 +1049,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     //   return;
     // }
     if (shipmentListExports.isEmpty) {
-      CustomSnackBar.show(context, message: "Please add details for remaining shipments.");
+      CustomSnackBar.show(context, message: "Please fill up Shipment Details.");
       return;
     }
     // if (vehicleListExports.isEmpty) {

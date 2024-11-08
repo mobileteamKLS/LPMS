@@ -82,6 +82,13 @@ import 'Global.dart';
     shipmentListImports=[];
     multiSelectController.clearAll();
   }
+  static clearMasterDataForToggle(){
+    vehicleListImports=[];
+    vehicleListExports=[];
+    shipmentListExports=[];
+    shipmentListImports=[];
+    // multiSelectController.clearAll();
+  }
 
    static void showLoadingDialog(BuildContext context, {String? message}) {
      if (!_isDialogShowing) {

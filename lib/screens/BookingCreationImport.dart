@@ -81,6 +81,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         vehicleListImports = vehicleListImports.sublist(0, maxItems);
       }
     }
+    Utils.clearMasterDataForToggle();
   }
 
   getOriginDestination() async {
@@ -127,7 +128,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     //   return;
     // }
     if (shipmentListImports.isEmpty) {
-      CustomSnackBar.show(context, message: "Please add details for remaining shipments.");
+      CustomSnackBar.show(context, message: "Please fill up Shipment Details.");
       return;
     }
     // if (vehicleListImports.isEmpty) {

@@ -565,7 +565,7 @@ class VehicleDetailsExports {
   String vehicleTypeName;
   String? driverAadhaar;
   String driverContact;
-  String driverDob;
+  String? driverDob;
   String driverName;
   String drivingLicenseNo;
   String slotDateTime;
@@ -657,7 +657,9 @@ class VehicleDetailsExports {
     "VehicleId": vehicleId,
     "DriverAadhaar": driverAadhaar,
     "DriverContact": driverContact,
-    "DriverDOB":DateFormat('d MMM yyyy').parse(driverDob).toIso8601String(),
+    "DriverDOB":(driverDob != null && driverDob!.isNotEmpty)
+        ? DateFormat('d MMM yyyy').parse(driverDob!).toIso8601String()
+        : null,
     "DriverName": driverName,
     "DrivingLicenseNo": drivingLicenseNo,
     "SlotDateTime": slotDateTime,
@@ -699,7 +701,7 @@ class VehicleDetailsImports {
   String vehicleTypeName;
   String? driverAadhaar;
   String driverContact;
-  String driverDob;
+  String? driverDob;
   String driverName;
   String drivingLicenseNo;
   String? slotDateTime;
@@ -791,7 +793,9 @@ class VehicleDetailsImports {
         "VehicleId": vehicleId,
         "DriverAadhaar": driverAadhaar,
         "DriverContact": driverContact,
-        "DriverDOB":DateFormat('d MMM yyyy').parse(driverDob).toIso8601String(),
+        "DriverDOB":(driverDob != null && driverDob!.isNotEmpty)
+            ? DateFormat('d MMM yyyy').parse(driverDob!).toIso8601String()
+            : null,
         "DriverName": driverName,
         "DrivingLicenseNo": drivingLicenseNo,
         "SlotDateTime": slotDateTime,

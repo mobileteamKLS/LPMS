@@ -431,8 +431,8 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                             onTap: () async {
                               if (isFTlAndOneShipment &&
                                   shipmentListExports.isNotEmpty) {
-                                CustomSnackBar.show(context,
-                                    message: "Only 1 Shipment is Allowed");
+                                // CustomSnackBar.show(context,
+                                //     message: "Only 1 Shipment is Allowed");
                                 return;
                               } else {
                                 Navigator.push(
@@ -705,14 +705,14 @@ class _AddVehicleDetailsListExportsNew
                                       1;
                               if (isFTlAndOneShipment &&
                                   vehicleListExports.length >= maxItems) {
-                                CustomSnackBar.show(context,
-                                    message:
-                                        "Only $maxItems Vehicle is Allowed");
+                                // CustomSnackBar.show(context,
+                                //     message:
+                                //         "Only $maxItems Vehicle is Allowed");
                                 return;
                               } else if (!isFTlAndOneShipment &&
                                   vehicleListExports.isNotEmpty) {
-                                CustomSnackBar.show(context,
-                                    message: "Only 1 Vehicle is Allowed");
+                                // CustomSnackBar.show(context,
+                                //     message: "Only 1 Vehicle is Allowed");
                                 return;
                               } else {
                                 final result =
@@ -732,8 +732,12 @@ class _AddVehicleDetailsListExportsNew
                               child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: (!isFTlAndOneShipment &&
-                                    vehicleListExports.isNotEmpty)?Colors.grey:AppColors.primary,
+                                color: ((isFTlAndOneShipment &&
+                                    vehicleListExports.length >= (int.tryParse(noOfVehiclesController.text) ??
+                                        1)) ||(!isFTlAndOneShipment &&
+                                    vehicleListExports.isNotEmpty))
+                                    ? Colors.grey
+                                    : AppColors.primary,
                               ),
                             ),
                           ),
@@ -924,16 +928,15 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         //   }
         //   print("DocType");
 
-        DrivingLicense document = DrivingLicense()
-          ..filePath = jsonData["message"]
-          ..documentPhysicalFileName = fileName
-          ..remark = docRemarkController.text
-          ..documentName = fileName
-          ..documentType = docType
-          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
-          ..documentDescription = docNameController.text;
-
         setState(() {
+          DrivingLicense document = DrivingLicense()
+            ..filePath = jsonData["message"]
+            ..documentPhysicalFileName = fileName
+            ..remark = docRemarkController.text
+            ..documentName = fileName
+            ..documentType = docType
+            ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+            ..documentDescription = docNameController.text;
           if (docType == "RC UPLOAD") {
             vehicleDetails.rcScanned = document;
           } else {
@@ -1028,15 +1031,14 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize != null
-                                          ? const Text(
+                                      child: const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: AppColors
                                                       .textColorSecondary),
                                             )
-                                          : const Text(""),
+
                                     ),
                                     const SizedBox(
                                       width: 10,
@@ -1045,23 +1047,22 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize != null
-                                          ? Text(
-                                              "PNG & $fileSize",
-                                              style: const TextStyle(
+                                      child:const Text(
+                                              "PNG & 2MB",
+                                              style: TextStyle(
                                                   color: AppColors
                                                       .textColorPrimary,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
                                             )
-                                          : const Text(""),
+
                                     ),
                                   ],
                                 ),
-                                fileName != null
+                                vehicleDetails.rcScanned?.documentPhysicalFileName != null
                                     ? GestureDetector(
                                       child: Text(
-                                          "$fileName",
+                                          "${vehicleDetails.rcScanned?.documentPhysicalFileName}",
                                           style: const TextStyle(
                                               decoration: TextDecoration.underline,
                                               decorationStyle: TextDecorationStyle.solid,
@@ -1238,15 +1239,14 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize2 != null
-                                          ? const Text(
+                                      child:const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: AppColors
                                                       .textColorSecondary),
                                             )
-                                          : const Text(""),
+
                                     ),
                                     const SizedBox(
                                       width: 10,
@@ -1255,22 +1255,21 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize2 != null
-                                          ? Text(
-                                              "PNG & $fileSize2",
-                                              style: const TextStyle(
+                                      child:const Text(
+                                              "PNG & 2MB",
+                                              style: TextStyle(
                                                   color: AppColors
                                                       .textColorPrimary,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
                                             )
-                                          : const Text(""),
+
                                     ),
                                   ],
                                 ),
-                                fileName2 != null
+                                vehicleDetails.drivingLicense?.documentPhysicalFileName != null
                                     ? Text(
-                                        "$fileName2",
+                                        "${vehicleDetails.drivingLicense?.documentPhysicalFileName}",
                                         style: const TextStyle(
                                             decoration: TextDecoration.underline,
                                             decorationStyle: TextDecorationStyle.solid,
@@ -1759,7 +1758,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                     ),
                     ShipmentInfoRow(
                       header1: "Driver DOB",
-                      value1: vehicleDetails.driverDob,
+                      value1: vehicleDetails.driverDob??"",
                       header2: "Driver Name",
                       value2: vehicleDetails.driverName,
                     ),
@@ -2025,8 +2024,8 @@ class _AddShipmentDetailsListImportsNew
                                 ).then((newShipment) {
                                   if (newShipment != null) {
                                     setState(() {
-                                      // Add new shipment to the list
-                                      shipmentListExports.add(newShipment);
+
+                                      shipmentListImports.add(newShipment);
                                       expanded.add(false);
                                     });
                                   }
@@ -2466,14 +2465,14 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                       1;
                               if (isFTlAndOneShipment &&
                                   vehicleListImports.length >= maxItems) {
-                                CustomSnackBar.show(context,
-                                    message:
-                                        "Only $maxItems Vehicle is Allowed");
+                                // CustomSnackBar.show(context,
+                                //     message:
+                                //         "Only $maxItems Vehicle is Allowed");
                                 return;
                               } else if (!isFTlAndOneShipment &&
                                   vehicleListImports.isNotEmpty) {
-                                CustomSnackBar.show(context,
-                                    message: "Only 1 Vehicle is Allowed");
+                                // CustomSnackBar.show(context,
+                                //     message: "Only 1 Vehicle is Allowed");
                                 return;
                               } else {
                                 final result =
@@ -2493,8 +2492,10 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                               child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color: (!isFTlAndOneShipment &&
-                                    vehicleListImports.isNotEmpty)?Colors.grey:AppColors.primary,
+                                color: ((isFTlAndOneShipment &&
+                                    vehicleListImports.length >= (int.tryParse(noOfVehiclesController.text) ??
+                                    1))||(!isFTlAndOneShipment &&
+                                    vehicleListExports.isNotEmpty))?Colors.grey:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2684,16 +2685,17 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
         //   }
         //   print("DocType");
 
-        DrivingLicense document = DrivingLicense()
-          ..filePath = jsonData["message"]
-          ..documentPhysicalFileName = fileName
-          ..remark = docRemarkController.text
-          ..documentName = fileName
-          ..documentType = docType
-          ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
-          ..documentDescription = docNameController.text;
+
 
         setState(() {
+          DrivingLicense document = DrivingLicense()
+            ..filePath = jsonData["message"]
+            ..documentPhysicalFileName = fileName
+            ..remark = docRemarkController.text
+            ..documentName = fileName
+            ..documentType = docType
+            ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+            ..documentDescription = docNameController.text;
           if (docType == "RC UPLOAD") {
             vehicleDetails.rcScanned = document;
           } else {
@@ -2789,15 +2791,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize != null
-                                          ? const Text(
+                                      child:const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: AppColors
                                                       .textColorSecondary),
                                             )
-                                          : const Text(""),
+
                                     ),
                                     const SizedBox(
                                       width: 10,
@@ -2806,23 +2807,22 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize != null
-                                          ? Text(
-                                              "PNG & $fileSize",
-                                              style: const TextStyle(
+                                      child:const Text(
+                                              "PNG & 2MB",
+                                              style: TextStyle(
                                                   color: AppColors
                                                       .textColorPrimary,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
                                             )
-                                          : const Text(""),
+
                                     ),
                                   ],
                                 ),
-                                fileName != null
+                                vehicleDetails.rcScanned?.documentPhysicalFileName != null
                                     ? GestureDetector(
                                       child: Text(
-                                          "$fileName",
+                                          "${vehicleDetails.rcScanned?.documentPhysicalFileName}",
                                           style: const TextStyle(
                                               decoration: TextDecoration.underline,
                                               decorationStyle: TextDecorationStyle.solid,
@@ -2999,15 +2999,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.32,
                                       height: 45,
-                                      child: fileSize2 != null
-                                          ? const Text(
+                                      child: const Text(
                                               "File Format & Size :",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: AppColors
                                                       .textColorSecondary),
                                             )
-                                          : const Text(""),
+
                                     ),
                                     const SizedBox(
                                       width: 10,
@@ -3016,22 +3015,21 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                       width: MediaQuery.of(context).size.width *
                                           0.42,
                                       height: 45,
-                                      child: fileSize2 != null
-                                          ? Text(
-                                              "PNG & $fileSize2",
-                                              style: const TextStyle(
+                                      child: const Text(
+                                              "PNG & 2MB",
+                                              style: TextStyle(
                                                   color: AppColors
                                                       .textColorPrimary,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700),
                                             )
-                                          : const Text(""),
+
                                     ),
                                   ],
                                 ),
-                                fileName2 != null
+                                vehicleDetails.drivingLicense?.documentPhysicalFileName != null
                                     ? Text(
-                                        "$fileName2",
+                                        "${vehicleDetails.drivingLicense?.documentPhysicalFileName}",
                                         style: const TextStyle(
                                             decoration: TextDecoration.underline,
                                             decorationStyle: TextDecorationStyle.solid,
@@ -3501,7 +3499,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                     ),
                     ShipmentInfoRow(
                       header1: "Driver DOB",
-                      value1: vehicleDetails.driverDob,
+                      value1: vehicleDetails.driverDob??"",
                       header2: "Driver Name",
                       value2: vehicleDetails.driverName,
                     ),
