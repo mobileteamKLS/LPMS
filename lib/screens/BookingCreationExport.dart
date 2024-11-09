@@ -427,6 +427,14 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       },
                                       onSelectionChange: (selectedItems) {
                                         print("Selection changed");
+                                        if (selectedItems.isNotEmpty) {
+                                          setState(() {
+                                            isValid = true;
+                                          });
+                                        }
+                                        if(_formKey.currentState!=null){
+                                          _formKey.currentState!.validate();
+                                        }
                                       },
                                     ),
                                   ),
@@ -581,25 +589,23 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                 // Set border depending on the error state
                                                 border: OutlineInputBorder(
                                                   borderRadius: BorderRadius.circular(4),
-                                                  borderSide: BorderSide(
-                                                    color: formFieldState.hasError
-                                                        ? AppColors.errorRed
-                                                        : Colors.grey,
+                                                  borderSide: const BorderSide(
+                                                    color:  AppColors.errorRed
+                                                        ,
                                                   ),
                                                 ),
-                                                // Apply these borders only if there's an error
-                                                errorBorder: formFieldState.hasError
-                                                    ? OutlineInputBorder(
+
+                                                errorBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  borderSide: const BorderSide(color: AppColors.errorRed),
+                                                )
+                                                    ,
+                                                focusedErrorBorder:  OutlineInputBorder(
                                                   borderRadius: BorderRadius.circular(4),
                                                   borderSide: BorderSide(color: AppColors.errorRed),
                                                 )
-                                                    : null,
-                                                focusedErrorBorder: formFieldState.hasError
-                                                    ? OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(4),
-                                                  borderSide: BorderSide(color: AppColors.errorRed),
-                                                )
-                                                    : null,
+                                                   ,
                                               ),
                                             ),
                                             suggestionsCallback: (search) => CHAAgentService.find(search),
@@ -628,6 +634,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                               chaNameMaster = city.description;
                                               chaIdMaster = int.parse(city.value);
                                               formFieldState.didChange(chaController.text);
+                                              _formKey.currentState!.validate();
                                             },
                                             noItemsFoundBuilder: (context) => const Padding(
                                               padding: EdgeInsets.all(8.0),

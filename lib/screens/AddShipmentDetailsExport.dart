@@ -432,9 +432,9 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     }
                                     setState(() {
                                       _textFieldHeight =
-                                      45; // Reset to initial height if valid
+                                      45;
                                     });
-                                    return null; // Valid input
+                                    return null;
                                   },
                                   builder: (formFieldState) {
                                     return Column(
@@ -454,13 +454,18 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             TextFieldConfiguration(
                                               controller: exporterNameController,
                                               focusNode: exporterFocusNode,
-                                              decoration: const InputDecoration(
+                                              decoration:  InputDecoration(
                                                 contentPadding:
-                                                EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                     vertical: 12.0,
                                                     horizontal: 10.0),
-                                                border: OutlineInputBorder(),
+                                                border: const OutlineInputBorder(),
                                                 labelText: 'Name of Exporter*',
+                                                labelStyle: TextStyle(
+                                                  color: formFieldState.hasError
+                                                      ? AppColors.errorRed
+                                                      : Colors.black87,
+                                                ),
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -505,6 +510,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               formFieldState
                                                   .didChange(
                                                   exporterNameController.text);
+                                              _formKey.currentState!.validate();
                                             },
                                             noItemsFoundBuilder: (context) =>
                                                 const Padding(
@@ -663,13 +669,18 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             TextFieldConfiguration(
                                               controller: cargoTypeController,
                                               focusNode: cargoTypeFocusNode,
-                                              decoration: const InputDecoration(
+                                              decoration:  InputDecoration(
                                                 contentPadding:
-                                                EdgeInsets.symmetric(
+                                                const EdgeInsets.symmetric(
                                                     vertical: 12.0,
                                                     horizontal: 10.0),
                                                 border: OutlineInputBorder(),
                                                 labelText: 'Cargo Type*',
+                                                labelStyle: TextStyle(
+                                                  color: formFieldState.hasError
+                                                      ? AppColors.errorRed
+                                                      : Colors.black87,
+                                                ),
                                               ),
                                             ),
                                             suggestionsCallback: (search) =>
@@ -710,6 +721,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                               formFieldState
                                                   .didChange(
                                                   cargoTypeController.text);
+                                              _formKey.currentState!.validate();
                                             },
                                             noItemsFoundBuilder: (context) =>
                                             const Padding(
