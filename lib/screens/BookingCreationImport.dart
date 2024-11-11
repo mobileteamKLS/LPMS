@@ -64,6 +64,17 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
 
   List<SelectionModels> vehicleTypes = [];
   bool isLoading = false;
+  final List<VoidCallback> _markFieldsTouched = [];
+
+  void _addMarkTouchedCallback(VoidCallback callback) {
+    _markFieldsTouched.add(callback);
+  }
+
+  void _markAllFieldsTouched() {
+    for (var callback in _markFieldsTouched) {
+      callback();
+    }
+  }
 
   void _updateTextField() {
     if (modeSelected == 1) {
@@ -782,7 +793,15 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         return null;
                                       },
                                       onSelectionChange: (selectedItems) {
-                                        // Your selection logic here
+                                        print("Selection changed");
+                                        if (selectedItems.isNotEmpty) {
+                                          setState(() {
+                                            isValid = true;
+                                          });
+                                        }
+                                        if (_formKey.currentState != null) {
+                                          _formKey.currentState!.validate();
+                                        }
                                       },
                                     ),
                                   ),
@@ -891,150 +910,214 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                               ),
                               SizedBox(
                                 width: MediaQuery.sizeOf(context).width,
-                                child: FormField<String>(
-                                  validator: (value) {
-                                    if (chaController.text.isEmpty) {
-                                      setState(() {
-                                        _textFieldHeight = 45;
-                                      });
-                                      return 'Field is Required';
-                                    }
-                                    setState(() {
-                                      _textFieldHeight =
-                                          initialHeight; // Reset to initial height if valid
-                                    });
-                                    return null; // Valid input
-                                  },
-                                  builder: (formFieldState) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AnimatedContainer(
-                                          duration: Duration(milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:
-                                            true,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                                TextFieldConfiguration(
-                                              controller: chaController,
-                                              focusNode: _cityFocusNode,
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 12.0,
-                                                          horizontal: 10.0),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
-                                                  ),
-                                                  labelText: 'CHA Name*',
-                                                  labelStyle: formFieldState
-                                                          .hasError
-                                                      ? const TextStyle(
-                                                          color: AppColors
-                                                              .errorRed)
-                                                      : const TextStyle(
-                                                          color:
-                                                              Colors.black87),
-                                                  errorBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
-                                                  ),
-                                                  focusedErrorBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: AppColors
-                                                                .errorRed),
-                                                  )),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                CHAAgentService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
-                                                  ),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              chaController.text = city
-                                                  .description
-                                                  .toUpperCase();
-                                              chaNameMaster= city
-                                                  .description;
-                                              chaIdMaster = int.parse(city.value);
-                                              formFieldState.didChange(
-                                                  chaController.text);
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                                const Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text('No CHA Found'),
-                                            ),
-                                          ),
+                                child: TypeAheadField<
+                                    CargoTypeExporterImporterAgent>(
+                                  controller: chaController,
+                                  debounceDuration:
+                                  const Duration(milliseconds: 300),
+                                  suggestionsCallback: (search) =>
+                                      CHAAgentService.find(search),
+                                  itemBuilder: (context, item) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          top: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          left: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          right: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          bottom: BorderSide
+                                              .none, // No border on the bottom
                                         ),
-                                        if (formFieldState.hasError)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 4.0, left: 16),
-                                            child: Text(
-                                              formFieldState.errorText ?? '',
-                                              style: const TextStyle(
-                                                  color: AppColors.errorRed,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                      ],
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          Text(item.code.toUpperCase()),
+                                          const SizedBox(width: 10),
+                                          Text(item.description.toUpperCase()),
+                                        ],
+                                      ),
                                     );
+                                  },
+                                  builder: (context, controller, focusNode) =>
+                                      CustomTextField(
+                                        controller: controller,
+                                        labelText: "CHA Name",
+                                        registerTouchedCallback:
+                                        _addMarkTouchedCallback,
+                                        focusNode: focusNode,
+                                      ),
+                                  decorationBuilder: (context, child) =>
+                                      Material(
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  itemSeparatorBuilder: (context, index) =>
+                                      Divider(),
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('No CHA Found',
+                                        style: TextStyle(fontSize: 16)),
+                                  ),
+                                  onSelected: (value) {
+                                    chaController.text =
+                                        value.description.toUpperCase();
+                                    chaNameMaster = value.description;
+                                    chaIdMaster = int.parse(value.value);
+                                    _formKey.currentState!.validate();
                                   },
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: MediaQuery.sizeOf(context).width,
+                              //   child: FormField<String>(
+                              //     validator: (value) {
+                              //       if (chaController.text.isEmpty) {
+                              //         setState(() {
+                              //           _textFieldHeight = 45;
+                              //         });
+                              //         return 'Field is Required';
+                              //       }
+                              //       setState(() {
+                              //         _textFieldHeight =
+                              //             initialHeight; // Reset to initial height if valid
+                              //       });
+                              //       return null; // Valid input
+                              //     },
+                              //     builder: (formFieldState) {
+                              //       return Column(
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.start,
+                              //         children: [
+                              //           AnimatedContainer(
+                              //             duration: Duration(milliseconds: 200),
+                              //             height: _textFieldHeight,
+                              //             // Dynamic height based on validation
+                              //             child: TypeAheadField<
+                              //                 CargoTypeExporterImporterAgent>(
+                              //               hideSuggestionsOnKeyboardHide:
+                              //               true,
+                              //               ignoreAccessibleNavigation: true,
+                              //               textFieldConfiguration:
+                              //                   TextFieldConfiguration(
+                              //                 controller: chaController,
+                              //                 focusNode: _cityFocusNode,
+                              //                 decoration: InputDecoration(
+                              //                     contentPadding:
+                              //                         const EdgeInsets
+                              //                             .symmetric(
+                              //                             vertical: 12.0,
+                              //                             horizontal: 10.0),
+                              //                     border: OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
+                              //                     ),
+                              //                     labelText: 'CHA Name*',
+                              //                     labelStyle: formFieldState
+                              //                             .hasError
+                              //                         ? const TextStyle(
+                              //                             color: AppColors
+                              //                                 .errorRed)
+                              //                         : const TextStyle(
+                              //                             color:
+                              //                                 Colors.black87),
+                              //                     errorBorder:
+                              //                         OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
+                              //                     ),
+                              //                     focusedErrorBorder:
+                              //                         OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
+                              //                     )),
+                              //               ),
+                              //               suggestionsCallback: (search) =>
+                              //                   CHAAgentService.find(search),
+                              //               itemBuilder: (context, city) {
+                              //                 return Container(
+                              //                   decoration: const BoxDecoration(
+                              //                     border: Border(
+                              //                       top: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       left: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       right: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       bottom: BorderSide
+                              //                           .none, // No border on the bottom
+                              //                     ),
+                              //                   ),
+                              //                   padding:
+                              //                       const EdgeInsets.all(8.0),
+                              //                   child: Row(
+                              //                     children: [
+                              //                       Text(city.code
+                              //                           .toUpperCase()),
+                              //                       const SizedBox(
+                              //                         width: 10,
+                              //                       ),
+                              //                       Text(city.description
+                              //                           .toUpperCase()),
+                              //                     ],
+                              //                   ),
+                              //                 );
+                              //               },
+                              //               onSuggestionSelected: (city) {
+                              //                 chaController.text = city
+                              //                     .description
+                              //                     .toUpperCase();
+                              //                 chaNameMaster= city
+                              //                     .description;
+                              //                 chaIdMaster = int.parse(city.value);
+                              //                 formFieldState.didChange(
+                              //                     chaController.text);
+                              //               },
+                              //               noItemsFoundBuilder: (context) =>
+                              //                   const Padding(
+                              //                 padding: EdgeInsets.all(8.0),
+                              //                 child: Text('No CHA Found'),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //           if (formFieldState.hasError)
+                              //             Padding(
+                              //               padding: const EdgeInsets.only(
+                              //                   top: 4.0, left: 16),
+                              //               child: Text(
+                              //                 formFieldState.errorText ?? '',
+                              //                 style: const TextStyle(
+                              //                     color: AppColors.errorRed,
+                              //                     fontSize: 12),
+                              //               ),
+                              //             ),
+                              //         ],
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -1094,6 +1177,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
+                                      _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
                                         saveBookingDetailsImport();
                                       }

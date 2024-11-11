@@ -419,195 +419,259 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               //   inputType: TextInputType.text,
                               // ),
                               SizedBox(
-                                width: MediaQuery
-                                    .sizeOf(context)
-                                    .width,
-                                child: FormField<String>(
-                                  validator: (value) {
-                                    if (exporterNameController.text.isEmpty) {
-                                      setState(() {
-                                        _textFieldHeight = 45;
-                                      });
-                                      return '  Field is Required';
-                                    }
-                                    setState(() {
-                                      _textFieldHeight =
-                                      45;
-                                    });
-                                    return null;
-                                  },
-                                  builder: (formFieldState) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        widget.isExport ? AnimatedContainer(
-                                          duration: const Duration(
-                                              milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:true,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                            TextFieldConfiguration(
-                                              controller: exporterNameController,
-                                              focusNode: exporterFocusNode,
-                                              decoration:  InputDecoration(
-                                                contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
-                                                border: const OutlineInputBorder(),
-                                                labelText: 'Name of Exporter*',
-                                                labelStyle: TextStyle(
-                                                  color: formFieldState.hasError
-                                                      ? AppColors.errorRed
-                                                      : Colors.black87,
-                                                ),
-                                              ),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                ExporterService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
-                                                  ),
-                                                ),
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              exporterNameController.text =
-                                                  city.description
-                                                      .toUpperCase();
-                                              exporterId=int.parse(city.value);
-                                              formFieldState
-                                                  .didChange(
-                                                  exporterNameController.text);
-                                              _formKey.currentState!.validate();
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                                const Padding(
-                                                  padding: EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                      'No Exporter Found'),
-                                                ),
-                                          ),
-                                        ) :
-                                        AnimatedContainer(
-                                          duration: const Duration(
-                                              milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:true,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                            TextFieldConfiguration(
-                                              controller: exporterNameController,
-                                              focusNode: exporterFocusNode,
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
-                                                border: OutlineInputBorder(),
-                                                labelText: 'Name of Importer',
-                                              ),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                ImporterService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
-                                                  ),
-                                                ),
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.code
-                                                        .toUpperCase()),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              exporterNameController.text =
-                                                  city.description
-                                                      .toUpperCase();
-                                              formFieldState
-                                                  .didChange(
-                                                  exporterNameController.text);
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                            const Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text('No Importer Found'),
-                                            ),
-                                          ),
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TypeAheadField<
+                                    CargoTypeExporterImporterAgent>(
+                                  controller: exporterNameController,
+                                  debounceDuration:
+                                  const Duration(milliseconds: 300),
+                                  suggestionsCallback: (search) =>
+                                      ExporterService.find(search),
+                                  itemBuilder: (context, item) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          top: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          left: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          right: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          bottom: BorderSide
+                                              .none, // No border on the bottom
                                         ),
-                                        if (formFieldState.hasError)
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.only(
-                                                top: 8.0, left: 16),
-                                            child: Text(
-                                              formFieldState.errorText ?? '',
-                                              style: const TextStyle(
-                                                  color:AppColors.errorRed,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                      ],
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          Text(item.code.toUpperCase()),
+                                          const SizedBox(width: 10),
+                                          Text(item.description.toUpperCase()),
+                                        ],
+                                      ),
                                     );
+                                  },
+                                  builder: (context, controller, focusNode) =>
+                                      CustomTextField(
+                                        controller: controller,
+                                        labelText: "Name of Exporter",
+                                        registerTouchedCallback:
+                                        _addMarkTouchedCallback,
+                                        focusNode: focusNode,
+                                      ),
+                                  decorationBuilder: (context, child) =>
+                                      Material(
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  itemSeparatorBuilder: (context, index) =>
+                                      Divider(),
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('No Exporter Found',
+                                        style: TextStyle(fontSize: 16)),
+                                  ),
+                                  onSelected: (value) {
+                                    exporterNameController.text =
+                                        value.description
+                                            .toUpperCase();
+                                    exporterId=int.parse(value.value);
+                                    _formKey.currentState!.validate();
                                   },
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: MediaQuery
+                              //       .sizeOf(context)
+                              //       .width,
+                              //   child: FormField<String>(
+                              //     validator: (value) {
+                              //       if (exporterNameController.text.isEmpty) {
+                              //         setState(() {
+                              //           _textFieldHeight = 45;
+                              //         });
+                              //         return '  Field is Required';
+                              //       }
+                              //       setState(() {
+                              //         _textFieldHeight =
+                              //         45;
+                              //       });
+                              //       return null;
+                              //     },
+                              //     builder: (formFieldState) {
+                              //       return Column(
+                              //         crossAxisAlignment:
+                              //         CrossAxisAlignment.start,
+                              //         children: [
+                              //           widget.isExport ? AnimatedContainer(
+                              //             duration: const Duration(
+                              //                 milliseconds: 200),
+                              //             height: _textFieldHeight,
+                              //             // Dynamic height based on validation
+                              //             child: TypeAheadField<
+                              //                 CargoTypeExporterImporterAgent>(
+                              //               hideSuggestionsOnKeyboardHide:true,
+                              //               ignoreAccessibleNavigation: true,
+                              //               textFieldConfiguration:
+                              //               TextFieldConfiguration(
+                              //                 controller: exporterNameController,
+                              //                 focusNode: exporterFocusNode,
+                              //                 decoration:  InputDecoration(
+                              //                   contentPadding:
+                              //                   const EdgeInsets.symmetric(
+                              //                       vertical: 12.0,
+                              //                       horizontal: 10.0),
+                              //                   border: const OutlineInputBorder(),
+                              //                   labelText: 'Name of Exporter*',
+                              //                   labelStyle: TextStyle(
+                              //                     color: formFieldState.hasError
+                              //                         ? AppColors.errorRed
+                              //                         : Colors.black87,
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //               suggestionsCallback: (search) =>
+                              //                   ExporterService.find(search),
+                              //               itemBuilder: (context, city) {
+                              //                 return Container(
+                              //                   decoration: const BoxDecoration(
+                              //                     border: Border(
+                              //                       top: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       left: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       right: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       bottom: BorderSide
+                              //                           .none, // No border on the bottom
+                              //                     ),
+                              //                   ),
+                              //                   padding:
+                              //                   const EdgeInsets.all(8.0),
+                              //                   child: Row(
+                              //                     children: [
+                              //                       Text(city.code
+                              //                           .toUpperCase()),
+                              //                       const SizedBox(
+                              //                         width: 10,
+                              //                       ),
+                              //                       Text(city.description
+                              //                           .toUpperCase()),
+                              //                     ],
+                              //                   ),
+                              //                 );
+                              //               },
+                              //               onSuggestionSelected: (city) {
+                              //                 exporterNameController.text =
+                              //                     city.description
+                              //                         .toUpperCase();
+                              //                 exporterId=int.parse(city.value);
+                              //                 formFieldState
+                              //                     .didChange(
+                              //                     exporterNameController.text);
+                              //                 _formKey.currentState!.validate();
+                              //               },
+                              //               noItemsFoundBuilder: (context) =>
+                              //                   const Padding(
+                              //                     padding: EdgeInsets.all(8.0),
+                              //                     child: Text(
+                              //                         'No Exporter Found'),
+                              //                   ),
+                              //             ),
+                              //           ) :
+                              //           AnimatedContainer(
+                              //             duration: const Duration(
+                              //                 milliseconds: 200),
+                              //             height: _textFieldHeight,
+                              //             // Dynamic height based on validation
+                              //             child: TypeAheadField<
+                              //                 CargoTypeExporterImporterAgent>(
+                              //               hideSuggestionsOnKeyboardHide:true,
+                              //               ignoreAccessibleNavigation: true,
+                              //               textFieldConfiguration:
+                              //               TextFieldConfiguration(
+                              //                 controller: exporterNameController,
+                              //                 focusNode: exporterFocusNode,
+                              //                 decoration: const InputDecoration(
+                              //                   contentPadding:
+                              //                   EdgeInsets.symmetric(
+                              //                       vertical: 12.0,
+                              //                       horizontal: 10.0),
+                              //                   border: OutlineInputBorder(),
+                              //                   labelText: 'Name of Importer',
+                              //                 ),
+                              //               ),
+                              //               suggestionsCallback: (search) =>
+                              //                   ImporterService.find(search),
+                              //               itemBuilder: (context, city) {
+                              //                 return Container(
+                              //                   decoration: const BoxDecoration(
+                              //                     border: Border(
+                              //                       top: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       left: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       right: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       bottom: BorderSide
+                              //                           .none, // No border on the bottom
+                              //                     ),
+                              //                   ),
+                              //                   padding:
+                              //                   const EdgeInsets.all(8.0),
+                              //                   child: Row(
+                              //                     children: [
+                              //                       Text(city.code
+                              //                           .toUpperCase()),
+                              //                       const SizedBox(
+                              //                         width: 10,
+                              //                       ),
+                              //                       Text(city.description
+                              //                           .toUpperCase()),
+                              //                     ],
+                              //                   ),
+                              //                 );
+                              //               },
+                              //               onSuggestionSelected: (city) {
+                              //                 exporterNameController.text =
+                              //                     city.description
+                              //                         .toUpperCase();
+                              //                 formFieldState
+                              //                     .didChange(
+                              //                     exporterNameController.text);
+                              //               },
+                              //               noItemsFoundBuilder: (context) =>
+                              //               const Padding(
+                              //                 padding: EdgeInsets.all(8.0),
+                              //                 child: Text('No Importer Found'),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //           if (formFieldState.hasError)
+                              //             Padding(
+                              //               padding:
+                              //               const EdgeInsets.only(
+                              //                   top: 8.0, left: 16),
+                              //               child: Text(
+                              //                 formFieldState.errorText ?? '',
+                              //                 style: const TextStyle(
+                              //                     color:AppColors.errorRed,
+                              //                     fontSize: 12),
+                              //               ),
+                              //             ),
+                              //         ],
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
                               SizedBox(
                                 height:
                                 MediaQuery
@@ -635,119 +699,183 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     .height * 0.015,
                               ),
                               SizedBox(
-                                width: MediaQuery
-                                    .sizeOf(context)
-                                    .width,
-                                child: FormField<String>(
-                                  validator: (value) {
-                                    if (cargoTypeController.text.isEmpty) {
-                                      setState(() {
-                                        _textFieldHeight = 45;
-                                      });
-                                      return '  Field is Required';
-                                    }
-                                    setState(() {
-                                      _textFieldHeight =
-                                      45; // Reset to initial height if valid
-                                    });
-                                    return null; // Valid input
-                                  },
-                                  builder: (formFieldState) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          height: _textFieldHeight,
-                                          // Dynamic height based on validation
-                                          child: TypeAheadField<
-                                              CargoTypeExporterImporterAgent>(
-                                            hideSuggestionsOnKeyboardHide:true,
-                                            ignoreAccessibleNavigation: true,
-                                            textFieldConfiguration:
-                                            TextFieldConfiguration(
-                                              controller: cargoTypeController,
-                                              focusNode: cargoTypeFocusNode,
-                                              decoration:  InputDecoration(
-                                                contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 12.0,
-                                                    horizontal: 10.0),
-                                                border: OutlineInputBorder(),
-                                                labelText: 'Cargo Type*',
-                                                labelStyle: TextStyle(
-                                                  color: formFieldState.hasError
-                                                      ? AppColors.errorRed
-                                                      : Colors.black87,
-                                                ),
-                                              ),
-                                            ),
-                                            suggestionsCallback: (search) =>
-                                                CargoTypeService.find(search),
-                                            itemBuilder: (context, city) {
-                                              return Container(
-                                                decoration: const BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    left: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    right: BorderSide(
-                                                        color: Colors.black,
-                                                        width: 0.2),
-                                                    bottom: BorderSide
-                                                        .none, // No border on the bottom
-                                                  ),
-                                                ),
-                                                padding:
-                                                const EdgeInsets.all(8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(city.description
-                                                        .toUpperCase()),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            onSuggestionSelected: (city) {
-                                              print("onSuggestionSelected");
-                                              cargoTypeController.text =
-                                                  city.description
-                                                      .toUpperCase();
-                                              cargoTypeId=int.parse(city.value);
-                                              formFieldState
-                                                  .didChange(
-                                                  cargoTypeController.text);
-                                              _formKey.currentState!.validate();
-                                            },
-                                            noItemsFoundBuilder: (context) =>
-                                            const Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                  'No Cargo Type Found'),
-                                            ),
-                                          ),
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TypeAheadField<
+                                    CargoTypeExporterImporterAgent>(
+                                  controller: cargoTypeController,
+                                  debounceDuration:
+                                  const Duration(milliseconds: 300),
+                                  suggestionsCallback: (search) =>
+                                      CargoTypeService.find(search),
+                                  itemBuilder: (context, item) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          top: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          left: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          right: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          bottom: BorderSide
+                                              .none, // No border on the bottom
                                         ),
-                                        if (formFieldState.hasError)
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.only(
-                                                top: 8.0, left: 16.0),
-                                            child: Text(
-                                              formFieldState.errorText ?? '',
-                                              style: const TextStyle(
-                                                  color: AppColors.errorRed,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                      ],
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          // Text(item.code.toUpperCase()),
+                                          // const SizedBox(width: 10),
+                                          Text(item.description.toUpperCase()),
+                                        ],
+                                      ),
                                     );
+                                  },
+                                  builder: (context, controller, focusNode) =>
+                                      CustomTextField(
+                                        controller: controller,
+                                        labelText: "Cargo Type",
+                                        registerTouchedCallback:
+                                        _addMarkTouchedCallback,
+                                        focusNode: focusNode,
+                                      ),
+                                  decorationBuilder: (context, child) =>
+                                      Material(
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  itemSeparatorBuilder: (context, index) =>
+                                      Divider(),
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('No Cargo Type Found',
+                                        style: TextStyle(fontSize: 16)),
+                                  ),
+                                  onSelected: (value) {
+                                    cargoTypeController.text =
+                                        value.description
+                                            .toUpperCase();
+                                    cargoTypeId=int.parse(value.value);
+                                    _formKey.currentState!.validate();
                                   },
                                 ),
                               ),
+                              // SizedBox(
+                              //   width: MediaQuery
+                              //       .sizeOf(context)
+                              //       .width,
+                              //   child: FormField<String>(
+                              //     validator: (value) {
+                              //       if (cargoTypeController.text.isEmpty) {
+                              //         setState(() {
+                              //           _textFieldHeight = 45;
+                              //         });
+                              //         return '  Field is Required';
+                              //       }
+                              //       setState(() {
+                              //         _textFieldHeight =
+                              //         45; // Reset to initial height if valid
+                              //       });
+                              //       return null; // Valid input
+                              //     },
+                              //     builder: (formFieldState) {
+                              //       return Column(
+                              //         crossAxisAlignment:
+                              //         CrossAxisAlignment.start,
+                              //         children: [
+                              //           AnimatedContainer(
+                              //             duration: const Duration(milliseconds: 200),
+                              //             height: _textFieldHeight,
+                              //             // Dynamic height based on validation
+                              //             child: TypeAheadField<
+                              //                 CargoTypeExporterImporterAgent>(
+                              //               hideSuggestionsOnKeyboardHide:true,
+                              //               ignoreAccessibleNavigation: true,
+                              //               textFieldConfiguration:
+                              //               TextFieldConfiguration(
+                              //                 controller: cargoTypeController,
+                              //                 focusNode: cargoTypeFocusNode,
+                              //                 decoration:  InputDecoration(
+                              //                   contentPadding:
+                              //                   const EdgeInsets.symmetric(
+                              //                       vertical: 12.0,
+                              //                       horizontal: 10.0),
+                              //                   border: OutlineInputBorder(),
+                              //                   labelText: 'Cargo Type*',
+                              //                   labelStyle: TextStyle(
+                              //                     color: formFieldState.hasError
+                              //                         ? AppColors.errorRed
+                              //                         : Colors.black87,
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //               suggestionsCallback: (search) =>
+                              //                   CargoTypeService.find(search),
+                              //               itemBuilder: (context, city) {
+                              //                 return Container(
+                              //                   decoration: const BoxDecoration(
+                              //                     border: Border(
+                              //                       top: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       left: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       right: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       bottom: BorderSide
+                              //                           .none, // No border on the bottom
+                              //                     ),
+                              //                   ),
+                              //                   padding:
+                              //                   const EdgeInsets.all(8.0),
+                              //                   child: Row(
+                              //                     children: [
+                              //                       Text(city.description
+                              //                           .toUpperCase()),
+                              //                     ],
+                              //                   ),
+                              //                 );
+                              //               },
+                              //               onSuggestionSelected: (city) {
+                              //                 print("onSuggestionSelected");
+                              //                 cargoTypeController.text =
+                              //                     city.description
+                              //                         .toUpperCase();
+                              //                 cargoTypeId=int.parse(city.value);
+                              //                 formFieldState
+                              //                     .didChange(
+                              //                     cargoTypeController.text);
+                              //                 _formKey.currentState!.validate();
+                              //               },
+                              //               noItemsFoundBuilder: (context) =>
+                              //               const Padding(
+                              //                 padding: EdgeInsets.all(8.0),
+                              //                 child: Text(
+                              //                     'No Cargo Type Found'),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //           if (formFieldState.hasError)
+                              //             Padding(
+                              //               padding:
+                              //               const EdgeInsets.only(
+                              //                   top: 8.0, left: 16.0),
+                              //               child: Text(
+                              //                 formFieldState.errorText ?? '',
+                              //                 style: const TextStyle(
+                              //                     color: AppColors.errorRed,
+                              //                     fontSize: 12),
+                              //               ),
+                              //             ),
+                              //         ],
+                              //       );
+                              //     },
+                              //   ),
+                              // ),
                               SizedBox(
                                 height:
                                 MediaQuery

@@ -121,6 +121,7 @@ class CustomTextField extends StatefulWidget {
   final bool isValidationRequired;
   final Function(VoidCallback)? registerTouchedCallback;
   final Function(String)? onApiCall;
+  final FocusNode? focusNode;
 
   CustomTextField({
     Key? key,
@@ -137,6 +138,7 @@ class CustomTextField extends StatefulWidget {
     this.isValidationRequired = true,
     this.registerTouchedCallback,
     this.onApiCall,
+    this.focusNode,  // Optional focusNode
   }) : assert(
   !isValidationRequired || registerTouchedCallback != null,
   'registerTouchedCallback must be provided when isValidationRequired is true',
@@ -215,6 +217,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         controller: widget.controller,
         keyboardType: widget.inputType,
         inputFormatters: widget.inputFormatters,
+        focusNode: widget.focusNode,
         validator: widget.isValidationRequired
             ? (value) {
           if (!_isTouched) return null;
@@ -255,6 +258,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
+
 
 
 // class CustomTextField extends StatefulWidget {
@@ -499,9 +503,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 //     );
 //   }
 // }
-
-
-
 
 
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -906,112 +907,7 @@ class ShipmentInfoRow extends StatelessWidget {
 }
 
 // City model class
-class City {
-  final String name;
-  final String country;
 
-  City({required this.name, required this.country});
-}
-
-// City Service to simulate fetching city data
-class CityService {
-  static final List<City> _cities = [
-    City(name: 'New York', country: 'USA'),
-    City(name: 'Los Angeles', country: 'USA'),
-    City(name: 'London', country: 'UK'),
-    City(name: 'Paris', country: 'France'),
-    City(name: 'Tokyo', country: 'Japan'),
-  ];
-
-  // Method to find cities based on search
-  static List<City> find(String search) {
-    return _cities.where((city) => city.name.toLowerCase().contains(search.toLowerCase())).toList();
-  }
-
-  // Method to check if the input matches a city exactly
-  static bool isValidCity(String input) {
-    return _cities.any((city) => '${city.name}, ${city.country}'.toLowerCase() == input.toLowerCase());
-  }
-}
-
-
-
-class AutoSuggestCity extends StatefulWidget {
-  @override
-  _AutoSuggestCityState createState() => _AutoSuggestCityState();
-}
-
-class _AutoSuggestCityState extends State<AutoSuggestCity> {
-  final TextEditingController _cityController = TextEditingController();
-  final FocusNode _cityFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _cityFocusNode.addListener(() {
-      if (!_cityFocusNode.hasFocus) {
-
-        if (!CityService.isValidCity(_cityController.text)) {
-          _cityController.clear();
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _cityController.dispose();
-    _cityFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('City Auto Suggest')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TypeAheadField<City>(
-              textFieldConfiguration: TextFieldConfiguration(
-                controller: _cityController,
-                focusNode: _cityFocusNode,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.only(left: 8),
-                  labelText: 'City and Country',
-                ),
-              ),
-              suggestionsCallback: (search) => CityService.find(search),
-              itemBuilder: (context, city) {
-                return ListTile(
-                  title: Text(city.name),
-                  subtitle: Text(city.country),
-                );
-              },
-              onSuggestionSelected: (city) {
-                // Set the selected city's name and country in the TextField
-                _cityController.text = '${city.name}, ${city.country}';
-              },
-              noItemsFoundBuilder: (context) => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('No Cities Found'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: AutoSuggestCity(),
-  ));
-}
 
 
 
