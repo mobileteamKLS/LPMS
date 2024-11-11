@@ -395,7 +395,7 @@ class _ExportScreenState extends State<ExportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BookingCreationExport()),
+              MaterialPageRoute(builder: (context) => const BookingCreationExport(operationType: "C",)),
             );
           },
           backgroundColor: AppColors.primary,
@@ -895,14 +895,17 @@ class _ExportScreenState extends State<ExportScreen> {
                     onSelected: (value) {
                       switch (value) {
                         case 1:
-                          // Handle Edit action
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>  BookingCreationExport(operationType: "E",bookingId: shipmentDetails.bookingId,)),
+                          );
                           break;
                         case 2:
                           // Handle Delete action
                           break;
-                        case 3:
-                          // Handle Audit Log action
-                          break;
+                        // case 3:
+                        //   // Handle Audit Log action
+                        //   break;
                       }
                     },
                     itemBuilder: (context) => [
@@ -920,22 +923,22 @@ class _ExportScreenState extends State<ExportScreen> {
                         value: 2,
                         child: Row(
                           children: [
-                            Icon(Icons.delete, color: Colors.red),
+                            Icon(Icons.delete, color: AppColors.errorRed),
                             SizedBox(width: 8),
                             Text('Delete'),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
-                        value: 3,
-                        child: Row(
-                          children: [
-                            Icon(Icons.list_alt, color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text('Audit Log'),
-                          ],
-                        ),
-                      ),
+                      // const PopupMenuItem(
+                      //   value: 3,
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(Icons.list_alt, color: AppColors.primary),
+                      //       SizedBox(width: 8),
+                      //       Text('Audit Log'),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],

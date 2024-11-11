@@ -387,7 +387,7 @@ class ShipmentDetailsExports {
   String cargoDescription;
   int cargoTypeId;
   String cargoType;
-  int cargoWeight;
+  dynamic cargoWeight;
   String chaName;
   String nameOfExporterImporter;
   int quantity;
@@ -433,7 +433,7 @@ class ShipmentDetailsExports {
         nameOfExporterImporter: json["NameOfExporterImporter"],
         quantity: json["Quantity"],
         shippingBillNoIgmNno: json["ShippingBillNoIGMNno"],
-        shippingBillDateIgm: json["ShippingBillDateIGM"],
+        shippingBillDateIgm:DateFormat('dd MMM yyyy').format(DateTime.parse(json["ShippingBillDateIGM"])) ,
         typeOfGoods: json["TypeOfGoods"],
         hsnCode: json["HSNCode"],
         cargoValue: json["CargoValue"],
@@ -442,6 +442,7 @@ class ShipmentDetailsExports {
         portOfDest: json["PortOfDest"],
         grossQt: json["GrossQt"],
         isUliPverified: json["IsULIPverified"],
+        cargoType: (cargoTypeList.firstWhere((cargo) => cargo.value == json["CargoTypeId"].toString())).nameDisplay
       );
 
   Map<String, dynamic> toJson() => {
@@ -568,7 +569,7 @@ class VehicleDetailsExports {
   String? driverDob;
   String driverName;
   String drivingLicenseNo;
-  String slotDateTime;
+  String? slotDateTime;
   String slotViewDateTime;
   String truckNo;
   int? vehicleTypeId;
@@ -577,11 +578,11 @@ class VehicleDetailsExports {
   String? slotStartTime;
   String? slotEndTime;
   DrivingLicense? drivingLicense;
-  DrivingLicense? rcScanned;
-  bool isModifySlot;
-  bool isNewSlot;
+  RcDetails? rcScanned;
+  bool? isModifySlot;
+  bool? isNewSlot;
   String remarksChassisNo;
-  bool isGateIn;
+  bool? isGateIn;
   String? registrationDate;
   String? grossWt;
   String? tareWt;
@@ -606,7 +607,7 @@ class VehicleDetailsExports {
     this.slotStartTime ,
     this.slotEndTime,
     DrivingLicense? drivingLicense,
-    DrivingLicense? rcScanned,
+    RcDetails? rcScanned,
     this.isModifySlot = false,
     this.isNewSlot = true,
     required this.remarksChassisNo,
@@ -622,36 +623,45 @@ class VehicleDetailsExports {
   //   // Assign default DrivingLicense if null
   //   rcScanned = rcScanned ?? DrivingLicense();
 
-  factory VehicleDetailsExports.fromJson(Map<String, dynamic> json) =>
-      VehicleDetailsExports(
-        vehicleId: json["VehicleId"],
-        driverAadhaar: json["DriverAadhaar"],
-        driverContact: json["DriverContact"],
-        driverDob: json["DriverDOB"],
-        driverName: json["DriverName"],
-        drivingLicenseNo: json["DrivingLicenseNo"],
-        slotDateTime: json["SlotDateTime"],
-        truckNo: json["TruckNo"],
-        vehicleTypeId: json["VehicleType"],
-        slotConfigId: json["SlotConfigId"],
-        slotDurationId: json["SlotDurationId"],
-        slotStartTime: json["SlotStartTime"],
-        slotEndTime: json["SlotEndTime"],
-        drivingLicense: json["DrivingLicense"] != null
-            ? DrivingLicense.fromJson(json["DrivingLicense"])
-            : null,
-        rcScanned: DrivingLicense.fromJson(json["RCScanned"]),
-        isModifySlot: json["IsModifySlot"],
-        isNewSlot: json["IsNewSlot"],
-        remarksChassisNo: json["RemarksChassisNo"],
-        isGateIn: json["IsGateIn"],
-        registrationDate: json["RegistrationDate"],
-        grossWt: json["GrossWt"],
-        tareWt: json["TareWt"],
-        netWt: json["NetWt"],
-        isvehicleVerified: json["IsvehicleVerified"],
-        isDriverVerified: json["IsDriverVerified"],
-      );
+  factory VehicleDetailsExports.fromJson(Map<String, dynamic> json){
+
+    print("RCScanned JSON: ${json["RCScanned"]}");
+    if(json["DrivingLicense"] != null){
+      print("Driving License JSON: ${DrivingLicense.fromJson(json["DrivingLicense"])}");
+    }
+   return VehicleDetailsExports(
+      vehicleId: json["VehicleId"],
+      driverAadhaar: json["DriverAadhaar"],
+      driverContact: json["DriverContact"],
+      driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
+      driverName: json["DriverName"],
+      drivingLicenseNo: json["DrivingLicenseNo"],
+      slotDateTime: json["SlotDateTime"],
+      truckNo: json["TruckNo"],
+      vehicleTypeId: json["VehicleType"],
+      slotConfigId: json["SlotConfigId"],
+      slotDurationId: json["SlotDurationId"],
+      slotStartTime: json["SlotStartTime"],
+      slotEndTime: json["SlotEndTime"],
+      drivingLicense: json["DrivingLicense"] != null
+          ? DrivingLicense.fromJson(json["DrivingLicense"])
+          : null,
+      rcScanned: json['RCScanned'] != null
+          ? RcDetails.fromJson(json['RCScanned'])
+          : null,
+      isModifySlot: json["IsModifySlot"],
+      isNewSlot: json["IsNewSlot"],
+      remarksChassisNo: json["RemarksChassisNo"],
+      isGateIn: json["IsGateIn"],
+      registrationDate: json["RegistrationDate"],
+      grossWt: json["GrossWt"],
+      tareWt: json["TareWt"],
+      netWt: json["NetWt"],
+      isvehicleVerified: json["IsvehicleVerified"],
+      isDriverVerified: json["IsDriverVerified"],
+    );
+  }
+
 
   Map<String, dynamic> toJson() => {
     "VehicleId": vehicleId,
@@ -713,7 +723,7 @@ class VehicleDetailsImports {
   String? slotStartTime;
   String? slotEndTime;
   DrivingLicense? drivingLicense;
-  DrivingLicense? rcScanned;
+  RcDetails? rcScanned;
   bool isModifySlot;
   bool isNewSlot;
   String remarksChassisNo;
@@ -742,7 +752,7 @@ class VehicleDetailsImports {
     this.slotStartTime ,
     this.slotEndTime,
     DrivingLicense? drivingLicense,
-    DrivingLicense? rcScanned,
+    RcDetails? rcScanned,
     this.isModifySlot = false,
     this.isNewSlot = true,
     required this.remarksChassisNo,
@@ -776,7 +786,9 @@ class VehicleDetailsImports {
         drivingLicense: json["DrivingLicense"] != null
             ? DrivingLicense.fromJson(json["DrivingLicense"])
             : null,
-        rcScanned: DrivingLicense.fromJson(json["RCScanned"]),
+        rcScanned: json['RCScanned'] != null
+            ? RcDetails.fromJson(json['RCScanned'])
+            : null,
         isModifySlot: json["IsModifySlot"],
         isNewSlot: json["IsNewSlot"],
         remarksChassisNo: json["RemarksChassisNo"],
@@ -834,19 +846,19 @@ class VehicleDetailsImports {
 
 class DrivingLicense {
   int? bookingId;
-  int vehicleId;
+  int? vehicleId;
   int? dlDocConfigId;
-  String documentType;
-  String documentName;
-  String remark;
-  String documentPhysicalFileName;
-  String filePath;
-  String documentDescription;
-  bool isFinanicial;
-  int documentTyepId;
-  String documentUploadCriteria;
-  String fileUom;
-  int fileSize;
+  String? documentType;
+  String? documentName;
+  String? remark;
+  String? documentPhysicalFileName;
+  String? filePath;
+  String? documentDescription;
+  bool? isFinanicial;
+  int? documentTyepId;
+  String? documentUploadCriteria;
+  String? fileUom;
+  int? fileSize;
   int? rcDocConfigId;
 
   DrivingLicense({
@@ -882,7 +894,6 @@ class DrivingLicense {
         documentUploadCriteria: json["DocumentUploadCriteria"],
         fileUom: json["FileUOM"],
         fileSize: json["FileSize"],
-        rcDocConfigId: json["RCDocConfigId"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -902,46 +913,65 @@ class DrivingLicense {
         // "FileSize": fileSize,
         // "RCDocConfigId": rcDocConfigId,
       };
+  @override
+  String toString() {
+    return 'DrivingLicense('
+        'bookingId: $bookingId, '
+        'vehicleId: $vehicleId, '
+        'dlDocConfigId: $dlDocConfigId, '
+        'documentType: $documentType, '
+        'documentName: $documentName, '
+        'remark: $remark, '
+        'documentPhysicalFileName: $documentPhysicalFileName, '
+        'filePath: $filePath, '
+        'documentDescription: $documentDescription, '
+        'isFinanicial: $isFinanicial, '
+        'documentTyepId: $documentTyepId, '
+        'documentUploadCriteria: $documentUploadCriteria, '
+        'fileUom: $fileUom, '
+        'fileSize: $fileSize, '
+        'rcDocConfigId: $rcDocConfigId'
+        ')';
+  }
+
+
 }
+class RcDetails {
+  int? bookingId;
+  int? vehicleId;
+  String? documentType;
+  String? documentName;
+  String? remark;
+  String? documentPhysicalFileName;
+  String? filePath;
+  String? documentDescription;
+  bool? isFinanicial;
+  int? documentTyepId;
+  String? documentUploadCriteria;
+  String? fileUom;
+  int? fileSize;
+  int? rcDocConfigId;
 
-class UploadDocDetails {
-  int bookingId;
-  int vehicleId;
-  int dlDocConfigId;
-  String documentType;
-  String documentName;
-  String remark;
-  String documentPhysicalFileName;
-  String filePath;
-  String documentDescription;
-  bool isFinanicial;
-  int documentTyepId;
-  String documentUploadCriteria;
-  String fileUom;
-  int fileSize;
-
-  UploadDocDetails({
-    required this.bookingId,
-    required this.vehicleId,
-    required this.dlDocConfigId,
-    required this.documentType,
-    required this.documentName,
-    required this.remark,
-    required this.documentPhysicalFileName,
-    required this.filePath,
-    required this.documentDescription,
-    required this.isFinanicial,
-    required this.documentTyepId,
-    required this.documentUploadCriteria,
-    required this.fileUom,
-    required this.fileSize,
+  RcDetails({
+    this.bookingId,
+    this.vehicleId = 0,
+    this.documentType = "",
+    this.documentName = "",
+    this.remark = "",
+    this.documentPhysicalFileName = "",
+    this.filePath = "",
+    this.documentDescription = "",
+    this.isFinanicial = false,
+    this.documentTyepId = 0,
+    this.documentUploadCriteria = "PNG",
+    this.fileUom = "MB",
+    this.fileSize = 2,
+    this.rcDocConfigId,
   });
 
-  factory UploadDocDetails.fromJson(Map<String, dynamic> json) =>
-      UploadDocDetails(
+  factory RcDetails.fromJson(Map<String, dynamic> json) => RcDetails(
         bookingId: json["BookingId"],
         vehicleId: json["VehicleId"],
-        dlDocConfigId: json["DLDocConfigId"],
         documentType: json["DocumentType"],
         documentName: json["DocumentName"],
         remark: json["Remark"],
@@ -953,25 +983,28 @@ class UploadDocDetails {
         documentUploadCriteria: json["DocumentUploadCriteria"],
         fileUom: json["FileUOM"],
         fileSize: json["FileSize"],
+        rcDocConfigId: json["RCDocConfigId"],
       );
 
   Map<String, dynamic> toJson() => {
-        "BookingId": bookingId,
-        "VehicleId": vehicleId,
-        "DLDocConfigId": dlDocConfigId,
+        // "BookingId": bookingId,
+        // "VehicleId": vehicleId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        "IsFinanicial": isFinanicial,
+        // "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        "DocumentUploadCriteria": documentUploadCriteria,
-        "FileUOM": fileUom,
-        "FileSize": fileSize,
+        // "DocumentUploadCriteria": documentUploadCriteria,
+        // "FileUOM": fileUom,
+        // "FileSize": fileSize,
+        // "RCDocConfigId": rcDocConfigId,
       };
 }
+
+
 
 class SlotDetails {
   dynamic assignDockId;
@@ -1330,4 +1363,119 @@ class CargoTypeExporterImporterAgent {
         "value": value,
         "WarehouseIdentifier": warehouseIdentifier,
       };
+}
+
+class ViewShipmentDetailsExport {
+  int airportId;
+  DateTime bookingDt;
+  int bookingId;
+  String bookingNo;
+  String branchCode;
+  int chaId;
+  String chaName;
+  String companyCode;
+  dynamic destination;
+  bool isActive;
+  bool isFtl;
+  bool isLtl;
+  int noofVehicle;
+  int orgProdId;
+  dynamic origin;
+  List<ShipmentDetailsExports> shipmentDetailsList;
+  bool status;
+  List<VehicleDetailsExports> vehicalDetailsList;
+  List<VehicalTypeList> vehicalTypeList;
+  List<int> vehicleType;
+
+  ViewShipmentDetailsExport({
+    required this.airportId,
+    required this.bookingDt,
+    required this.bookingId,
+    required this.bookingNo,
+    required this.branchCode,
+    required this.chaId,
+    required this.chaName,
+    required this.companyCode,
+    required this.destination,
+    required this.isActive,
+    required this.isFtl,
+    required this.isLtl,
+    required this.noofVehicle,
+    required this.orgProdId,
+    required this.origin,
+    required this.shipmentDetailsList,
+    required this.status,
+    required this.vehicalDetailsList,
+    required this.vehicalTypeList,
+    required this.vehicleType,
+  });
+
+  factory ViewShipmentDetailsExport.fromMap(Map<String, dynamic> json) => ViewShipmentDetailsExport(
+    airportId: json["AirportId"],
+    bookingDt: DateTime.parse(json["BookingDt"]),
+    bookingId: json["BookingId"],
+    bookingNo: json["BookingNo"],
+    branchCode: json["BranchCode"],
+    chaId: json["CHAId"],
+    chaName: json["ChaName"],
+    companyCode: json["CompanyCode"],
+    destination: json["Destination"],
+    isActive: json["IsActive"],
+    isFtl: json["IsFTL"],
+    isLtl: json["IsLTL"],
+    noofVehicle: json["NoofVehicle"],
+    orgProdId: json["OrgProdId"],
+    origin: json["Origin"],
+    shipmentDetailsList: List<ShipmentDetailsExports>.from(json["ShipmentDetailsList"].map((x) => ShipmentDetailsExports.fromJson(x))),
+    status: json["Status"],
+    vehicalDetailsList: List<VehicleDetailsExports>.from(json["VehicalDetailsList"].map((x) => VehicleDetailsExports.fromJson(x))),
+    vehicalTypeList: List<VehicalTypeList>.from(json["vehicalTypeList"].map((x) => VehicalTypeList.fromMap(x))),
+    vehicleType: List<int>.from(json["VehicleType"].map((x) => x)),
+  );
+
+  Map<String, dynamic> toMap() => {
+    "AirportId": airportId,
+    "BookingDt": bookingDt.toIso8601String(),
+    "BookingId": bookingId,
+    "BookingNo": bookingNo,
+    "BranchCode": branchCode,
+    "CHAId": chaId,
+    "ChaName": chaName,
+    "CompanyCode": companyCode,
+    "Destination": destination,
+    "IsActive": isActive,
+    "IsFTL": isFtl,
+    "IsLTL": isLtl,
+    "NoofVehicle": noofVehicle,
+    "OrgProdId": orgProdId,
+    "Origin": origin,
+    "ShipmentDetailsList": List<dynamic>.from(shipmentDetailsList.map((x) => x.toJson())),
+    "Status": status,
+    "VehicalDetailsList": List<dynamic>.from(vehicalDetailsList.map((x) => x.toJson())),
+    "vehicalTypeList": List<dynamic>.from(vehicalTypeList.map((x) => x.toMap())),
+    "VehicleType": List<dynamic>.from(vehicleType.map((x) => x)),
+  };
+}
+class VehicalTypeList {
+  int bookingId;
+  int vehicleTypeDetailId;
+  int vehicleTypeId;
+
+  VehicalTypeList({
+    required this.bookingId,
+    required this.vehicleTypeDetailId,
+    required this.vehicleTypeId,
+  });
+
+  factory VehicalTypeList.fromMap(Map<String, dynamic> json) => VehicalTypeList(
+    bookingId: json["BookingId"],
+    vehicleTypeDetailId: json["VehicleTypeDetailId"],
+    vehicleTypeId: json["VehicleTypeId"],
+  );
+
+  Map<String, dynamic> toMap() => {
+    "BookingId": bookingId,
+    "VehicleTypeDetailId": vehicleTypeDetailId,
+    "VehicleTypeId": vehicleTypeId,
+  };
 }

@@ -29,7 +29,9 @@ import 'AddShipmentDetailsExport.dart';
 import 'ExportDashboard.dart';
 
 class BookingCreationExport extends StatefulWidget {
-  const BookingCreationExport({super.key});
+  final String operationType;
+  final int? bookingId;
+  const BookingCreationExport({super.key, required this.operationType, this.bookingId});
 
   @override
   State<BookingCreationExport> createState() => _BookingCreationExportState();
@@ -46,8 +48,8 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
-  double _textFieldHeight = 45; // Default initial height
-  double _textFieldHeight2 = 45; // Default initial height
+  double _textFieldHeight = 45;
+  double _textFieldHeight2 = 45;
   final double initialHeight = 45;
   final double errorHeight = 65;
   final AuthService authService = AuthService();
@@ -97,6 +99,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     isFTlAndOneShipment = true;
     getOriginDestination();
     noOfVehiclesController.text = "1";
+
 
     chaFocusNode.addListener(() async {
       if (!chaFocusNode.hasFocus) {
@@ -902,6 +905,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
   Future<ShipmentDetailsExports?> validateAndNavigate() async {
+    _markAllFieldsTouched();
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<ShipmentDetailsExports>(
         context,
@@ -918,6 +922,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   }
 
   Future<VehicleDetailsExports?> validateAndNavigateV2() async {
+    _markAllFieldsTouched();
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<VehicleDetailsExports>(
         context,
@@ -941,7 +946,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         loadCargoTypes(),
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Exporter'),
+
       ]);
+      if(widget.operationType!="C"){
+        getViewEditShipment(widget.bookingId);
+      }
     } catch (e) {
       print("Error calling APIs: $e");
     } finally {
@@ -1276,6 +1285,61 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       print(onError);
     });
   }
+
+  getViewEditShipment(bookingId) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].timeZone,
+    };
+    await authService
+        .getData(
+      "api_pcs/ShipmentMaster/GetShipmentById",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      setState(() {
+        shipmentListExports=(jsonData['ShipmentDetailsList'] as List).map((item) => ShipmentDetailsExports.fromJson(item))
+            .toList();
+      });
+      setState(() {
+        vehicleListExports=(jsonData['VehicalDetailsList'] as List).map((item) => VehicleDetailsExports.fromJson(item))
+            .toList();
+      });
+
+      print("Driver Name: ${vehicleListExports[0].driverName}");
+      print("Driving License Document Name: ${vehicleListExports[0].drivingLicense.toString()}");
+      print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
+      setState(() {
+        _isLoading = false;
+      });
+      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+      //   setState(() {
+      //     originMaster = jsonData["Origin"];
+      //     destinationMaster = jsonData["Destination"];
+      //   });
+      //   callAllApis();
+      // } else {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   CustomSnackBar.show(context, message: "No Data Found");
+      //   Navigator.pop(context);
+      // }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
 }
 
 class Vehicle {

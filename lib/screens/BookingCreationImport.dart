@@ -253,6 +253,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   }
 
   Future<ShipmentDetailsImports?> validateAndNavigate() async {
+    _markAllFieldsTouched();
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<ShipmentDetailsImports>(
         context,
@@ -269,6 +270,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   }
 
   Future<VehicleDetailsImports?> validateAndNavigateV2() async {
+    _markAllFieldsTouched();
     if (_formKey.currentState!.validate()) {
       return await Navigator.push<VehicleDetailsImports>(
         context,
@@ -956,8 +958,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No CHA Found',

@@ -402,8 +402,8 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Vehicle Found',

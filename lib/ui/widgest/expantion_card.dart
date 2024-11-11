@@ -929,17 +929,26 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         //   print("DocType");
 
         setState(() {
-          DrivingLicense document = DrivingLicense()
-            ..filePath = jsonData["message"]
-            ..documentPhysicalFileName = fileName
-            ..remark = docRemarkController.text
-            ..documentName = fileName
-            ..documentType = docType
-            ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
-            ..documentDescription = docNameController.text;
+
           if (docType == "RC UPLOAD") {
+            RcDetails document = RcDetails()
+              ..filePath = jsonData["message"]
+              ..documentPhysicalFileName = fileName
+              ..remark = docRemarkController.text
+              ..documentName = fileName
+              ..documentType = docType
+              ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+              ..documentDescription = docNameController.text;
             vehicleDetails.rcScanned = document;
           } else {
+            DrivingLicense document = DrivingLicense()
+              ..filePath = jsonData["message"]
+              ..documentPhysicalFileName = fileName
+              ..remark = docRemarkController.text
+              ..documentName = fileName
+              ..documentType = docType
+              ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+              ..documentDescription = docNameController.text;
             vehicleDetails.drivingLicense = document;
           }
           print("Document uploaded for: $docType");
@@ -1429,7 +1438,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
       platformDetails,
     );
   }
-  Future<void> fileDownload(String fileName,String filePath) async {
+  Future<void> fileDownload(String fileName, filePath) async {
     if (true) {
       await prepareSaveDir();
       print("Downloading");
@@ -2688,17 +2697,25 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
 
         setState(() {
-          DrivingLicense document = DrivingLicense()
-            ..filePath = jsonData["message"]
-            ..documentPhysicalFileName = fileName
-            ..remark = docRemarkController.text
-            ..documentName = fileName
-            ..documentType = docType
-            ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
-            ..documentDescription = docNameController.text;
           if (docType == "RC UPLOAD") {
+            RcDetails document = RcDetails()
+              ..filePath = jsonData["message"]
+              ..documentPhysicalFileName = fileName
+              ..remark = docRemarkController.text
+              ..documentName = fileName
+              ..documentType = docType
+              ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+              ..documentDescription = docNameController.text;
             vehicleDetails.rcScanned = document;
           } else {
+            DrivingLicense document = DrivingLicense()
+              ..filePath = jsonData["message"]
+              ..documentPhysicalFileName = fileName
+              ..remark = docRemarkController.text
+              ..documentName = fileName
+              ..documentType = docType
+              ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
+              ..documentDescription = docNameController.text;
             vehicleDetails.drivingLicense = document;
           }
 
@@ -3188,7 +3205,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
       platformDetails,
     );
   }
-  Future<void> fileDownload(String fileName,String filePath) async {
+  Future<void> fileDownload(String fileName, filePath) async {
     if (true) {
       await prepareSaveDir();
       print("Downloading");

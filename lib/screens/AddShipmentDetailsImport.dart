@@ -446,8 +446,8 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Importer Found',
@@ -748,8 +748,8 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No CHA Found',

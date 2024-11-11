@@ -466,8 +466,8 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Exporter Found',
@@ -746,8 +746,8 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                         borderRadius: BorderRadius.circular(8.0),
                                         child: child,
                                       ),
-                                  itemSeparatorBuilder: (context, index) =>
-                                      Divider(),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Cargo Type Found',
