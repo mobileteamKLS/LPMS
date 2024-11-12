@@ -38,6 +38,7 @@ class _ExportScreenState extends State<ExportScreen> {
   String slotFilterDate = "Slot Date";
 
   final _formKey = GlobalKey<FormState>();
+
   // List of terminal data with id as int
 
   List<SlotBookingShipmentListingExport> listShipmentDetails = [];
@@ -254,7 +255,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 2, left: 10, right: 10,bottom: 4),
+                  padding: const EdgeInsets.only(
+                      top: 2, left: 10, right: 10, bottom: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -281,7 +283,8 @@ class _ExportScreenState extends State<ExportScreen> {
                             onTap: () {
                               if (filteredList.isEmpty &&
                                   listShipmentDetails.isEmpty) {
-                                CustomSnackBar.show(context, message: "No Data Found");
+                                CustomSnackBar.show(context,
+                                    message: "No Data Found");
                                 return;
                               }
                               if (filteredList.isNotEmpty) {
@@ -325,12 +328,13 @@ class _ExportScreenState extends State<ExportScreen> {
                     : Expanded(
                         child: SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 0.0,bottom: 60),
+                            padding: const EdgeInsets.only(
+                                top: 8.0, left: 0.0, bottom: 60),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
                               child: (hasNoRecord)
                                   ? Container(
-                                height:400,
+                                      height: 400,
                                       child: const Center(
                                         child: Text("NO RECORD FOUND"),
                                       ),
@@ -341,7 +345,8 @@ class _ExportScreenState extends State<ExportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            SlotBookingShipmentListingExport shipmentDetails =
+                                            SlotBookingShipmentListingExport
+                                                shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
                                                 shipmentDetails, index);
@@ -358,7 +363,8 @@ class _ExportScreenState extends State<ExportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            SlotBookingShipmentListingExport shipmentDetails =
+                                            SlotBookingShipmentListingExport
+                                                shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -395,7 +401,10 @@ class _ExportScreenState extends State<ExportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BookingCreationExport(operationType: "C",)),
+              MaterialPageRoute(
+                  builder: (context) => const BookingCreationExport(
+                        operationType: "C",
+                      )),
             );
           },
           backgroundColor: AppColors.primary,
@@ -471,10 +480,10 @@ class _ExportScreenState extends State<ExportScreen> {
     setState(() {
       isLoading = true;
     });
-    vehicleTypeList=[];
+    vehicleTypeList = [];
     final mdl = SelectionModels(
       whereCondition:
-      " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
+          " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
       referenceId: "VehicleType",
       isAll: true,
     );
@@ -485,7 +494,7 @@ class _ExportScreenState extends State<ExportScreen> {
     SelectionQuery body = SelectionQuery();
 
     body.query =
-    await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     mdl.query = body.query;
     var headers = {
       'Accept': 'text/plain',
@@ -497,12 +506,11 @@ class _ExportScreenState extends State<ExportScreen> {
 
     await authService
         .sendMultipartRequest(
-        headers: headers,
-        fields: fields,
-        endPoint: "api/GenericDropDown/GetAllVehicleType")
+            headers: headers,
+            fields: fields,
+            endPoint: "api/GenericDropDown/GetAllVehicleType")
         .then((response) {
       if (response.body.isNotEmpty) {
-
         print("-----Vehicle Types-----");
         print(json.decode(response.body));
         List<dynamic> jsonData = json.decode(response.body);
@@ -510,11 +518,11 @@ class _ExportScreenState extends State<ExportScreen> {
           vehicleTypeList =
               jsonData.map((json) => AllVehicleTypes.fromJSON(json)).toList();
           vehicleTypeList.forEach((element) {
-            items.add(DropdownItem(label: element.name, value: Vehicle(id: element.value, name: element.name)));
-
+            items.add(DropdownItem(
+                label: element.name,
+                value: Vehicle(id: element.value, name: element.name)));
           });
           print("object  $items");
-
         });
         print("-----Vehicle Type Lenght=${vehicleTypeList.length}-----");
       } else {
@@ -647,13 +655,13 @@ class _ExportScreenState extends State<ExportScreen> {
         setState(() {
           hasNoRecord = true;
         });
+      } else {
+        hasNoRecord = false;
       }
-      else{
-        hasNoRecord=false;
-      }
-      print("is empty record"+hasNoRecord.toString());
-      listShipmentDetailsBind =
-          jsonData.map((json) => SlotBookingShipmentListingExport.fromJSON(json)).toList();
+      print("is empty record" + hasNoRecord.toString());
+      listShipmentDetailsBind = jsonData
+          .map((json) => SlotBookingShipmentListingExport.fromJSON(json))
+          .toList();
       print("length==  = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
@@ -670,7 +678,39 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  Widget buildShipmentDetailsCard(SlotBookingShipmentListingExport shipmentDetails, int index) {
+  deleteShipment(bookingId) async {
+    Utils.showLoadingDialog(context);
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].userId,
+    };
+    await authService
+        .postData(
+      "api_pcs/ShipmentMaster/Delete",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      if (jsonData["ResponseMessage"] == "msg3") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context,
+            message: "Export shipment booking deleted successfully.",
+            backgroundColor: AppColors.successColor,
+            leftIcon: Icons.check_circle);
+        return;
+      }
+      Utils.hideLoadingDialog(context);
+    }).catchError((onError) {
+      Utils.hideLoadingDialog(context);
+      print(onError);
+    });
+  }
+
+  Widget buildShipmentDetailsCard(
+      SlotBookingShipmentListingExport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -843,14 +883,13 @@ class _ExportScreenState extends State<ExportScreen> {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
-
       surfaceTintColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ? 230 : 130,
+        height: isExpanded ? 216 : 116,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -887,62 +926,34 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ],
                   ),
-                  PopupMenuButton<int>(
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.primary,
+
+                  GestureDetector(
+                    child: Container(
+                      // margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: AppColors.gradient1,
+                      ),
+                      child: const Icon(
+                        size: 28,
+                        Icons.keyboard_arrow_right_outlined,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 1:
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>  BookingCreationExport(operationType: "E",bookingId: shipmentDetails.bookingId,)),
-                          );
-                          break;
-                        case 2:
-                          // Handle Delete action
-                          break;
-                        // case 3:
-                        //   // Handle Audit Log action
-                        //   break;
-                      }
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BookingCreationExport(
+                              operationType: "V",
+                              bookingId: shipmentDetails.bookingId,
+                            )),
+                      );
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, color: AppColors.errorRed),
-                            SizedBox(width: 8),
-                            Text('Delete'),
-                          ],
-                        ),
-                      ),
-                      // const PopupMenuItem(
-                      //   value: 3,
-                      //   child: Row(
-                      //     children: [
-                      //       Icon(Icons.list_alt, color: AppColors.primary),
-                      //       SizedBox(width: 8),
-                      //       Text('Audit Log'),
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
                   ),
                 ],
               ),
+              SizedBox(height: 8,),
               Row(
                 children: [
                   Text(
@@ -1018,7 +1029,6 @@ class _ExportScreenState extends State<ExportScreen> {
                                   ),
                                 ],
                               ),
-
                             ],
                           ),
                           const SizedBox(width: 64),
@@ -1080,7 +1090,82 @@ class _ExportScreenState extends State<ExportScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
+                  ),
+                  PopupMenuButton<int>(
+                    child: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.primary,
+                    ),
+                    onSelected: (value) async {
+                      switch (value) {
+                        case 1:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be edited");
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BookingCreationExport(
+                                  operationType: "E",
+                                  bookingId: shipmentDetails.bookingId,
+                                )),
+                          );
+                          break;
+                        case 2:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be deleted");
+                            return;
+                          }
+                          bool? isTrue =
+                          await Utils.confirmationDialog(context);
+                          if (isTrue!) {
+                            deleteShipment(shipmentDetails.bookingId);
+                          }
+                          break;
+                      // case 3:
+                      //   // Handle Audit Log action
+                      //   break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, color: AppColors.primary),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, color: AppColors.errorRed),
+                            SizedBox(width: 8),
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                      // const PopupMenuItem(
+                      //   value: 3,
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(Icons.list_alt, color: AppColors.primary),
+                      //       SizedBox(width: 8),
+                      //       Text('Audit Log'),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                    color: AppColors.white,
+                  ),
                 ],
               ),
             ],
@@ -1111,7 +1196,8 @@ class _ExportScreenState extends State<ExportScreen> {
               useMaterial3: false,
               primaryColor: AppColors.primary,
 
-              dialogBackgroundColor: Colors.white, // Change dialog background color
+              dialogBackgroundColor: Colors.white,
+              // Change dialog background color
               colorScheme: const ColorScheme.light(
                 primary: AppColors.primary, // Change header and button color
                 onPrimary: Colors.white, // Text color on primary (header text)
@@ -1154,7 +1240,7 @@ class _ExportScreenState extends State<ExportScreen> {
       if (fromDateTime.isAfter(toDateTime)) {
         // fromDateController.text = _formatDate(
         //     DateTime.now().subtract(const Duration(days: 2)));
-        fromDateController.text='';
+        fromDateController.text = '';
         toDateController.text = _formatDate(DateTime.now());
         CustomSnackBar.show(
           context,
@@ -1166,7 +1252,7 @@ class _ExportScreenState extends State<ExportScreen> {
       if (toDateTime.isBefore(fromDateTime)) {
         // fromDateController.text = _formatDate(
         //     DateTime.now().subtract(const Duration(days: 2)));
-        toDateController.text ='';
+        toDateController.text = '';
         CustomSnackBar.show(
           context,
           message: "To Date should be greater than From Date",
@@ -1197,16 +1283,15 @@ class _ExportScreenState extends State<ExportScreen> {
         return Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-            height: MediaQuery.of(context).size.height*0.75,
+            height: MediaQuery.of(context).size.height * 0.75,
             width: MediaQuery.of(context).size.width,
             child: Dialog(
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               insetPadding: const EdgeInsets.all(0),
               child: Container(
-
                 decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.textFieldBorderColor),
+                  border: Border.all(color: AppColors.textFieldBorderColor),
                   color: Colors.white,
                 ),
                 padding: const EdgeInsets.all(16.0),
@@ -1217,16 +1302,17 @@ class _ExportScreenState extends State<ExportScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text("Shipment Search",
-                            style:
-                                TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold)),
                         const SizedBox(
                           width: double.infinity,
                           child: Divider(color: Colors.grey),
-                        ), // Gray horizontal line
+                        ),
+                        // Gray horizontal line
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: bookingNoController,
-                        labelText: "Booking No.",
+                          labelText: "Booking No.",
                           isValidationRequired: false,
                         ),
                         const SizedBox(height: 16),
@@ -1276,7 +1362,8 @@ class _ExportScreenState extends State<ExportScreen> {
                         //     ),
                         //   ),
                         // ),
-                         SizedBox(height: MediaQuery.sizeOf(context).height*0.09),
+                        SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.09),
                         const SizedBox(
                           width: double.infinity,
                           child: Divider(color: Colors.grey),
@@ -1285,7 +1372,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
                         ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()){
+                            if (_formKey.currentState!.validate()) {
                               search();
                             }
 
@@ -1298,14 +1385,15 @@ class _ExportScreenState extends State<ExportScreen> {
                           child: const Text("SEARCH",
                               style: TextStyle(color: Colors.white)),
                         ),
-                        const SizedBox(height: 16), // Space between buttons
+                        const SizedBox(height: 16),
+                        // Space between buttons
 
                         OutlinedButton(
                           onPressed: () {
                             bookingNoController.clear();
                             shippingBillNoController.clear();
-                            fromDateController.text = _formatDate(
-                                DateTime.now().subtract(const Duration(days: 2)));
+                            fromDateController.text = _formatDate(DateTime.now()
+                                .subtract(const Duration(days: 2)));
                             toDateController.text = _formatDate(DateTime.now());
                           },
                           style: OutlinedButton.styleFrom(
@@ -1317,17 +1405,19 @@ class _ExportScreenState extends State<ExportScreen> {
                           ),
                           child: const Text(
                             "RESET",
-                            style: TextStyle(color: AppColors.primary), // Blue text
+                            style: TextStyle(
+                                color: AppColors.primary), // Blue text
                           ),
                         ),
-                        const SizedBox(height: 16), // Space between buttons
+                        const SizedBox(height: 16),
+                        // Space between buttons
                         // Cancel button
                         TextButton(
                           onPressed: () {
                             bookingNoController.clear();
                             shippingBillNoController.clear();
-                            fromDateController.text = _formatDate(
-                                DateTime.now().subtract(const Duration(days: 2)));
+                            fromDateController.text = _formatDate(DateTime.now()
+                                .subtract(const Duration(days: 2)));
                             toDateController.text = _formatDate(DateTime.now());
                             Navigator.pop(context);
                           },
@@ -1455,7 +1545,8 @@ class _ExportScreenState extends State<ExportScreen> {
             useMaterial3: false,
             primaryColor: AppColors.primary,
 
-            dialogBackgroundColor: Colors.white, // Change dialog background color
+            dialogBackgroundColor: Colors.white,
+            // Change dialog background color
             colorScheme: const ColorScheme.light(
               primary: AppColors.primary, // Change header and button color
               onPrimary: Colors.white, // Text color on primary (header text)
@@ -1656,7 +1747,8 @@ class _ExportScreenState extends State<ExportScreen> {
                               setState(() {
                                 selected
                                     ? selectedFilters.add('PENDING FOR GATE-IN')
-                                    : selectedFilters.remove('PENDING FOR GATE-IN');
+                                    : selectedFilters
+                                        .remove('PENDING FOR GATE-IN');
                               });
                             },
                             selectedColor: AppColors.primary.withOpacity(0.1),
@@ -1664,10 +1756,10 @@ class _ExportScreenState extends State<ExportScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(
-                                color:
-                                    selectedFilters.contains('PENDING FOR GATE-IN')
-                                        ? AppColors.primary
-                                        : Colors.transparent,
+                                color: selectedFilters
+                                        .contains('PENDING FOR GATE-IN')
+                                    ? AppColors.primary
+                                    : Colors.transparent,
                               ),
                             ),
                           ),
@@ -1932,5 +2024,3 @@ class _ExportScreenState extends State<ExportScreen> {
 //   );
 // }
 }
-
-

@@ -33,9 +33,10 @@ import 'package:http_parser/http_parser.dart';
 class ShipmentItemNew extends StatefulWidget {
   final List<ShipmentDetailsExports> shipmentDetailsList;
   final bool isExport;
+  final bool isViewOnly;
 
   const ShipmentItemNew(
-      {super.key, required this.shipmentDetailsList, required this.isExport});
+      {super.key, required this.shipmentDetailsList, required this.isExport, required this.isViewOnly});
 
   @override
   _ShipmentItemNewState createState() => _ShipmentItemNewState();
@@ -100,7 +101,7 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () {
+                            onTap:widget.isViewOnly?null:  () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -125,8 +126,8 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                child: const Icon(Icons.edit,
-                                    size: 28, color: AppColors.primary)),
+                                child:  Icon(Icons.edit,
+                                    size: 28, color:widget.isViewOnly?AppColors.textFieldBorderColor: AppColors.primary)),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -215,12 +216,14 @@ class AddShipmentDetailsListNew extends StatefulWidget {
   final List<ShipmentDetailsExports> shipmentDetailsList;
   final Future<ShipmentDetailsExports?> Function() validateAndNavigate;
   final bool isExport;
+  final bool isViewOnly;
 
   const AddShipmentDetailsListNew({
     super.key,
     required this.shipmentDetailsList,
     required this.validateAndNavigate,
     required this.isExport,
+    required this.isViewOnly,
   });
 
   @override
@@ -462,7 +465,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                               child:  Icon(
                                 size: 28,
                                 Icons.add,
-                                color:(isFTlAndOneShipment && shipmentListExports.isNotEmpty)?Colors.grey: AppColors.primary,
+                                color:(isFTlAndOneShipment && shipmentListExports.isNotEmpty)?AppColors.textFieldBorderColor: AppColors.primary,
                               ),
                             ),
                           ),
@@ -522,6 +525,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                 child: ShipmentItemNew(
                   shipmentDetailsList: shipmentListExports,
                   isExport: widget.isExport,
+                  isViewOnly: widget.isViewOnly,
                 ),
               ),
           ],
@@ -535,12 +539,14 @@ class AddVehicleDetailsListExportsNew extends StatefulWidget {
   final List<VehicleDetailsExports> vehicleDetailsList;
   final Future<VehicleDetailsExports?> Function() validateAndNavigate;
   final bool isExport;
+  final bool isViewOnly;
 
   AddVehicleDetailsListExportsNew({
     super.key,
     required this.vehicleDetailsList,
     required this.validateAndNavigate,
     required this.isExport,
+    required this.isViewOnly,
   });
 
   @override
@@ -736,7 +742,7 @@ class _AddVehicleDetailsListExportsNew
                                     vehicleListExports.length >= (int.tryParse(noOfVehiclesController.text) ??
                                         1)) ||(!isFTlAndOneShipment &&
                                     vehicleListExports.isNotEmpty))
-                                    ? Colors.grey
+                                    ? AppColors.textFieldBorderColor
                                     : AppColors.primary,
                               ),
                             ),
@@ -796,7 +802,8 @@ class _AddVehicleDetailsListExportsNew
               SizedBox(
                 child: VehicleItemExportsNew(
                   vehicleDetailsList: vehicleListExports,
-                  IsExport: widget.isExport,
+                  isExport: widget.isExport,
+                    isViewOnly:widget.isViewOnly,
                 ),
               ),
           ],
@@ -808,10 +815,11 @@ class _AddVehicleDetailsListExportsNew
 
 class VehicleItemExportsNew extends StatefulWidget {
   final List<VehicleDetailsExports> vehicleDetailsList;
-  final IsExport;
+  final bool isExport;
+  final bool isViewOnly;
 
   const VehicleItemExportsNew(
-      {super.key, required this.vehicleDetailsList, this.IsExport});
+      {super.key, required this.vehicleDetailsList, required this.isExport, required this.isViewOnly});
 
   @override
   _VehicleItemExportsNewState createState() => _VehicleItemExportsNewState();
@@ -1563,7 +1571,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
+                                onTap:widget.isViewOnly?null: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -1588,8 +1596,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(Icons.edit,
-                                        size: 28, color: AppColors.primary)),
+                                    child:  Icon(Icons.edit,
+                                        size: 28, color:widget.isViewOnly?AppColors.textFieldBorderColor:AppColors.primary)),
                               ),
                               GestureDetector(
                                 onTap: () {
@@ -1711,13 +1719,18 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                           SizedBox(
                             height: 32,
                             child: ElevatedButton(
-                              onPressed: () {
+                              // style: ElevatedButton.styleFrom(
+                              //   backgroundColor: widget.isViewOnly
+                              //       ? AppColors.textFieldBorderColor
+                              //       : AppColors.primary,
+                              // ),
+                              onPressed:widget.isViewOnly?null: () {
                                 print("${vehicleDetails.vehicleId}");
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => AddBookSlotExports(
-                                      isExport: widget.IsExport,
+                                      isExport: widget.isExport,
                                       vehicleDetails: vehicleDetails,
                                     ),
                                   ),
@@ -1758,7 +1771,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                   children: [
                     ShipmentInfoRow(
                       header1: "Type of Vehicle",
-                      value1: vehicleDetails.vehicleTypeName,
+                      value1: vehicleDetails.vehicleTypeName!,
                       header2: "Driving License No.",
                       value2: vehicleDetails.drivingLicenseNo,
                     ),
@@ -1799,12 +1812,14 @@ class AddShipmentDetailsListImportsNew extends StatefulWidget {
   final List<ShipmentDetailsImports> shipmentDetailsList;
   final Future<ShipmentDetailsImports?> Function() validateAndNavigate;
   final bool isExport;
+  final bool isViewOnly;
 
   const AddShipmentDetailsListImportsNew({
     super.key,
     required this.shipmentDetailsList,
     required this.validateAndNavigate,
     required this.isExport,
+    required this.isViewOnly,
   });
 
   @override
@@ -2050,7 +2065,7 @@ class _AddShipmentDetailsListImportsNew
                                 size: 28,
                                 Icons.add,
                                 color: (isFTlAndOneShipment &&
-                                    shipmentListImports.isNotEmpty)?Colors.grey:AppColors.primary,
+                                    shipmentListImports.isNotEmpty)?AppColors.textFieldBorderColor:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2110,6 +2125,7 @@ class _AddShipmentDetailsListImportsNew
                 child: ShipmentItemNewImports(
                   shipmentDetailsList: shipmentListImports,
                   isExport: widget.isExport,
+                    isViewOnly:widget.isViewOnly
                 ),
               ),
           ],
@@ -2122,9 +2138,10 @@ class _AddShipmentDetailsListImportsNew
 class ShipmentItemNewImports extends StatefulWidget {
   final List<ShipmentDetailsImports> shipmentDetailsList;
   final bool isExport;
+  final bool isViewOnly;
 
   const ShipmentItemNewImports(
-      {super.key, required this.shipmentDetailsList, required this.isExport});
+      {super.key, required this.shipmentDetailsList, required this.isExport, required this.isViewOnly});
 
   @override
   _ShipmentItemNewImportsState createState() => _ShipmentItemNewImportsState();
@@ -2189,7 +2206,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () {
+                            onTap:widget.isViewOnly?null: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -2215,8 +2232,8 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                child: const Icon(Icons.edit,
-                                    size: 28, color: AppColors.primary)),
+                                child:  Icon(Icons.edit,
+                                    size: 28, color:widget.isViewOnly?AppColors.textFieldBorderColor :AppColors.primary)),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -2305,12 +2322,14 @@ class AddVehicleDetailsListNew extends StatefulWidget {
   final List<VehicleDetailsImports> vehicleDetailsList;
   final Future<VehicleDetailsImports?> Function() validateAndNavigate;
   final bool isExport;
+  final bool isViewOnly;
 
   AddVehicleDetailsListNew({
     super.key,
     required this.vehicleDetailsList,
     required this.validateAndNavigate,
     required this.isExport,
+    required this.isViewOnly,
   });
 
   @override
@@ -2504,7 +2523,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                 color: ((isFTlAndOneShipment &&
                                     vehicleListImports.length >= (int.tryParse(noOfVehiclesController.text) ??
                                     1))||(!isFTlAndOneShipment &&
-                                    vehicleListExports.isNotEmpty))?Colors.grey:AppColors.primary,
+                                    vehicleListExports.isNotEmpty))?AppColors.textFieldBorderColor:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2564,6 +2583,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                 child: VehicleItemNew(
                   vehicleDetailsList: vehicleListImports,
                   IsExport: widget.isExport,
+                    isViewOnly:widget.isViewOnly,
                 ),
               ),
           ],
@@ -2575,10 +2595,11 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
 
 class VehicleItemNew extends StatefulWidget {
   final List<VehicleDetailsImports> vehicleDetailsList;
-  final IsExport;
+  final bool IsExport;
+  final bool isViewOnly;
 
   const VehicleItemNew(
-      {super.key, required this.vehicleDetailsList, this.IsExport});
+      {super.key, required this.vehicleDetailsList, required this.IsExport, required this.isViewOnly});
 
   @override
   _VehicleItemNewState createState() => _VehicleItemNewState();
@@ -3329,7 +3350,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
+                                onTap:widget.isViewOnly?null: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -3354,8 +3375,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(Icons.edit,
-                                        size: 28, color: AppColors.primary)),
+                                    child:  Icon(Icons.edit,
+                                        size: 28, color:widget.isViewOnly?AppColors.textFieldBorderColor :AppColors.primary)),
                               ),
                               GestureDetector(
                                 onTap: () {
@@ -3459,7 +3480,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           SizedBox(
                             height: 32,
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed:widget.isViewOnly?null: () {
                                 print("${vehicleDetails.vehicleId}");
                                 Navigator.push(
                                   context,

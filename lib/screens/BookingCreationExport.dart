@@ -38,10 +38,7 @@ class BookingCreationExport extends StatefulWidget {
 }
 
 class _BookingCreationExportState extends State<BookingCreationExport> {
-  // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
-
-  // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
   final FocusNode chaFocusNode = FocusNode();
@@ -323,10 +320,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(20),
                                       ),
-                                      child: const Padding(
+                                      child:  Padding(
                                         padding:
-                                            EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text("NEW BOOKING"),
+                                            const EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
                                       ),
                                     )
                                   ],
@@ -370,7 +367,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
-                                      enabled: true,
+                                      enabled:widget.operationType=="V"?false: true,
                                       searchEnabled: false,
                                       chipDecoration: const ChipDecoration(
                                         backgroundColor: AppColors.secondary,
@@ -391,7 +388,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                                 color: AppColors.errorRed)
                                             : const TextStyle(
                                                 color: Colors.black54),
-                                        showClearIcon: true,
+                                        showClearIcon: widget.operationType=="V"?false: true,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(4),
@@ -469,7 +466,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         MediaQuery.sizeOf(context).width * 0.42,
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
-                                      enabled: modeSelected == 1 ? false : true,
+                                      enabled: (modeSelected == 1 ||  widget.operationType=="V") ? false : true,
                                       onChanged: (value) {
                                         if (int.parse(
                                                 noOfVehiclesController.text) ==
@@ -523,30 +520,36 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     height: 45,
                                     width:
                                         MediaQuery.sizeOf(context).width * 0.42,
-                                    child: ToggleSwitch(
-                                      minWidth:
-                                          MediaQuery.sizeOf(context).width *
-                                              0.5,
-                                      minHeight: 45.0,
-                                      fontSize: 14.0,
-                                      initialLabelIndex: modeSelected,
-                                      activeBgColor: const [AppColors.primary],
-                                      activeFgColor: Colors.white,
-                                      inactiveBgColor: Colors.white,
-                                      inactiveFgColor: Colors.grey[900],
-                                      totalSwitches: 2,
-                                      labels: const ['FTL', 'LTL'],
-                                      cornerRadius: 0.0,
-                                      borderWidth: 0.5,
-                                      borderColor: [Colors.grey],
-                                      onToggle: (index) {
-                                        print('switched to: $index');
+                                    child: AbsorbPointer(
+                                      absorbing:widget.operationType!="C",
+                                      child: ToggleSwitch(
+                                        minWidth:
+                                            MediaQuery.sizeOf(context).width *
+                                                0.5,
+                                        // states: [false],
+                                        minHeight: 45.0,
+                                        fontSize: 14.0,
+                                        initialLabelIndex: modeSelected,
+                                        activeBgColor: widget.operationType == "C"
+                                            ? [AppColors.primary]
+                                            : [AppColors.textFieldBorderColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        totalSwitches: 2,
+                                        labels: const ['FTL', 'LTL'],
+                                        cornerRadius: 0.0,
+                                        borderWidth: 0.5,
+                                        borderColor: [Colors.grey],
+                                        onToggle:widget.operationType!="C"? null: (index) {
+                                          print('switched to: ${widget.operationType}');
+                                              setState(() {
+                                                modeSelected = index!;
+                                              });
+                                              _updateTextField();
+                                        },
 
-                                        setState(() {
-                                          modeSelected = index!;
-                                        });
-                                        _updateTextField();
-                                      },
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -592,6 +595,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       CustomTextField(
                                     controller: controller,
                                     labelText: "CHA Name",
+                                    isEnabled:  !(widget.operationType=="V"),
                                     registerTouchedCallback:
                                         _addMarkTouchedCallback,
                                     focusNode: focusNode,
@@ -746,6 +750,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       shipmentDetailsList: shipmentListExports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: true,
+                      isViewOnly:  widget.operationType=="V",
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -754,11 +759,12 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                       vehicleDetailsList: vehicleListExports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: true,
+                      isViewOnly:  widget.operationType=="V",
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    Container(
+                   Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
                         color: AppColors.white,
@@ -792,7 +798,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
-                                    onPressed: () {
+                                    onPressed:widget.operationType=="V"?null:  () {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
                                         saveBookingDetailsExport();
@@ -949,7 +955,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
 
       ]);
       if(widget.operationType!="C"){
-        getViewEditShipment(widget.bookingId);
+        getViewEditShipmentExport(widget.bookingId);
       }
     } catch (e) {
       print("Error calling APIs: $e");
@@ -1286,7 +1292,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     });
   }
 
-  getViewEditShipment(bookingId) async {
+  getViewEditShipmentExport(bookingId) async {
     setState(() {
       _isLoading = true;
     });
@@ -1312,10 +1318,28 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         vehicleListExports=(jsonData['VehicalDetailsList'] as List).map((item) => VehicleDetailsExports.fromJson(item))
             .toList();
       });
+      setState(() {
+        chaIdMaster=jsonData["CHAId"];
+        chaNameMaster=jsonData["ChaName"];
+        chaController.text=jsonData["ChaName"].toUpperCase();
+        if(jsonData["IsFTL"]){
+          modeSelected=0;
+        }
+        if(jsonData["IsLTL"]){
+          modeSelected=1;
+        }
+        List<String> vehicleIdList = List<String>.from(
+            jsonData["VehicleType"].map((id) => id.toString())
+        );
+        print(vehicleIdList.toString());
+        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
+        // selectedVehicleList=vehicleIdList.addAll([42, 44, 89].map((id) => id.toString()));
+      });
 
       print("Driver Name: ${vehicleListExports[0].driverName}");
       print("Driving License Document Name: ${vehicleListExports[0].drivingLicense!.documentName}");
       print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
+
       setState(() {
         _isLoading = false;
       });

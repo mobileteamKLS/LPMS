@@ -394,7 +394,7 @@ class _ImportScreenState extends State<ImportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BookingCreationImport()),
+              MaterialPageRoute(builder: (context) => const BookingCreationImport(operationType: "C",)),
             );
           },
           backgroundColor: AppColors.primary,
@@ -755,7 +755,7 @@ class _ImportScreenState extends State<ImportScreen> {
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ? 230 : 130,
+        height: isExpanded ? 216 : 116,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -792,59 +792,34 @@ class _ImportScreenState extends State<ImportScreen> {
                       ),
                     ],
                   ),
-                  PopupMenuButton<int>(
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.primary,
+                  GestureDetector(
+                    child: Container(
+                      // margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: AppColors.gradient1,
+                      ),
+                      child: const Icon(
+                        size: 28,
+                        Icons.keyboard_arrow_right_outlined,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 1:
-                          // Handle Edit action
-                          break;
-                        case 2:
-                          // Handle Delete action
-                          break;
-                        case 3:
-                          // Handle Audit Log action
-                          break;
-                      }
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BookingCreationImport(
+                              operationType: "V",
+                              bookingId: shipmentDetails.bookingId,
+                            )),
+                      );
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 3,
-                        child: Row(
-                          children: [
-                            Icon(Icons.list_alt, color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text('Audit Log'),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
+
                 ],
               ),
+              SizedBox(height: 8,),
               Row(
                 children: [
                   Text(
@@ -981,7 +956,82 @@ class _ImportScreenState extends State<ImportScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
+                  ),
+                  PopupMenuButton<int>(
+                    onSelected: (value) async {
+                      switch (value) {
+                        case 1:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be edited");
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BookingCreationImport(
+                                  operationType: "E",
+                                  bookingId: shipmentDetails.bookingId,
+                                )),
+                          );
+                          break;
+                        case 2:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be deleted");
+                            return;
+                          }
+                          bool? isTrue =
+                          await Utils.confirmationDialog(context);
+                          if (isTrue!) {
+                            deleteShipment(shipmentDetails.bookingId);
+                          }
+                          break;
+                      // case 3:
+                      //   // Handle Audit Log action
+                      //   break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, color: AppColors.primary),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, color: AppColors.errorRed),
+                            SizedBox(width: 8),
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                      // const PopupMenuItem(
+                      //   value: 3,
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(Icons.list_alt, color: AppColors.primary),
+                      //       SizedBox(width: 8),
+                      //       Text('Audit Log'),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                    color: AppColors.white,
+                    child: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -1663,5 +1713,36 @@ class _ImportScreenState extends State<ImportScreen> {
         );
       },
     );
+  }
+
+  deleteShipment(bookingId) async {
+    Utils.showLoadingDialog(context);
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].userId,
+    };
+    await authService
+        .postData(
+      "api_pcs/ImpShipment/Delete",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      if (jsonData["ResponseMessage"] == "msg3") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context,
+            message: "Export shipment booking deleted successfully.",
+            backgroundColor: AppColors.successColor,
+            leftIcon: Icons.check_circle);
+        return;
+      }
+      Utils.hideLoadingDialog(context);
+    }).catchError((onError) {
+      Utils.hideLoadingDialog(context);
+      print(onError);
+    });
   }
 }

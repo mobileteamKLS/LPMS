@@ -119,6 +119,7 @@ class CustomTextField extends StatefulWidget {
   final String patternErrorMessage;
   final double? customWidth;
   final bool isValidationRequired;
+  final bool isEnabled;
   final Function(VoidCallback)? registerTouchedCallback;
   final Function(String)? onApiCall;
   final FocusNode? focusNode;
@@ -130,6 +131,7 @@ class CustomTextField extends StatefulWidget {
     this.initialHeight = 45,
     this.errorHeight = 65,
     this.validationMessage = 'Field is Required',
+    this.isEnabled=true,
     this.inputType = TextInputType.text,
     this.inputFormatters,
     this.validationPattern,
@@ -218,6 +220,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         keyboardType: widget.inputType,
         inputFormatters: widget.inputFormatters,
         focusNode: widget.focusNode,
+        enabled: widget.isEnabled,
         validator: widget.isValidationRequired
             ? (value) {
           if (!_isTouched) return null;

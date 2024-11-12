@@ -29,6 +29,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.textFieldBorderColor,
           textStyle: const TextStyle(
             fontSize: 18,
             color: Colors.white,

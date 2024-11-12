@@ -30,7 +30,9 @@ import 'AddShipmentDetailsExport.dart';
 import 'ImportDashboard.dart';
 
 class BookingCreationImport extends StatefulWidget {
-  const BookingCreationImport({super.key});
+  final String operationType;
+  final int? bookingId;
+  const BookingCreationImport({super.key,required this.operationType, this.bookingId});
 
   @override
   State<BookingCreationImport> createState() => _BookingCreationExportState();
@@ -124,6 +126,72 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         CustomSnackBar.show(context, message: "No Data Found");
         Navigator.pop(context);
       }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+  getViewEditShipmentImport(bookingId) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].timeZone,
+    };
+    await authService
+        .getData(
+      "api_pcs/ImpShipment/GetById",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      setState(() {
+        shipmentListImports=(jsonData['ImpBOEDetails'] as List).map((item) => ShipmentDetailsImports.fromJson(item))
+            .toList();
+      });
+      setState(() {
+        vehicleListImports=(jsonData['ImpVehicleDetails'] as List).map((item) => VehicleDetailsImports.fromJson(item))
+            .toList();
+      });
+      setState(() {
+        chaIdMaster=jsonData["CHAId"];
+        chaNameMaster=jsonData["ChaName"];
+        chaController.text=jsonData["ChaName"].toUpperCase();
+        if(jsonData["IsFTL"]){
+          modeSelected=0;
+        }
+        if(jsonData["IsLTL"]){
+          modeSelected=1;
+        }
+        List<String> vehicleIdList = List<String>.from(
+            jsonData["VehicleType"].map((id) => id.toString())
+        );
+        print(vehicleIdList.toString());
+        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
+      });
+
+      setState(() {
+        _isLoading = false;
+      });
+      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+      //   setState(() {
+      //     originMaster = jsonData["Origin"];
+      //     destinationMaster = jsonData["Destination"];
+      //   });
+      //   callAllApis();
+      // } else {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   CustomSnackBar.show(context, message: "No Data Found");
+      //   Navigator.pop(context);
+      // }
     }).catchError((onError) {
       setState(() {
         _isLoading = false;
@@ -295,6 +363,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Importer'),
       ]);
+      if(widget.operationType!="C"){
+        getViewEditShipmentImport(widget.bookingId);
+      }
     } catch (e) {
       print("Error calling APIs: $e");
     } finally {
@@ -678,10 +749,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(20),
                                       ),
-                                      child: const Padding(
+                                      child:  Padding(
                                         padding:
-                                            EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text("NEW BOOKING"),
+                                            const EdgeInsets.symmetric(horizontal: 8),
+                                        child:Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
                                       ),
                                     )
                                   ],
@@ -725,13 +796,14 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
-                                      enabled: true,
+                                      enabled:widget.operationType=="V"?false: true,
                                       searchEnabled: false,
                                       chipDecoration: const ChipDecoration(
-                                        backgroundColor: AppColors.secondary,
+                                        backgroundColor: AppColors.textFieldBorderColor,
                                         wrap: false,
                                         runSpacing: 4,
                                         spacing: 4,
+
                                       ),
                                       fieldDecoration: FieldDecoration(
                                         hintText: 'Types of Vehicles*',
@@ -746,7 +818,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                                 color: AppColors.errorRed)
                                             : const TextStyle(
                                                 color: Colors.black54),
-                                        showClearIcon: true,
+                                        showClearIcon: widget.operationType=="V"?false: true,
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(4),
@@ -824,7 +896,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         MediaQuery.sizeOf(context).width * 0.42,
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
-                                      enabled: modeSelected == 1 ? false : true,
+                                      enabled: (modeSelected == 1 ||  widget.operationType=="V")? false : true,
                                       onChanged: (value){
                                         if (int.parse(
                                             noOfVehiclesController.text) ==
@@ -878,30 +950,34 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                     height: 45,
                                     width:
                                         MediaQuery.sizeOf(context).width * 0.42,
-                                    child: ToggleSwitch(
-                                      minWidth:
-                                          MediaQuery.sizeOf(context).width *
-                                              0.5,
-                                      minHeight: 45.0,
-                                      fontSize: 14.0,
-                                      initialLabelIndex: modeSelected,
-                                      activeBgColor: const [AppColors.primary],
-                                      activeFgColor: Colors.white,
-                                      inactiveBgColor: Colors.white,
-                                      inactiveFgColor: Colors.grey[900],
-                                      totalSwitches: 2,
-                                      labels: const ['FTL', 'LTL'],
-                                      cornerRadius: 0.0,
-                                      borderWidth: 0.5,
-                                      borderColor: [Colors.grey],
-                                      onToggle: (index) {
-                                        print('switched to: $index');
-
-                                        setState(() {
-                                          modeSelected = index!;
-                                        });
-                                        _updateTextField();
-                                      },
+                                    child: AbsorbPointer(
+                                      absorbing:widget.operationType!="C",
+                                      child: ToggleSwitch(
+                                        minWidth:
+                                            MediaQuery.sizeOf(context).width *
+                                                0.5,
+                                        minHeight: 45.0,
+                                        fontSize: 14.0,
+                                        initialLabelIndex: modeSelected,
+                                        activeBgColor: widget.operationType == "C"
+                                            ? [AppColors.primary]
+                                            : [AppColors.textFieldBorderColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        totalSwitches: 2,
+                                        labels: const ['FTL', 'LTL'],
+                                        cornerRadius: 0.0,
+                                        borderWidth: 0.5,
+                                        borderColor: [Colors.grey],
+                                        onToggle:widget.operationType!="C"?null:  (index) {
+                                          print('switched to: $index');
+                                          setState(() {
+                                            modeSelected = index!;
+                                          });
+                                          _updateTextField();
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -947,6 +1023,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       CustomTextField(
                                         controller: controller,
                                         labelText: "CHA Name",
+                                        isEnabled:  !(widget.operationType=="V"),
                                         registerTouchedCallback:
                                         _addMarkTouchedCallback,
                                         focusNode: focusNode,
@@ -1132,6 +1209,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,
                       isExport: false,
+                      isViewOnly: widget.operationType=="V",
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -1140,6 +1218,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                       vehicleDetailsList: vehicleListImports,
                       validateAndNavigate: validateAndNavigateV2,
                       isExport: false,
+                      isViewOnly: widget.operationType=="V",
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
@@ -1178,7 +1257,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
-                                    onPressed: () {
+                                    onPressed:widget.operationType=="V"?null: () {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
                                         saveBookingDetailsImport();

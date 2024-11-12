@@ -471,7 +471,7 @@ class ShipmentDetailsImports {
   String cargoDescription;
   int cargoTypeId;
   String cargoType;
-  int cargoWeight;
+  dynamic cargoWeight;
   String chaName;
   String nameOfExporterImporter;
   int quantity;
@@ -479,14 +479,14 @@ class ShipmentDetailsImports {
   String boeDt;
   String? typeOfGoods;
   String hsnCode;
-  String cargoValue;
+  dynamic cargoValue;
   int importerId;
   String? unitOfQt;
   String? grossWt;
   String? countryOrig;
   bool isUliPverified;
   int? whRequestId;
-  String? bookingId;
+  int? bookingId;
   String? portOfDest;
 
   ShipmentDetailsImports({
@@ -523,7 +523,7 @@ class ShipmentDetailsImports {
         nameOfExporterImporter: json["NameOfExporterImporter"],
         quantity: json["Quantity"],
         boeNo: json["BOENo"],
-        boeDt: json["BOEDt"],
+        boeDt: DateFormat('dd MMM yyyy').format(DateTime.parse(json["BOEDt"])),
         typeOfGoods: json["TypeOfGoods"],
         hsnCode: json["HSNCode"],
         cargoValue: json["CargoValue"],
@@ -535,6 +535,7 @@ class ShipmentDetailsImports {
         whRequestId: json["WHRequestId"],
         bookingId: json["BookingId"],
         isUliPverified: json["IsULIPverified"],
+        cargoType: (cargoTypeList.firstWhere((cargo) => cargo.value == json["CargoTypeId"].toString())).nameDisplay,
       );
 
   Map<String, dynamic> toJson() => {
@@ -570,6 +571,7 @@ class VehicleDetailsExports {
   String driverName;
   String drivingLicenseNo;
   String? slotDateTime;
+  String? bookedTimeSlot;
   String slotViewDateTime;
   String truckNo;
   int? vehicleTypeId;
@@ -599,6 +601,7 @@ class VehicleDetailsExports {
     required this.driverName,
     required this.drivingLicenseNo,
     this.slotDateTime = "",
+    this.bookedTimeSlot = "",
     this.slotViewDateTime = "",
     required this.truckNo,
     required this.vehicleTypeId,
@@ -612,8 +615,8 @@ class VehicleDetailsExports {
     this.isNewSlot = true,
     required this.remarksChassisNo,
     this.isGateIn = true,
-    this.registrationDate,
-    this.grossWt ,
+    this.registrationDate=null,
+    this.grossWt=null ,
     this.tareWt=null,
     this.netWt =null,
     this.isvehicleVerified=null,
@@ -637,14 +640,16 @@ class VehicleDetailsExports {
       driverName: json["DriverName"],
       drivingLicenseNo: json["DrivingLicenseNo"],
       slotDateTime: json["SlotDateTime"],
+      bookedTimeSlot: json["BookedTimeSlot"],
       truckNo: json["TruckNo"],
       vehicleTypeId: json["VehicleType"],
       slotConfigId: json["SlotConfigId"],
       slotDurationId: json["SlotDurationId"],
       slotStartTime: json["SlotStartTime"],
       slotEndTime: json["SlotEndTime"],
-      drivingLicense: DrivingLicense(bookingId: 2646, vehicleId: 3205, dlDocConfigId: 2997, documentType: "DL UPLOAD", documentName: "1000044196_202411693523.png", remark:"" , documentPhysicalFileName: "1000044196_202411693523_20241111114832.png", filePath: "https://acsintaksfileshare.file.core.windows.net/acsintaksfileshare/Upload/ImportFiles/1000044196_202411693523_20241111114832.png?sv=2024-08-04&se=2049-11-11T06%3A18%3A16Z&sr=f&sp=rcwd&sig=8QDi5oOf8eE4%2FZkRkHdAp4otUmvpg%2BnEYhFI03xGvjg%3D", documentDescription:"" , isFinanicial: false, documentTyepId: 144, documentUploadCriteria:  "PNG", fileUom: "MB", fileSize: 2, ),
-
+      drivingLicense: json["DrivingLicense"] != null
+          ? DrivingLicense.fromJson(json["DrivingLicense"])
+          : null,
       rcScanned: json['RCScanned'] != null
           ? RcDetails.fromJson(json['RCScanned'])
           : null,
@@ -658,6 +663,9 @@ class VehicleDetailsExports {
       netWt: json["NetWt"],
       isvehicleVerified: json["IsvehicleVerified"],
       isDriverVerified: json["IsDriverVerified"],
+       vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,//json["VehicleType"]==42?"Truck":"AUTO"
+      slotViewDateTime:
+          "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot']}",
     );
   }
 
@@ -723,10 +731,11 @@ class VehicleDetailsImports {
   String? slotEndTime;
   DrivingLicense? drivingLicense;
   RcDetails? rcScanned;
-  bool isModifySlot;
-  bool isNewSlot;
+  bool? isModifySlot;
+  bool? isNewSlot;
   String remarksChassisNo;
-  bool isGateIn;
+  bool? isGateIn;
+  String? bookedTimeSlot;
   // String? registrationDate;
   // String? grossWt;
   // String? tareWt;
@@ -744,6 +753,7 @@ class VehicleDetailsImports {
     required this.drivingLicenseNo,
     this.slotDateTime,
     this.slotViewDateTime = "",
+    this.bookedTimeSlot,
     required this.truckNo,
     required this.vehicleTypeId,
     this.slotConfigId ,
@@ -792,6 +802,9 @@ class VehicleDetailsImports {
         isNewSlot: json["IsNewSlot"],
         remarksChassisNo: json["RemarksChassisNo"],
         isGateIn: json["IsGateIn"],
+        vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,
+          bookedTimeSlot:json['BookedTimeSlot'],
+        slotViewDateTime:"${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot']}",
         // registrationDate: json["RegistrationDate"],
         // grossWt: json["GrossWt"],
         // tareWt: json["TareWt"],
@@ -858,6 +871,7 @@ class DrivingLicense {
   String? documentUploadCriteria;
   String? fileUom;
   int? fileSize;
+  int? rcDocConfigId;
 
   DrivingLicense({
     this.bookingId,
@@ -874,6 +888,7 @@ class DrivingLicense {
     this.documentUploadCriteria = "PNG",
     this.fileUom = "MB",
     this.fileSize = 2,
+    this.rcDocConfigId,
   });
 
   factory DrivingLicense.fromJson(Map<String, dynamic> json) => DrivingLicense(
@@ -927,6 +942,7 @@ class DrivingLicense {
         'documentUploadCriteria: $documentUploadCriteria, '
         'fileUom: $fileUom, '
         'fileSize: $fileSize, '
+        'rcDocConfigId: $rcDocConfigId'
         ')';
   }
 
