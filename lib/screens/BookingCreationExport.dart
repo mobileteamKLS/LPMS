@@ -1314,7 +1314,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       });
 
       print("Driver Name: ${vehicleListExports[0].driverName}");
-      print("Driving License Document Name: ${vehicleListExports[0].drivingLicense.toString()}");
+      print("Driving License Document Name: ${vehicleListExports[0].drivingLicense!.documentName}");
       print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
       setState(() {
         _isLoading = false;

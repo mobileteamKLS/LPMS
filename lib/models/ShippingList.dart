@@ -606,14 +606,14 @@ class VehicleDetailsExports {
     this.slotDurationId,
     this.slotStartTime ,
     this.slotEndTime,
-    DrivingLicense? drivingLicense,
-    RcDetails? rcScanned,
+    this.drivingLicense,
+    this.rcScanned,
     this.isModifySlot = false,
     this.isNewSlot = true,
     required this.remarksChassisNo,
     this.isGateIn = true,
-    this.registrationDate=null,
-    this.grossWt=null ,
+    this.registrationDate,
+    this.grossWt ,
     this.tareWt=null,
     this.netWt =null,
     this.isvehicleVerified=null,
@@ -643,9 +643,8 @@ class VehicleDetailsExports {
       slotDurationId: json["SlotDurationId"],
       slotStartTime: json["SlotStartTime"],
       slotEndTime: json["SlotEndTime"],
-      drivingLicense: json["DrivingLicense"] != null
-          ? DrivingLicense.fromJson(json["DrivingLicense"])
-          : null,
+      drivingLicense: DrivingLicense(bookingId: 2646, vehicleId: 3205, dlDocConfigId: 2997, documentType: "DL UPLOAD", documentName: "1000044196_202411693523.png", remark:"" , documentPhysicalFileName: "1000044196_202411693523_20241111114832.png", filePath: "https://acsintaksfileshare.file.core.windows.net/acsintaksfileshare/Upload/ImportFiles/1000044196_202411693523_20241111114832.png?sv=2024-08-04&se=2049-11-11T06%3A18%3A16Z&sr=f&sp=rcwd&sig=8QDi5oOf8eE4%2FZkRkHdAp4otUmvpg%2BnEYhFI03xGvjg%3D", documentDescription:"" , isFinanicial: false, documentTyepId: 144, documentUploadCriteria:  "PNG", fileUom: "MB", fileSize: 2, ),
+
       rcScanned: json['RCScanned'] != null
           ? RcDetails.fromJson(json['RCScanned'])
           : null,
@@ -859,7 +858,6 @@ class DrivingLicense {
   String? documentUploadCriteria;
   String? fileUom;
   int? fileSize;
-  int? rcDocConfigId;
 
   DrivingLicense({
     this.bookingId,
@@ -876,7 +874,6 @@ class DrivingLicense {
     this.documentUploadCriteria = "PNG",
     this.fileUom = "MB",
     this.fileSize = 2,
-    this.rcDocConfigId,
   });
 
   factory DrivingLicense.fromJson(Map<String, dynamic> json) => DrivingLicense(
@@ -930,7 +927,6 @@ class DrivingLicense {
         'documentUploadCriteria: $documentUploadCriteria, '
         'fileUom: $fileUom, '
         'fileSize: $fileSize, '
-        'rcDocConfigId: $rcDocConfigId'
         ')';
   }
 

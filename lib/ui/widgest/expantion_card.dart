@@ -1068,10 +1068,10 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     ),
                                   ],
                                 ),
-                                vehicleDetails.rcScanned?.documentPhysicalFileName != null
+                                vehicleDetails.rcScanned?.documentName != null
                                     ? GestureDetector(
                                       child: Text(
-                                          "${vehicleDetails.rcScanned?.documentPhysicalFileName}",
+                                          "${vehicleDetails.rcScanned?.documentName}",
                                           style: const TextStyle(
                                               decoration: TextDecoration.underline,
                                               decorationStyle: TextDecorationStyle.solid,
@@ -1082,7 +1082,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                   onTap: (){
-                                        fileDownload(fileName!,vehicleDetails.rcScanned!.filePath);
+                                        fileDownload(fileName??vehicleDetails.rcScanned!.documentName!,vehicleDetails.rcScanned!.filePath);
                                   },
                                     )
                                     : const Text(""),
@@ -1276,9 +1276,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     ),
                                   ],
                                 ),
-                                vehicleDetails.drivingLicense?.documentPhysicalFileName != null
+                                vehicleDetails.drivingLicense?.documentName != null
                                     ? Text(
-                                        "${vehicleDetails.drivingLicense?.documentPhysicalFileName}",
+                                        "${vehicleDetails.drivingLicense?.documentName}",
                                         style: const TextStyle(
                                             decoration: TextDecoration.underline,
                                             decorationStyle: TextDecorationStyle.solid,
@@ -2836,10 +2836,10 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     ),
                                   ],
                                 ),
-                                vehicleDetails.rcScanned?.documentPhysicalFileName != null
+                                vehicleDetails.rcScanned?.documentName != null
                                     ? GestureDetector(
                                       child: Text(
-                                          "${vehicleDetails.rcScanned?.documentPhysicalFileName}",
+                                          "${vehicleDetails.rcScanned?.documentName}",
                                           style: const TextStyle(
                                               decoration: TextDecoration.underline,
                                               decorationStyle: TextDecorationStyle.solid,
@@ -2850,7 +2850,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                               fontWeight: FontWeight.w500),
                                         ),
                                   onTap: (){
-                                    fileDownload(fileName!,vehicleDetails.rcScanned!.filePath);
+                                    fileDownload(fileName??vehicleDetails.rcScanned!.documentName!,vehicleDetails.rcScanned!.filePath);
                                   },
                                     )
                                     : const Text(""),
@@ -3044,9 +3044,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     ),
                                   ],
                                 ),
-                                vehicleDetails.drivingLicense?.documentPhysicalFileName != null
+                                vehicleDetails.drivingLicense?.documentName != null
                                     ? Text(
-                                        "${vehicleDetails.drivingLicense?.documentPhysicalFileName}",
+                                        "${vehicleDetails.drivingLicense?.documentName}",
                                         style: const TextStyle(
                                             decoration: TextDecoration.underline,
                                             decorationStyle: TextDecorationStyle.solid,
