@@ -564,6 +564,7 @@ class ShipmentDetailsImports {
 
 class VehicleDetailsExports {
   int vehicleId;
+  int? bookingId;
   String vehicleTypeName;
   String? driverAadhaar;
   String driverContact;
@@ -591,9 +592,11 @@ class VehicleDetailsExports {
   String? netWt;
   String? isvehicleVerified;
   String? isDriverVerified;
+  String? VTNo;
 
   VehicleDetailsExports({
     this.vehicleId = 0,
+    this.bookingId,
     this.vehicleTypeName = "",
     this.driverAadhaar,
     required this.driverContact,
@@ -621,19 +624,16 @@ class VehicleDetailsExports {
     this.netWt =null,
     this.isvehicleVerified=null,
     this.isDriverVerified =null,
+    this.VTNo,
   });
   // : drivingLicense = drivingLicense ?? DrivingLicense(),
   //   // Assign default DrivingLicense if null
   //   rcScanned = rcScanned ?? DrivingLicense();
 
   factory VehicleDetailsExports.fromJson(Map<String, dynamic> json){
-
-    print("RCScanned JSON: ${json["RCScanned"]}");
-    if(json["DrivingLicense"] != null){
-      print("Driving License JSON: ${DrivingLicense.fromJson(json["DrivingLicense"])}");
-    }
    return VehicleDetailsExports(
       vehicleId: json["VehicleId"],
+      bookingId: json["BookingId"],
       driverAadhaar: json["DriverAadhaar"],
       driverContact: json["DriverContact"],
       driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
@@ -665,7 +665,10 @@ class VehicleDetailsExports {
       isDriverVerified: json["IsDriverVerified"],
        vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,//json["VehicleType"]==42?"Truck":"AUTO"
       slotViewDateTime:
-          "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot']}",
+      json['SlotDateTime'] != null
+          ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
+          : "",
+     // VTNo:  json["VTNo"],
     );
   }
 

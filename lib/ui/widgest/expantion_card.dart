@@ -120,7 +120,7 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                                 }
                               });
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():  Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
@@ -457,7 +457,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                                 });
                               }
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():  Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
@@ -730,7 +730,7 @@ class _AddVehicleDetailsListExportsNew
                                 }
                               }
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():  Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
@@ -1590,7 +1590,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                     }
                                   });
                                 },
-                                child: Container(
+                                child:widget.isViewOnly?SizedBox():  Container(
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 8),
                                     decoration: BoxDecoration(
@@ -2056,7 +2056,7 @@ class _AddShipmentDetailsListImportsNew
                                 });
                               }
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():  Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
@@ -2226,7 +2226,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                                 }
                               });
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
@@ -2512,7 +2512,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                 }
                               }
                             },
-                            child: Container(
+                            child:widget.isViewOnly?SizedBox():  Container(
                               margin: const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
@@ -3369,14 +3369,14 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     }
                                   });
                                 },
-                                child: Container(
+                                child:widget.isViewOnly?SizedBox(): Container(
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 8),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                     child:  Icon(Icons.edit,
-                                        size: 28, color:widget.isViewOnly?AppColors.textFieldBorderColor :AppColors.primary)),
+                                        size: 28, color:AppColors.primary)),
                               ),
                               GestureDetector(
                                 onTap: () {

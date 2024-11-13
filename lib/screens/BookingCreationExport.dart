@@ -45,6 +45,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
+  String bookingDate="";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
   final double initialHeight = 45;
@@ -787,7 +788,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       multiSelectController.clearAll();
                                       Navigator.pop(context);
                                     },
-                                    child: const Text("Cancel"),
+                                    child: widget.operationType=="V"?const Text("Back"):const Text("Cancel"),
                                   ),
                                 ),
                                 const SizedBox(
@@ -1189,14 +1190,14 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     //   _isLoading = true;
     // });
 
-    Utils.showLoadingDialog(context);
+    // Utils.showLoadingDialog(context);
     List<String> vehicleIdList =
         selectedVehicleList.map((vehicle) => vehicle.id).toList();
 
     SlotBookingCreationExport bookingCreationExport = SlotBookingCreationExport(
-      bookingId: 0,
+      bookingId:widget.operationType=="E"?widget.bookingId!:0,
       vehicleType: vehicleIdList,
-      bookingDt: null,
+      bookingDt:widget.operationType=="E"?bookingDate: null,
       noofVehicle: int.parse(noOfVehiclesController.text),
       isFtl: modeSelected == 0,
       isLtl: modeSelected == 1,
@@ -1223,7 +1224,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     );
     Map<String, dynamic> payload = bookingCreationExport.toJson();
     Utils.printPayload(payload);
-
+    return;
     await authService
         .postData(
       "api_pcs/ShipmentMaster/UpSertShipment",
@@ -1320,6 +1321,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       });
       setState(() {
         chaIdMaster=jsonData["CHAId"];
+        bookingDate=jsonData["BookingDt"];
         chaNameMaster=jsonData["ChaName"];
         chaController.text=jsonData["ChaName"].toUpperCase();
         if(jsonData["IsFTL"]){
@@ -1331,14 +1333,14 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         List<String> vehicleIdList = List<String>.from(
             jsonData["VehicleType"].map((id) => id.toString())
         );
-        print(vehicleIdList.toString());
+        // print(vehicleIdList.toString());
         multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
         // selectedVehicleList=vehicleIdList.addAll([42, 44, 89].map((id) => id.toString()));
       });
 
-      print("Driver Name: ${vehicleListExports[0].driverName}");
-      print("Driving License Document Name: ${vehicleListExports[0].drivingLicense!.documentName}");
-      print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
+      // print("Driver Name: ${vehicleListExports[0].driverName}");
+      // print("Driving License Document Name: ${vehicleListExports[0].drivingLicense!.documentName}");
+      // print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
 
       setState(() {
         _isLoading = false;

@@ -1737,9 +1737,12 @@ class _ImportScreenState extends State<ImportScreen> {
             message: "Export shipment booking deleted successfully.",
             backgroundColor: AppColors.successColor,
             leftIcon: Icons.check_circle);
-        return;
+
       }
       Utils.hideLoadingDialog(context);
+      getShipmentDetails(endOfDayFormatted,
+          startOfDayFormatted, "", "",
+          airportId: selectedTerminalId!);
     }).catchError((onError) {
       Utils.hideLoadingDialog(context);
       print(onError);

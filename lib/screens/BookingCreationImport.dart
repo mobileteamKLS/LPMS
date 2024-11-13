@@ -1246,7 +1246,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                       multiSelectController.clearAll();
                                       Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
                                     },
-                                    child: const Text("Cancel"),
+                                    child: widget.operationType=="V"?const Text("Back"):const Text("Cancel"),
                                   ),
                                 ),
                                 const SizedBox(
