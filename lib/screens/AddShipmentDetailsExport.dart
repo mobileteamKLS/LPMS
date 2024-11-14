@@ -72,7 +72,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     qualityController.text="0";
     weightController.text="0";
   }
-
+  late ShipmentDetailsExports editDetails;
   @override
   void initState() {
     super.initState();
@@ -97,7 +97,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     exporterId=widget.shipment?.exporterId??0;
     cargoTypeId=widget.shipment?.cargoTypeId??0;
     print("isExport shp: ${widget.isExport}");
-
+    if (widget.shipment != null) editDetails = widget.shipment!;
     exporterFocusNode.addListener(() async {
       if (!exporterFocusNode.hasFocus) {
         final input = exporterNameController.text;
@@ -1011,34 +1011,68 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     onPressed: () {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
-                                        final newShipment = ShipmentDetailsExports(
-                                          shippingBillNoIgmNno: billNoController
-                                              .text,
-                                          shippingBillDateIgm: billDateController
-                                              .text,
-                                          nameOfExporterImporter:
-                                          exporterNameController.text,
-                                          hsnCode: hsnCodeController.text,
-                                          cargoType: cargoTypeController.text,
-                                          cargoDescription:
-                                          cargoDescriptionController.text,
-                                          quantity: int.parse(qualityController
-                                              .text),
-                                          cargoWeight: double.parse(
-                                              weightController.text),
-                                          cargoValue: valueController.text,
-                                          cargoTypeId: cargoTypeId,
-                                          chaName: chaNameMaster,
-                                          typeOfGoods: null,
-                                          exporterId:exporterId,
-                                          unitOfQt:null,
-                                          portOfDest: null,
-                                          grossQt: null,
-                                          isUliPverified: false,
+                                        if(!isEdit) {
+                                          final newShipment = ShipmentDetailsExports(
+                                            shippingBillNoIgmNno: billNoController
+                                                .text,
+                                            shippingBillDateIgm: billDateController
+                                                .text,
+                                            nameOfExporterImporter:
+                                            exporterNameController.text,
+                                            hsnCode: hsnCodeController.text,
+                                            cargoType: cargoTypeController.text,
+                                            cargoDescription:
+                                            cargoDescriptionController.text,
+                                            quantity: int.parse(
+                                                qualityController
+                                                    .text),
+                                            cargoWeight: double.parse(
+                                                weightController.text),
+                                            cargoValue: valueController.text,
+                                            cargoTypeId: cargoTypeId,
+                                            chaName: chaNameMaster,
+                                            typeOfGoods: null,
+                                            exporterId: exporterId,
+                                            unitOfQt: null,
+                                            portOfDest: null,
+                                            grossQt: null,
+                                            isUliPverified: false,
 
-                                        );
-                                        Navigator.pop(context,
-                                            newShipment);
+                                          );
+                                          Navigator.pop(context,
+                                              newShipment);
+                                        }
+                                        else{
+                                          editDetails = widget.shipment!.copyWith(
+                                            shippingBillNoIgmNno: billNoController
+                                                .text,
+                                            shippingBillDateIgm: billDateController
+                                                .text,
+                                            nameOfExporterImporter:
+                                            exporterNameController.text,
+                                            hsnCode: hsnCodeController.text,
+                                            cargoType: cargoTypeController.text,
+                                            cargoDescription:
+                                            cargoDescriptionController.text,
+                                            quantity: int.parse(
+                                                qualityController
+                                                    .text),
+                                            cargoWeight: double.parse(
+                                                weightController.text),
+                                            cargoValue: valueController.text,
+                                            cargoTypeId: cargoTypeId,
+                                            chaName: chaNameMaster,
+                                            typeOfGoods: null,
+                                            exporterId: exporterId,
+                                            unitOfQt: "",
+                                            portOfDest: "",
+                                            grossQt: null,
+                                            isUliPverified: false,
+
+                                          );
+                                          Navigator.pop(context,
+                                              editDetails);
+                                        }
                                       }
                                     },
                                     child: const Text(

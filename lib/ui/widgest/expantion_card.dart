@@ -1519,6 +1519,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Column(
@@ -3296,6 +3297,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,

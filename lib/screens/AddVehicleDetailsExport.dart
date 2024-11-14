@@ -55,6 +55,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
   }
 
   DrivingLicense dl = DrivingLicense();
+  RcDetails rc = RcDetails();
   late VehicleDetailsExports editDetails;
 
   @override
@@ -79,6 +80,11 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
         text: widget.vehicleDetails?.remarksChassisNo ?? '');
     if (widget.vehicleDetails?.drivingLicense != null) {
       dl = (widget.vehicleDetails?.drivingLicense)!;
+      print(dl.toString());
+    }
+    if (widget.vehicleDetails?.rcScanned != null) {
+      rc = (widget.vehicleDetails?.rcScanned)!;
+      print(dl.toString());
     }
     if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
     print("---${widget.vehicleDetails?.bookedTimeSlot}");
@@ -698,6 +704,10 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                                 driverNameController.text,
                                             remarksChassisNo:
                                                 remarkController.text,
+                                                isNewSlot: false,
+                                                isModifySlot: false,
+                                                // drivingLicense: dl,
+                                                // rcScanned: rc
                                           );
                                           Navigator.pop(
                                               context, editDetails);

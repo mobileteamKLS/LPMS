@@ -29,6 +29,7 @@ class SlotBookingCreationExport {
   int screenId;
   int adminOrgProdId;
   int orgId;
+  String eventCode;
 
   SlotBookingCreationExport({
     required this.bookingId,
@@ -57,6 +58,7 @@ class SlotBookingCreationExport {
     required this.screenId,
     required this.adminOrgProdId,
     required this.orgId,
+    required this.eventCode,
   });
 
   factory SlotBookingCreationExport.fromMap(Map<String, dynamic> json) =>
@@ -90,7 +92,7 @@ class SlotBookingCreationExport {
         paCompanyCode: json["PACompanyCode"],
         screenId: json["ScreenId"],
         adminOrgProdId: json["Admin_OrgProdId"],
-        orgId: json["OrgId"],
+        orgId: json["OrgId"], eventCode: json["EventCode"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -122,6 +124,7 @@ class SlotBookingCreationExport {
         "ScreenId": screenId,
         "Admin_OrgProdId": adminOrgProdId,
         "OrgId": orgId,
+        "EventCode":eventCode,
       };
 
   @override
@@ -464,6 +467,48 @@ class ShipmentDetailsExports {
         "GrossQt": grossQt,
         "IsULIPverified": isUliPverified,
       };
+
+  ShipmentDetailsExports copyWith({
+    int? detailsId,
+    String? cargoDescription,
+    int? cargoTypeId,
+    String? cargoType,
+    dynamic cargoWeight,
+    String? chaName,
+    String? nameOfExporterImporter,
+    int? quantity,
+    String? shippingBillNoIgmNno,
+    String? shippingBillDateIgm,
+    String? typeOfGoods,
+    String? hsnCode,
+    dynamic cargoValue,
+    int? exporterId,
+    String? unitOfQt,
+    String? portOfDest,
+    String? grossQt,
+    bool? isUliPverified,
+  }) {
+    return ShipmentDetailsExports(
+      detailsId: detailsId ?? this.detailsId,
+      cargoDescription: cargoDescription ?? this.cargoDescription,
+      cargoTypeId: cargoTypeId ?? this.cargoTypeId,
+      cargoType: cargoType ?? this.cargoType,
+      cargoWeight: cargoWeight ?? this.cargoWeight,
+      chaName: chaName ?? this.chaName,
+      nameOfExporterImporter: nameOfExporterImporter ?? this.nameOfExporterImporter,
+      quantity: quantity ?? this.quantity,
+      shippingBillNoIgmNno: shippingBillNoIgmNno ?? this.shippingBillNoIgmNno,
+      shippingBillDateIgm: shippingBillDateIgm ?? this.shippingBillDateIgm,
+      typeOfGoods: typeOfGoods ?? this.typeOfGoods,
+      hsnCode: hsnCode ?? this.hsnCode,
+      cargoValue: cargoValue ?? this.cargoValue,
+      exporterId: exporterId ?? this.exporterId,
+      unitOfQt: unitOfQt ?? this.unitOfQt,
+      portOfDest: portOfDest ?? this.portOfDest,
+      grossQt: grossQt ?? this.grossQt,
+      isUliPverified: isUliPverified ?? this.isUliPverified,
+    );
+  }
 }
 
 class ShipmentDetailsImports {
@@ -560,6 +605,54 @@ class ShipmentDetailsImports {
         "BookingId": bookingId,
         "IsULIPverified": isUliPverified,
       };
+
+  ShipmentDetailsImports copyWith({
+    int? detailsId,
+    String? cargoDescription,
+    int? cargoTypeId,
+    String? cargoType,
+    dynamic cargoWeight,
+    String? chaName,
+    String? nameOfExporterImporter,
+    int? quantity,
+    String? boeNo,
+    String? boeDt,
+    String? typeOfGoods,
+    String? hsnCode,
+    dynamic cargoValue,
+    int? importerId,
+    String? unitOfQt,
+    String? grossWt,
+    String? countryOrig,
+    bool? isUliPverified,
+    int? whRequestId,
+    int? bookingId,
+    String? portOfDest,
+  }) {
+    return ShipmentDetailsImports(
+      detailsId: detailsId ?? this.detailsId,
+      cargoDescription: cargoDescription ?? this.cargoDescription,
+      cargoTypeId: cargoTypeId ?? this.cargoTypeId,
+      cargoType: cargoType ?? this.cargoType,
+      cargoWeight: cargoWeight ?? this.cargoWeight,
+      chaName: chaName ?? this.chaName,
+      nameOfExporterImporter: nameOfExporterImporter ?? this.nameOfExporterImporter,
+      quantity: quantity ?? this.quantity,
+      boeNo: boeNo ?? this.boeNo,
+      boeDt: boeDt ?? this.boeDt,
+      typeOfGoods: typeOfGoods ?? this.typeOfGoods,
+      hsnCode: hsnCode ?? this.hsnCode,
+      cargoValue: cargoValue ?? this.cargoValue,
+      importerId: importerId ?? this.importerId,
+      unitOfQt: unitOfQt ?? this.unitOfQt,
+      portOfDest: portOfDest ?? this.portOfDest,
+      grossWt: grossWt ?? this.grossWt,
+      countryOrig: countryOrig ?? this.countryOrig,
+      whRequestId: whRequestId ?? this.whRequestId,
+      bookingId: bookingId ?? this.bookingId,
+      isUliPverified: isUliPverified ?? this.isUliPverified,
+    );
+  }
 }
 
 class VehicleDetailsExports {
@@ -851,7 +944,7 @@ class VehicleDetailsImports {
         vehicleId: json["VehicleId"],
         driverAadhaar: json["DriverAadhaar"],
         driverContact: json["DriverContact"],
-        driverDob: json["DriverDOB"],
+        driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
         driverName: json["DriverName"],
         drivingLicenseNo: json["DrivingLicenseNo"],
         slotDateTime: json["SlotDateTime"],
@@ -873,7 +966,10 @@ class VehicleDetailsImports {
         isGateIn: json["IsGateIn"],
         vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,
           bookedTimeSlot:json['BookedTimeSlot'],
-        slotViewDateTime:"${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot']}",
+
+        slotViewDateTime:json['SlotDateTime'] != null
+            ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
+            : "",
         // registrationDate: json["RegistrationDate"],
         // grossWt: json["GrossWt"],
         // tareWt: json["TareWt"],
@@ -911,6 +1007,56 @@ class VehicleDetailsImports {
         // "IsvehicleVerified": null,
         // "IsDriverVerified": null,
       };
+
+  VehicleDetailsImports copyWith({
+    int? vehicleId,
+    String? vehicleTypeName,
+    String? driverAadhaar,
+    String? driverContact,
+    String? driverDob,
+    String? driverName,
+    String? drivingLicenseNo,
+    String? slotDateTime,
+    String? slotViewDateTime,
+    String? truckNo,
+    int? vehicleTypeId,
+    int? slotConfigId,
+    int? slotDurationId,
+    String? slotStartTime,
+    String? slotEndTime,
+    DrivingLicense? drivingLicense,
+    RcDetails? rcScanned,
+    bool? isModifySlot,
+    bool? isNewSlot,
+    String? remarksChassisNo,
+    bool? isGateIn,
+    String? bookedTimeSlot,
+  }) {
+    return VehicleDetailsImports(
+      vehicleId: vehicleId ?? this.vehicleId,
+      vehicleTypeName: vehicleTypeName ?? this.vehicleTypeName,
+      driverAadhaar: driverAadhaar ?? this.driverAadhaar,
+      driverContact: driverContact ?? this.driverContact,
+      driverDob: driverDob ?? this.driverDob,
+      driverName: driverName ?? this.driverName,
+      drivingLicenseNo: drivingLicenseNo ?? this.drivingLicenseNo,
+      slotDateTime: slotDateTime ?? this.slotDateTime,
+      slotViewDateTime: slotViewDateTime ?? this.slotViewDateTime,
+      truckNo: truckNo ?? this.truckNo,
+      vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
+      slotConfigId: slotConfigId ?? this.slotConfigId,
+      slotDurationId: slotDurationId ?? this.slotDurationId,
+      slotStartTime: slotStartTime ?? this.slotStartTime,
+      slotEndTime: slotEndTime ?? this.slotEndTime,
+      drivingLicense: drivingLicense ?? this.drivingLicense,
+      rcScanned: rcScanned ?? this.rcScanned,
+      isModifySlot: isModifySlot ?? this.isModifySlot,
+      isNewSlot: isNewSlot ?? this.isNewSlot,
+      remarksChassisNo: remarksChassisNo ?? this.remarksChassisNo,
+      isGateIn: isGateIn ?? this.isGateIn,
+      bookedTimeSlot: bookedTimeSlot ?? this.bookedTimeSlot,
+    );
+  }
 
   String? validateDrivingLicense() {
     return drivingLicense == null ? 'Driving License document is required for vehicle no' : null;
@@ -978,20 +1124,20 @@ class DrivingLicense {
       );
 
   Map<String, dynamic> toJson() => {
-        // "BookingId": bookingId,
-        // "VehicleId": vehicleId,
-        // "DLDocConfigId": dlDocConfigId,
+        "BookingId": bookingId,
+        "VehicleId": vehicleId,
+        "DLDocConfigId": dlDocConfigId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        // "IsFinanicial": isFinanicial,
+        "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        // "DocumentUploadCriteria": documentUploadCriteria,
-        // "FileUOM": fileUom,
-        // "FileSize": fileSize,
+        "DocumentUploadCriteria": documentUploadCriteria,
+        "FileUOM": fileUom,
+        "FileSize": fileSize,
         // "RCDocConfigId": rcDocConfigId,
       };
   @override
@@ -1068,20 +1214,20 @@ class RcDetails {
       );
 
   Map<String, dynamic> toJson() => {
-        // "BookingId": bookingId,
-        // "VehicleId": vehicleId,
+        "BookingId": bookingId,
+        "VehicleId": vehicleId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        // "IsFinanicial": isFinanicial,
+        "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        // "DocumentUploadCriteria": documentUploadCriteria,
-        // "FileUOM": fileUom,
-        // "FileSize": fileSize,
-        // "RCDocConfigId": rcDocConfigId,
+        "DocumentUploadCriteria": documentUploadCriteria,
+        "FileUOM": fileUom,
+        "FileSize": fileSize,
+        "RCDocConfigId": rcDocConfigId,
       };
 }
 

@@ -1191,9 +1191,9 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       // }
     }
 
-    // setState(() {
-    //   _isLoading = true;
-    // });
+    setState(() {
+      _isLoading = true;
+    });
 
     // Utils.showLoadingDialog(context);
     List<String> vehicleIdList =
@@ -1226,10 +1226,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       screenId: 9065,
       adminOrgProdId: loginMaster[0].adminOrgProdId,
       orgId: loginMaster[0].adminOrgId,
+      eventCode: widget.operationType=="E"?"UpdeteExpSlotBooking":"CreateExpSlotBooking"
     );
     Map<String, dynamic> payload = bookingCreationExport.toJson();
     Utils.printPayload(payload);
-    return;
+    // return;
     await authService
         .postData(
       "api_pcs/ShipmentMaster/UpSertShipment",

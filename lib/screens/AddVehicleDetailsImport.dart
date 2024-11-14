@@ -45,7 +45,7 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
   void _addMarkTouchedCallback(VoidCallback callback) {
     _markFieldsTouched.add(callback);
   }
-
+  late VehicleDetailsImports editDetails;
   void _markAllFieldsTouched() {
     for (var callback in _markFieldsTouched) {
       callback();
@@ -76,7 +76,7 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
     driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverContact ?? '');
     driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
     remarkController = TextEditingController(text: widget.vehicleDetails?.remarksChassisNo ?? '');
-
+    if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id:item.value.id, name:item.value.name);
     }).toList();
@@ -648,19 +648,40 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
-                                        final newVehicle = VehicleDetailsImports(
-                                          vehicleTypeId:  vehicleTypeId,
-                                          vehicleTypeName: vehicleTypeController.text,
-                                          truckNo: vehicleNoController.text,
-                                          drivingLicenseNo: driverLicenseNoController.text,
-                                          driverContact: driverMobNoController.text,
-                                          driverDob: driverDOBController.text,
-                                          driverName:driverNameController.text,
-                                          remarksChassisNo:remarkController.text,
+                                       if(!isEdit){
+                                         final newVehicle = VehicleDetailsImports(
+                                           vehicleTypeId:  vehicleTypeId,
+                                           vehicleTypeName: vehicleTypeController.text,
+                                           truckNo: vehicleNoController.text,
+                                           drivingLicenseNo: driverLicenseNoController.text,
+                                           driverContact: driverMobNoController.text,
+                                           driverDob: driverDOBController.text,
+                                           driverName:driverNameController.text,
+                                           remarksChassisNo:remarkController.text,
+                                         );
+                                         Navigator.pop(context,
+                                             newVehicle);
+                                       }
+                                       else{
+                                         editDetails =
+                                             widget.vehicleDetails!.copyWith(
+                                           vehicleTypeId:  vehicleTypeId,
+                                           vehicleTypeName: vehicleTypeController.text,
+                                           truckNo: vehicleNoController.text,
+                                           drivingLicenseNo: driverLicenseNoController.text,
+                                           driverContact: driverMobNoController.text,
+                                           driverDob: driverDOBController.text,
+                                           driverName:driverNameController.text,
+                                           remarksChassisNo:remarkController.text,
+                                           slotConfigId: 0,
+                                           slotDurationId: 0,
+                                               isModifySlot: false,
+                                               isNewSlot: false
+                                         );
+                                         Navigator.pop(context,
+                                             editDetails);
+                                       }
 
-                                        );
-                                        Navigator.pop(context,
-                                            newVehicle); // Pass the object back
                                       }
                                     },
                                     child: const Text(

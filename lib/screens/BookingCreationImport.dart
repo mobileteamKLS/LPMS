@@ -49,6 +49,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
+  String bookingDate = "";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
   final double initialHeight = 45;
@@ -161,6 +162,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       });
       setState(() {
         chaIdMaster=jsonData["CHAId"];
+        bookingDate=jsonData["BookingDt"];
         chaNameMaster=jsonData["ChaName"];
         chaController.text=jsonData["ChaName"].toUpperCase();
         if(jsonData["IsFTL"]){
@@ -238,9 +240,9 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         selectedVehicleList.map((vehicle) => vehicle.id).toList();
 
     final bookingCreationImport = SlotBookingCreationImport(
-      bookingId: 0,
+      bookingId: widget.operationType=="E"?widget.bookingId!:0,
       vehicleType: vehicleIdList,
-      bookingDt: null,
+      bookingDt: widget.operationType=="E"?bookingDate: null,
       noofVehicle: int.parse(noOfVehiclesController.text),
       isFtl: modeSelected == 0,
       isLtl: modeSelected == 1,
@@ -264,7 +266,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       isYes: false,
       isNo: true,
       landportAirportId: 0,
-      eventCode: 'CreateImpSlotBooking',
+      eventCode: widget.operationType=="E"?"UpdeteImpSlotBooking":"CreateImpSlotBooking",
       directImportId: 0,
     );
     Map<String, dynamic> payload = bookingCreationImport.toJson();
