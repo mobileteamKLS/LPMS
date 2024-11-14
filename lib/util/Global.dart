@@ -30,6 +30,7 @@ String originMaster="";
 String destinationMaster="";
 String chaNameMaster="";
 int? selectedTerminalId = 151;
+bool isEdit=false;
 final List<Map<String, dynamic>> terminals = [
   {'id': 157, 'name': 'AKOLA'},
   {'id': 155, 'name': 'ATTARI'},

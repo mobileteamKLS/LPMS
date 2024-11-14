@@ -97,20 +97,25 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     isFTlAndOneShipment = true;
     getOriginDestination();
     noOfVehiclesController.text = "1";
-
-
-    chaFocusNode.addListener(() async {
-      if (!chaFocusNode.hasFocus) {
-        final input = chaController.text;
-        final suggestions = await CHAAgentService.isValidAgent(input);
-        if (!suggestions) {
-          chaController.clear();
-          chaNameMaster = '';
-          chaIdMaster = 0;
-          // formFieldState.didChange(null);
-        }
-      }
-    });
+    if(widget.operationType=="E"){
+      isEdit=true;
+    }
+    else{
+      isEdit=false;
+    }
+    //
+    // chaFocusNode.addListener(() async {
+    //   if (!chaFocusNode.hasFocus) {
+    //     final input = chaController.text;
+    //     final suggestions = await CHAAgentService.isValidAgent(input);
+    //     if (!suggestions) {
+    //       chaController.clear();
+    //       chaNameMaster = '';
+    //       chaIdMaster = 0;
+    //       // formFieldState.didChange(null);
+    //     }
+    //   }
+    // });
   }
 
   @override

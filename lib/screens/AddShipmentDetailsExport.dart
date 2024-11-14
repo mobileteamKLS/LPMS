@@ -1024,7 +1024,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           cargoDescriptionController.text,
                                           quantity: int.parse(qualityController
                                               .text),
-                                          cargoWeight: int.parse(
+                                          cargoWeight: double.parse(
                                               weightController.text),
                                           cargoValue: valueController.text,
                                           cargoTypeId: cargoTypeId,

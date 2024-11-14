@@ -49,8 +49,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
-  double _textFieldHeight = 45; // Default initial height
-  double _textFieldHeight2 = 45; // Default initial height
+  double _textFieldHeight = 45;
+  double _textFieldHeight2 = 45;
   final double initialHeight = 45;
   final double errorHeight = 65;
   final List categoriesData = [
@@ -318,6 +318,12 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     Utils.clearMasterData();
     isFTlAndOneShipment = true;
     noOfVehiclesController.text = "1";
+    if(widget.operationType=="E"){
+      isEdit=true;
+    }
+    else{
+      isEdit=false;
+    }
   }
 
   Future<ShipmentDetailsImports?> validateAndNavigate() async {
