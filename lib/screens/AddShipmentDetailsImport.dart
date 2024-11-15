@@ -709,7 +709,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   debounceDuration:
                                   const Duration(milliseconds: 300),
                                   suggestionsCallback: (search) =>
-                                      CHAAgentService.find(search),
+                                      CargoTypeService.find(search),
                                   itemBuilder: (context, item) {
                                     return Container(
                                       decoration: const BoxDecoration(
@@ -737,7 +737,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   builder: (context, controller, focusNode) =>
                                       CustomTextField(
                                         controller: controller,
-                                        labelText: "CHA Name",
+                                        labelText: "Cargo Type",
                                         registerTouchedCallback:
                                         _addMarkTouchedCallback,
                                         focusNode: focusNode,
@@ -753,7 +753,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                   //     Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
-                                    child: Text('No CHA Found',
+                                    child: Text('No Cargo Type Found',
                                         style: TextStyle(fontSize: 16)),
                                   ),
                                   onSelected: (value) {
@@ -984,7 +984,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
                                         print(cargoTypeId);
-                                        if(!isEdit){
+                                        if(!isEdit || widget.shipment==null){
                                           final newShipment =
                                           ShipmentDetailsImports(
                                             boeNo: billNoController.text,

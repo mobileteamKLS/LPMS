@@ -77,6 +77,7 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
     driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
     remarkController = TextEditingController(text: widget.vehicleDetails?.remarksChassisNo ?? '');
     if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
+    selectedVehicleList=[];
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id:item.value.id, name:item.value.name);
     }).toList();
@@ -648,7 +649,7 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
-                                       if(!isEdit){
+                                       if(!isEdit || widget.vehicleDetails==null){
                                          final newVehicle = VehicleDetailsImports(
                                            vehicleTypeId:  vehicleTypeId,
                                            vehicleTypeName: vehicleTypeController.text,

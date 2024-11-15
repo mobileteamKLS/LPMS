@@ -615,7 +615,7 @@ class _AddVehicleDetailsListExportsNew
                         });
                       }
                     },
-                    child: Container(
+                    child:widget.isViewOnly?SizedBox(): Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
@@ -839,6 +839,8 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
   late TargetPlatform? targetPlatform;
   File? pickedFile;
   Uint8List? fileBytes;
+  late DrivingLicense dlDocument;
+  late RcDetails rcDocument;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   Future<String> copyFileWithNewName(
@@ -939,7 +941,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         setState(() {
 
           if (docType == "RC UPLOAD") {
-            RcDetails document = RcDetails()
+             rcDocument = RcDetails()
               ..filePath = jsonData["message"]
               ..documentPhysicalFileName = fileName
               ..remark = docRemarkController.text
@@ -947,9 +949,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
               ..documentType = docType
               ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
               ..documentDescription = docNameController.text;
-            vehicleDetails.rcScanned = document;
+            vehicleDetails.rcScanned = rcDocument;
           } else {
-            DrivingLicense document = DrivingLicense()
+             dlDocument = DrivingLicense()
               ..filePath = jsonData["message"]
               ..documentPhysicalFileName = fileName
               ..remark = docRemarkController.text
@@ -957,7 +959,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
               ..documentType = docType
               ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
               ..documentDescription = docNameController.text;
-            vehicleDetails.drivingLicense = document;
+            vehicleDetails.drivingLicense = dlDocument;
           }
           print("Document uploaded for: $docType");
         });
@@ -1143,9 +1145,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
-                                  fileName=null;
-                                  fileSize=null;
-                                  vehicleDetails.rcScanned=null;
+                                  // fileName=null;
+                                  // fileSize=null;
+                                  // vehicleDetails.rcScanned=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -1156,6 +1158,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.rcScanned = rcDocument;
                                     vehicleDetails.rcScanned?.documentDescription=docNameController.text;
                                     vehicleDetails.rcScanned?.remark=docRemarkController.text;
                                     docNameController.clear();
@@ -1346,9 +1349,9 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: OutlinedButton(
                                 onPressed: () {
-                                  fileName2=null;
-                                  fileSize2=null;
-                                  vehicleDetails.drivingLicense=null;
+                                  // fileName2=null;
+                                  // fileSize2=null;
+                                  // vehicleDetails.drivingLicense=null;
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Cancel"),
@@ -1359,6 +1362,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               height: 45,
                               child: ElevatedButton(
                                   onPressed: () {
+                                    vehicleDetails.drivingLicense = dlDocument;
                                     vehicleDetails.drivingLicense?.documentDescription=docNameController.text;
                                     vehicleDetails.drivingLicense?.remark=docRemarkController.text;
                                     docNameController.clear();
@@ -2397,7 +2401,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                         });
                       }
                     },
-                    child: Container(
+                    child:widget.isViewOnly?SizedBox(): Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
@@ -2621,6 +2625,8 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   File? pickedFile;
   Uint8List? fileBytes;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  late DrivingLicense dlDocument;
+  late RcDetails rcDocument;
 
   Future<String> copyFileWithNewName(
       PlatformFile file, String newFileName) async {
@@ -2720,7 +2726,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
 
         setState(() {
           if (docType == "RC UPLOAD") {
-            RcDetails document = RcDetails()
+              rcDocument = RcDetails()
               ..filePath = jsonData["message"]
               ..documentPhysicalFileName = fileName
               ..remark = docRemarkController.text
@@ -2728,9 +2734,9 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
               ..documentType = docType
               ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
               ..documentDescription = docNameController.text;
-            vehicleDetails.rcScanned = document;
+            vehicleDetails.rcScanned = rcDocument;
           } else {
-            DrivingLicense document = DrivingLicense()
+              dlDocument = DrivingLicense()
               ..filePath = jsonData["message"]
               ..documentPhysicalFileName = fileName
               ..remark = docRemarkController.text
@@ -2738,7 +2744,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
               ..documentType = docType
               ..documentTyepId = (docType == "RC UPLOAD") ? 145 : 144
               ..documentDescription = docNameController.text;
-            vehicleDetails.drivingLicense = document;
+            vehicleDetails.drivingLicense = dlDocument;
           }
 
           print("Document uploaded for: $docType");
@@ -3297,9 +3303,10 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Column(

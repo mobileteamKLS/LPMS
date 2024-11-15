@@ -1011,7 +1011,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     onPressed: () {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
-                                        if(!isEdit) {
+                                        if(!isEdit || widget.shipment==null) {
                                           final newShipment = ShipmentDetailsExports(
                                             shippingBillNoIgmNno: billNoController
                                                 .text,

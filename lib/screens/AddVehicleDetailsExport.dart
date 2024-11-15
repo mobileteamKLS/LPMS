@@ -88,6 +88,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
     }
     if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
     print("---${widget.vehicleDetails?.bookedTimeSlot}");
+    selectedVehicleList=[];
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id: item.value.id, name: item.value.name);
     }).toList();
@@ -670,7 +671,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                       if (_formKey.currentState?.validate() ??
                                           false) {
                                         print("$vehicleTypeId");
-                                        if (!isEdit) {
+                                        if (!isEdit || widget.vehicleDetails==null) {
                                           final newVehicle =
                                               VehicleDetailsExports(
                                             vehicleTypeId: vehicleTypeId,

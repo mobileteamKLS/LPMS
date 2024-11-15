@@ -236,6 +236,11 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     // setState(() {
     //   _isLoading = true;
     // });
+    if(vehicleListImports.isEmpty){
+      selectedVehicleList = multiSelectController.selectedItems.map((item) {
+        return Vehicle(id: item.value.id, name: item.value.name);
+      }).toList();
+    }
     List<String> vehicleIdList =
         selectedVehicleList.map((vehicle) => vehicle.id).toList();
 

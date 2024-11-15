@@ -886,7 +886,7 @@ class VehicleDetailsImports {
   String? slotDateTime;
   String slotViewDateTime;
   String truckNo;
-  int? vehicleTypeId;
+  dynamic vehicleTypeId;
   int? slotConfigId;
   int? slotDurationId;
   String? slotStartTime;
@@ -989,7 +989,7 @@ class VehicleDetailsImports {
         "DrivingLicenseNo": drivingLicenseNo,
         "SlotDateTime": slotDateTime,
         "TruckNo": truckNo,
-        "VehicleType": vehicleTypeId.toString(),
+        "VehicleType": vehicleTypeId,
         "SlotConfigId": slotConfigId,
         "SlotDurationId": slotDurationId,
         "SlotStartTime": slotStartTime,
@@ -1124,20 +1124,20 @@ class DrivingLicense {
       );
 
   Map<String, dynamic> toJson() => {
-        "BookingId": bookingId,
-        "VehicleId": vehicleId,
-        "DLDocConfigId": dlDocConfigId,
+       if(bookingId!=null) "BookingId": bookingId,
+    if(bookingId!=null) "VehicleId": vehicleId,
+    if(bookingId!=null)   "DLDocConfigId": dlDocConfigId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        "IsFinanicial": isFinanicial,
+    if(bookingId!=null) "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        "DocumentUploadCriteria": documentUploadCriteria,
-        "FileUOM": fileUom,
-        "FileSize": fileSize,
+    if(bookingId!=null)  "DocumentUploadCriteria": documentUploadCriteria,
+    if(bookingId!=null)    "FileUOM": fileUom,
+    if(bookingId!=null)   "FileSize": fileSize,
         // "RCDocConfigId": rcDocConfigId,
       };
   @override
@@ -1214,20 +1214,20 @@ class RcDetails {
       );
 
   Map<String, dynamic> toJson() => {
-        "BookingId": bookingId,
-        "VehicleId": vehicleId,
+    if(bookingId!=null)   "BookingId": bookingId,
+    if(bookingId!=null)   "VehicleId": vehicleId,
         "DocumentType": documentType,
         "DocumentName": documentName,
         "Remark": remark,
         "DocumentPhysicalFileName": documentPhysicalFileName,
         "FilePath": filePath,
         "DocumentDescription": documentDescription,
-        "IsFinanicial": isFinanicial,
+    if(bookingId!=null)    "IsFinanicial": isFinanicial,
         "DocumentTyepID": documentTyepId,
-        "DocumentUploadCriteria": documentUploadCriteria,
-        "FileUOM": fileUom,
-        "FileSize": fileSize,
-        "RCDocConfigId": rcDocConfigId,
+    if(bookingId!=null)     "DocumentUploadCriteria": documentUploadCriteria,
+    if(bookingId!=null)    "FileUOM": fileUom,
+    if(bookingId!=null)   "FileSize": fileSize,
+    if(bookingId!=null)  "RCDocConfigId": rcDocConfigId,
       };
 }
 
