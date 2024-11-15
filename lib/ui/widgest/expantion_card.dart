@@ -978,7 +978,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
   }
 
   void showUploadRCSheet(
-      BuildContext context, VehicleDetailsExports vehicleDetails) {
+      BuildContext context, VehicleDetailsExports vehicleDetails,bool isViewOnly) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1106,7 +1106,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                 _pickFile(
                                     setState, vehicleDetails, "RC UPLOAD");
                               },
-                              child: const Row(
+                              child:isViewOnly?SizedBox(): const Row(
                                 children: [
                                   Icon(
                                     Icons.upload_outlined,
@@ -1190,7 +1190,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
   }
 
   void showUploadDLSheet(
-      BuildContext context, VehicleDetailsExports vehicleDetails) {
+      BuildContext context, VehicleDetailsExports vehicleDetails,bool isViewOnly) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1310,7 +1310,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                                 _pickFile(
                                     setState, vehicleDetails, "DL UPLOAD");
                               },
-                              child: const Row(
+                              child:isViewOnly?const SizedBox(): const Row(
                                 children: [
                                   Icon(
                                     Icons.upload_outlined,
@@ -1642,7 +1642,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              showUploadRCSheet(context, vehicleDetails);
+                              showUploadRCSheet(context, vehicleDetails,widget.isViewOnly);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -1682,7 +1682,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              showUploadDLSheet(context, vehicleDetails);
+                              showUploadDLSheet(context, vehicleDetails,widget.isViewOnly);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -2528,7 +2528,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                                 color: ((isFTlAndOneShipment &&
                                     vehicleListImports.length >= (int.tryParse(noOfVehiclesController.text) ??
                                     1))||(!isFTlAndOneShipment &&
-                                    vehicleListExports.isNotEmpty))?AppColors.textFieldBorderColor:AppColors.primary,
+                                    vehicleListImports.isNotEmpty))?AppColors.textFieldBorderColor:AppColors.primary,
                               ),
                             ),
                           ),
@@ -2764,7 +2764,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   }
 
   void showUploadRCSheet(
-      BuildContext context, VehicleDetailsImports vehicleDetails) {
+      BuildContext context, VehicleDetailsImports vehicleDetails,bool isViewOnly) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -2892,7 +2892,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 _pickFile(
                                     setState, vehicleDetails, "RC UPLOAD");
                               },
-                              child: const Row(
+                              child:isViewOnly?const SizedBox(): const Row(
                                 children: [
                                   Icon(
                                     Icons.upload_outlined,
@@ -2975,7 +2975,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
   }
 
   void showUploadDLSheet(
-      BuildContext context, VehicleDetailsImports vehicleDetails) {
+      BuildContext context, VehicleDetailsImports vehicleDetails,bool isViewOnly) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -3094,7 +3094,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 _pickFile(
                                     setState, vehicleDetails, "DL UPLOAD");
                               },
-                              child: const Row(
+                              child:isViewOnly?const SizedBox(): const Row(
                                 children: [
                                   Icon(
                                     Icons.upload_outlined,
@@ -3425,7 +3425,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              showUploadRCSheet(context, vehicleDetails);
+                              showUploadRCSheet(context, vehicleDetails,widget.isViewOnly);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -3438,16 +3438,24 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                         Icons.account_box_outlined,
                                         size: 28,
-                                        color: AppColors.primary)),
-                                const Text(
+                                        color: (vehicleDetails.rcScanned?.filePath ??
+                                            "")
+                                            .isEmpty
+                                            ? AppColors.primary
+                                            : AppColors.successColor)),
+                                 Text(
                                   "Reg. Cert.",
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.primary,
-                                  ),
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                      (vehicleDetails.rcScanned?.filePath ??
+                                          "")
+                                          .isEmpty
+                                          ? AppColors.primary
+                                          : AppColors.successColor),
                                 ),
                               ],
                             ),
@@ -3457,7 +3465,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              showUploadDLSheet(context, vehicleDetails);
+                              showUploadDLSheet(context, vehicleDetails,widget.isViewOnly);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -3468,15 +3476,25 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                         Icons.account_box_outlined,
                                         size: 28,
-                                        color: AppColors.primary)),
-                                const Text(
+                                      color: (vehicleDetails
+                                          .drivingLicense?.filePath ??
+                                          "")
+                                          .isEmpty
+                                          ? AppColors.primary
+                                          : AppColors.successColor,)),
+                                 Text(
                                   "DL",
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                    color: (vehicleDetails
+                                        .drivingLicense?.filePath ??
+                                        "")
+                                        .isEmpty
+                                        ? AppColors.primary
+                                        : AppColors.successColor,
                                   ),
                                 ),
                               ],

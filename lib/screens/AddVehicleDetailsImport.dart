@@ -77,6 +77,7 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
     driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
     remarkController = TextEditingController(text: widget.vehicleDetails?.remarksChassisNo ?? '');
     if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
+    print((widget.vehicleDetails!.drivingLicense));
     selectedVehicleList=[];
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id:item.value.id, name:item.value.name);
@@ -659,6 +660,8 @@ class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
                                            driverDob: driverDOBController.text,
                                            driverName:driverNameController.text,
                                            remarksChassisNo:remarkController.text,
+                                           isNewSlot:isEdit?false:true,
+                                           isGateIn: isEdit?false:true,
                                          );
                                          Navigator.pop(context,
                                              newVehicle);

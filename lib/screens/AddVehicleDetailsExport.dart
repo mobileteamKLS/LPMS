@@ -87,7 +87,8 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
       print(dl.toString());
     }
     if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
-    print("---${widget.vehicleDetails?.bookedTimeSlot}");
+    print("---${widget.vehicleDetails?.isModifySlot}");
+    print("---${widget.vehicleDetails?.isNewSlot}");
     selectedVehicleList=[];
     selectedVehicleList = multiSelectController.selectedItems.map((item) {
       return Vehicle(id: item.value.id, name: item.value.name);
@@ -687,6 +688,8 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                                 driverNameController.text,
                                             remarksChassisNo:
                                                 remarkController.text,
+                                                isNewSlot:isEdit?false:true,
+                                                isGateIn: isEdit?false:true,
                                           );
                                           Navigator.pop(context, newVehicle);
                                         } else {

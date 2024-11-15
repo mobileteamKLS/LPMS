@@ -732,7 +732,7 @@ class VehicleDetailsExports {
       driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
       driverName: json["DriverName"],
       drivingLicenseNo: json["DrivingLicenseNo"],
-      slotDateTime: json["SlotDateTime"],
+      slotDateTime: json["SlotDateTime"]??"",
       bookedTimeSlot: json["BookedTimeSlot"],
       truckNo: json["TruckNo"],
       vehicleTypeId: json["VehicleType"],
@@ -746,8 +746,8 @@ class VehicleDetailsExports {
       rcScanned: json['RCScanned'] != null
           ? RcDetails.fromJson(json['RCScanned'])
           : null,
-      isModifySlot: json["IsModifySlot"],
-      isNewSlot: json["IsNewSlot"],
+      isModifySlot: json["IsModifySlot"]??false,
+      isNewSlot: json["IsNewSlot"]??false,
       remarksChassisNo: json["RemarksChassisNo"],
       isGateIn: json["IsGateIn"],
       registrationDate: json["RegistrationDate"],
@@ -777,7 +777,7 @@ class VehicleDetailsExports {
     "DrivingLicenseNo": drivingLicenseNo,
     "SlotDateTime": slotDateTime,
     "TruckNo": truckNo,
-    "VehicleType": vehicleTypeId.toString(),
+    "VehicleType": vehicleTypeId,
     "SlotConfigId": slotConfigId,
     "SlotDurationId": slotDurationId,
     "SlotStartTime": slotStartTime,
@@ -877,6 +877,7 @@ class VehicleDetailsExports {
 
 class VehicleDetailsImports {
   int vehicleId;
+  int? bookingId;
   String vehicleTypeName;
   String? driverAadhaar;
   String driverContact;
@@ -898,6 +899,7 @@ class VehicleDetailsImports {
   String remarksChassisNo;
   bool? isGateIn;
   String? bookedTimeSlot;
+  dynamic gateinNo;
   // String? registrationDate;
   // String? grossWt;
   // String? tareWt;
@@ -907,6 +909,7 @@ class VehicleDetailsImports {
 
   VehicleDetailsImports({
     this.vehicleId = 0,
+    this.bookingId,
     this.vehicleTypeName = "",
     this.driverAadhaar,
     required this.driverContact,
@@ -922,12 +925,13 @@ class VehicleDetailsImports {
     this.slotDurationId,
     this.slotStartTime ,
     this.slotEndTime,
-    DrivingLicense? drivingLicense,
-    RcDetails? rcScanned,
+    this.drivingLicense,
+    this.rcScanned,
     this.isModifySlot = false,
     this.isNewSlot = true,
     required this.remarksChassisNo,
     this.isGateIn = true,
+    this.gateinNo,
     // this.registrationDate=null,
     // this.grossWt=null ,
     // this.tareWt=null,
@@ -942,12 +946,13 @@ class VehicleDetailsImports {
   factory VehicleDetailsImports.fromJson(Map<String, dynamic> json) =>
       VehicleDetailsImports(
         vehicleId: json["VehicleId"],
+        bookingId: json["BookingId"],
         driverAadhaar: json["DriverAadhaar"],
         driverContact: json["DriverContact"],
         driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
         driverName: json["DriverName"],
         drivingLicenseNo: json["DrivingLicenseNo"],
-        slotDateTime: json["SlotDateTime"],
+        slotDateTime: json["SlotDateTime"]??"",
         truckNo: json["TruckNo"],
         vehicleTypeId: json["VehicleType"],
         slotConfigId: json["SlotConfigId"],
@@ -960,16 +965,17 @@ class VehicleDetailsImports {
         rcScanned: json['RCScanned'] != null
             ? RcDetails.fromJson(json['RCScanned'])
             : null,
-        isModifySlot: json["IsModifySlot"],
-        isNewSlot: json["IsNewSlot"],
+        isModifySlot: json["IsModifySlot"]??false,
+        isNewSlot: json["IsNewSlot"]??false,
         remarksChassisNo: json["RemarksChassisNo"],
         isGateIn: json["IsGateIn"],
         vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,
-          bookedTimeSlot:json['BookedTimeSlot'],
+        bookedTimeSlot:json['BookedTimeSlot'],
 
         slotViewDateTime:json['SlotDateTime'] != null
             ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
             : "",
+        gateinNo: json["GateInNo"]??"",
         // registrationDate: json["RegistrationDate"],
         // grossWt: json["GrossWt"],
         // tareWt: json["TareWt"],

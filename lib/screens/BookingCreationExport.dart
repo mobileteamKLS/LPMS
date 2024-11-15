@@ -1333,6 +1333,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         chaIdMaster=jsonData["CHAId"];
         bookingDate=jsonData["BookingDt"];
         chaNameMaster=jsonData["ChaName"];
+        noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
         chaController.text=jsonData["ChaName"].toUpperCase();
         if(jsonData["IsFTL"]){
           modeSelected=0;

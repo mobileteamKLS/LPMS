@@ -160,9 +160,11 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         vehicleListImports=(jsonData['ImpVehicleDetails'] as List).map((item) => VehicleDetailsImports.fromJson(item))
             .toList();
       });
+      print(vehicleListImports.length);
       setState(() {
         chaIdMaster=jsonData["CHAId"];
         bookingDate=jsonData["BookingDt"];
+        noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
         chaNameMaster=jsonData["ChaName"];
         chaController.text=jsonData["ChaName"].toUpperCase();
         if(jsonData["IsFTL"]){
