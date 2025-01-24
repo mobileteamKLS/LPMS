@@ -833,7 +833,7 @@ class CustomSnackBarTop {
           right: 10),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

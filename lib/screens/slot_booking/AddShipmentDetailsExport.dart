@@ -12,11 +12,11 @@ import 'package:intl/intl.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Global.dart';
 import 'package:lpms/util/Uitlity.dart';
-import '../api/auth.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_color.dart';
-import '../theme/app_theme.dart';
-import '../ui/widgest/AutoSuggest.dart';
+import '../../api/auth.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_theme.dart';
+import '../../ui/widgest/AutoSuggest.dart';
 
 
 class AddShipmentDetails extends StatefulWidget {
@@ -136,7 +136,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
+          toolbarHeight: 60,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(

@@ -12,6 +12,7 @@ import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 
 class AuthService {
+
   Future<Post> getUserAuthenticationDetails(service, payload, headers) async {
     print("payload $payload");
     print("encoded payload ${json.encode(payload)}");
@@ -43,7 +44,7 @@ class AuthService {
   }
 
   Future<Post> fetchDataPOST(apiName, payload) async {
-    var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
+    var newURL = "$baseAPIUrl$apiName";
     debugPrint("fetch data for API = $newURL");
     // final headers = {
     //   'Content-Type': 'application/json',
@@ -126,7 +127,7 @@ class AuthService {
   }
 
   Future<Post> fetchDataGET(apiName, payload) async {
-    var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
+    var newURL = "$baseAPIUrl$apiName";
     print("fetch data for API = $newURL");
     var url = Uri.parse(newURL);
     url = Uri.https(url.authority, url.path, payload);
@@ -173,7 +174,7 @@ class AuthService {
   }
 
   Future<Post> fetchLoginDataPOST(apiName, payload, headers) async {
-    var newURL = "https://acsintapigateway.kalelogistics.com/$apiName";
+    var newURL = "$baseAPIUrl$apiName";
     debugPrint("fetch data for API = $newURL");
 
     if (payload == "") {
@@ -206,6 +207,7 @@ class AuthService {
         headers: headers,
       )
           .then((http.Response response) {
+        print("--${response.body}");
         Utils.printPrettyJson(response.body);
         print(response.statusCode);
 
@@ -227,7 +229,7 @@ class AuthService {
     required Map<String, String> headers,
     required Map<String, String> fields,
   }) async {
-    var url = "https://acsintapigateway.kalelogistics.com/$endPoint";
+    var url = "$baseAPIUrl$endPoint";
     print(url);
     var uri = Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
@@ -248,7 +250,7 @@ class AuthService {
     required Map<String, String> headers,
     required File file,
   }) async {
-    var url = "https://acsintapigateway.kalelogistics.com/$endPoint";
+    var url = "$baseAPIUrl$endPoint";
     print(url);
     var uri = Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
@@ -275,7 +277,7 @@ class AuthService {
     required String folderUrl,
     required String downloadPath,
   }) async {
-    const String apiUrl = 'https://acsintapigateway.kalelogistics.com/api/ReturnRootPath/Download/Download';
+     String apiUrl = '$baseAPIUrl/api/ReturnRootPath/Download/Download';
 
     try {
       final Map<String, dynamic> requestBody = {
@@ -319,7 +321,7 @@ class AuthService {
   //   required String folderUrl,
   //   required String downloadPath
   // }) async {
-  //   const String apiUrl = 'https://acsintapigateway.kalelogistics.com/api/ReturnRootPath/Download/Download';
+  //   const String apiUrl = 'baseUrlapi/ReturnRootPath/Download/Download';
   //
   //   try {
   //     final Map<String, dynamic> requestBody = {

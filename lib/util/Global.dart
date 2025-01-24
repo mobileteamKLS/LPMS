@@ -4,9 +4,10 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import '../models/IPInfo.dart';
 import '../models/LoginMaster.dart';
 import '../models/ShippingList.dart';
-import '../screens/BookingCreationExport.dart';
+import '../screens/slot_booking/BookingCreationExport.dart';
 
-
+var baseAPIUrl="https://acs2devapi.azurewebsites.net/";
+var baseUIUrl="https://acs2devui.azurewebsites.net/";
 late IpInfo ipInfo;
 List<LoginDetailsMaster> loginMaster = [];
 List<AllVehicleTypes> vehicleTypeList = [];

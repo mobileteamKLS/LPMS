@@ -8,15 +8,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:lpms/screens/BookingCreationExport.dart';
-import 'package:lpms/screens/BookingCreationImport.dart';
+import 'package:lpms/screens/slot_booking/BookingCreationExport.dart';
+import 'package:lpms/screens/slot_booking/BookingCreationImport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
-import '../api/auth.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_color.dart';
-import '../theme/app_theme.dart';
-import '../util/Global.dart';
+import '../../api/auth.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_theme.dart';
+import '../../util/Global.dart';
 
 class AddBookSlot extends StatefulWidget {
   final bool isExport;
@@ -132,7 +132,7 @@ class _AddBookSlotState extends State<AddBookSlot> {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white, size: 32),
-        toolbarHeight: 80,
+        toolbarHeight: 60,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -550,7 +550,7 @@ class _AddBookSlotExportsState extends State<AddBookSlotExports> {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white, size: 32),
-        toolbarHeight: 80,
+        toolbarHeight: 60,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(

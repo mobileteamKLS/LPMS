@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lpms/screens/BookingCreationExport.dart';
-import 'package:lpms/screens/ExportDashboard.dart';
-import 'package:lpms/screens/Login.dart';
+import 'package:lpms/screens/slot_booking/BookingCreationExport.dart';
+import 'package:lpms/screens/slot_booking/ExportDashboard.dart';
+import 'package:lpms/screens/login/Login.dart';
+import 'package:lpms/screens/login/login_new.dart';
 import 'package:lpms/theme/app_theme.dart';
 import 'package:lpms/ui/widgest/AutoSuggest.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           debugShowCheckedModeBanner: false,
           theme:AppTheme.lightTheme,
-          home:  const LoginPage(),
+          home:  const LoginPageNew(),
         );
       },
 

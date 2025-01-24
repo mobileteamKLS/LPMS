@@ -284,7 +284,6 @@ class SlotBookingCreationImport {
   };
 }
 
-
 class SlotBookingShipmentListingExport {
   int bookingId;
   String bookingDt;
@@ -761,7 +760,7 @@ class VehicleDetailsExports {
       json['SlotDateTime'] != null
           ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
           : "",
-     // VTNo:  json["VTNo"],
+     VTNo:  json["VTNo"],
     );
   }
 
@@ -900,6 +899,7 @@ class VehicleDetailsImports {
   bool? isGateIn;
   String? bookedTimeSlot;
   dynamic gateinNo;
+  String? VTNo;
   // String? registrationDate;
   // String? grossWt;
   // String? tareWt;
@@ -932,6 +932,7 @@ class VehicleDetailsImports {
     required this.remarksChassisNo,
     this.isGateIn = true,
     this.gateinNo,
+    this.VTNo,
     // this.registrationDate=null,
     // this.grossWt=null ,
     // this.tareWt=null,
@@ -976,6 +977,7 @@ class VehicleDetailsImports {
             ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
             : "",
         gateinNo: json["GateInNo"]??"",
+        VTNo:  json["VTNo"],
         // registrationDate: json["RegistrationDate"],
         // grossWt: json["GrossWt"],
         // tareWt: json["TareWt"],
@@ -1169,6 +1171,7 @@ class DrivingLicense {
 
 
 }
+
 class RcDetails {
   int? bookingId;
   int? vehicleId;
@@ -1236,8 +1239,6 @@ class RcDetails {
     if(bookingId!=null)  "RCDocConfigId": rcDocConfigId,
       };
 }
-
-
 
 class SlotDetails {
   dynamic assignDockId;
@@ -1689,6 +1690,7 @@ class ViewShipmentDetailsExport {
     "VehicleType": List<dynamic>.from(vehicleType.map((x) => x)),
   };
 }
+
 class VehicalTypeList {
   int bookingId;
   int vehicleTypeDetailId;

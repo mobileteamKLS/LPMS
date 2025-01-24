@@ -6,31 +6,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:lpms/screens/BookingCreationExport.dart';
+import 'package:lpms/screens/slot_booking/BookingCreationExport.dart';
 import 'package:lpms/theme/app_color.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:path_provider/path_provider.dart';
-import '../api/auth.dart';
-import '../models/SelectionModel.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_theme.dart';
+import '../../api/auth.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../ui/widgest/AppDrawer.dart';
-import '../ui/widgest/CustomTextField.dart';
-import '../util/Global.dart';
-import '../util/Uitlity.dart';
+import '../../ui/widgest/AppDrawer.dart';
+import '../../ui/widgest/CustomTextField.dart';
+import '../../util/Global.dart';
+import '../../util/Uitlity.dart';
 import 'dart:io';
 
-import 'Encryption.dart';
+import 'BookingCreationImport.dart';
 
-class ExportScreen extends StatefulWidget {
-  const ExportScreen({super.key});
+class ImportScreen extends StatefulWidget {
+  const ImportScreen({super.key});
 
   @override
-  State<ExportScreen> createState() => _ExportScreenState();
+  State<ImportScreen> createState() => _ImportScreenState();
 }
 
-class _ExportScreenState extends State<ExportScreen> {
+class _ImportScreenState extends State<ImportScreen> {
   bool isLoading = false;
   bool hasNoRecord = false;
   bool isFilterApplied = false;
@@ -40,14 +38,12 @@ class _ExportScreenState extends State<ExportScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // List of terminal data with id as int
-
-  List<SlotBookingShipmentListingExport> listShipmentDetails = [];
-  List<SlotBookingShipmentListingExport> listShipmentDetailsBind = [];
+  List<SlotBookingShipmentListingImport> listShipmentDetails = [];
+  List<SlotBookingShipmentListingImport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
-  final EncryptionService encryptionService = EncryptionService();
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
-  List<SlotBookingShipmentListingExport> filteredList = [];
+  List<SlotBookingShipmentListingImport> filteredList = [];
 
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
@@ -62,7 +58,6 @@ class _ExportScreenState extends State<ExportScreen> {
   @override
   void initState() {
     super.initState();
-    print("USER ID${loginMaster[0].userId}");
     DateTime today = DateTime.now();
     DateTime startOfDay = today
         .subtract(const Duration(days: 1))
@@ -91,7 +86,6 @@ class _ExportScreenState extends State<ExportScreen> {
     );
 
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    loadVehicleTypes();
   }
 
   @override
@@ -99,11 +93,11 @@ class _ExportScreenState extends State<ExportScreen> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Imports',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
+          toolbarHeight: 60,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -190,7 +184,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
-                        color: Colors.orange, // Notification dot color
+                        color: Colors.orange,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -201,7 +195,7 @@ class _ExportScreenState extends State<ExportScreen> {
               onPressed: () {},
             ),
           ]),
-      drawer: AppDrawer(selectedScreen: "Export"),
+      drawer: AppDrawer(selectedScreen: "Import"),
       body: Stack(
         children: [
           Container(
@@ -283,8 +277,7 @@ class _ExportScreenState extends State<ExportScreen> {
                             onTap: () {
                               if (filteredList.isEmpty &&
                                   listShipmentDetails.isEmpty) {
-                                CustomSnackBar.show(context,
-                                    message: "No Data Found");
+                                CustomSnackBar.show(context, message: "No Data Found");
                                 return;
                               }
                               if (filteredList.isNotEmpty) {
@@ -345,7 +338,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                           physics:
                                               const NeverScrollableScrollPhysics(),
                                           itemBuilder: (BuildContext, index) {
-                                            SlotBookingShipmentListingExport
+                                            SlotBookingShipmentListingImport
                                                 shipmentDetails =
                                                 filteredList.elementAt(index);
                                             return buildShipmentDetailsCardV2(
@@ -363,7 +356,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                             //     getFilteredShipmentDetails(
                                             //         listShipmentDetails,
                                             //         selectedFilters);
-                                            SlotBookingShipmentListingExport
+                                            SlotBookingShipmentListingImport
                                                 shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
@@ -401,10 +394,7 @@ class _ExportScreenState extends State<ExportScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const BookingCreationExport(
-                        operationType: "C",
-                      )),
+              MaterialPageRoute(builder: (context) => const BookingCreationImport(operationType: "C", isQRVisisble: false,)),
             );
           },
           backgroundColor: AppColors.primary,
@@ -475,97 +465,6 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  Future<void> loadVehicleTypes() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      isLoading = true;
-    });
-    vehicleTypeList = [];
-    final mdl = SelectionModels(
-      whereCondition:
-          " Coalesce(A.IsActive,0) = 1 AND A.OrgProdId=${loginMaster[0].adminOrgProdId} ",
-      referenceId: "VehicleType",
-      isAll: true,
-    );
-    if (mdl.topRecord == null || mdl.topRecord == 10) {
-      mdl.topRecord = 999;
-    }
-
-    SelectionQuery body = SelectionQuery();
-
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-    mdl.query = body.query;
-    var headers = {
-      'Accept': 'text/plain',
-      'Content-Type': 'multipart/form-data',
-    };
-    var fields = {
-      'Query': '${body.query}',
-    };
-
-    await authService
-        .sendMultipartRequest(
-            headers: headers,
-            fields: fields,
-            endPoint: "api/GenericDropDown/GetAllVehicleType")
-        .then((response) {
-      if (response.body.isNotEmpty) {
-        print("-----Vehicle Types-----");
-        print(json.decode(response.body));
-        List<dynamic> jsonData = json.decode(response.body);
-        setState(() {
-          vehicleTypeList =
-              jsonData.map((json) => AllVehicleTypes.fromJSON(json)).toList();
-          vehicleTypeList.forEach((element) {
-            items.add(DropdownItem(
-                label: element.name,
-                value: Vehicle(id: element.value, name: element.name)));
-          });
-          print("object  $items");
-        });
-        print("-----Vehicle Type Lenght=${vehicleTypeList.length}-----");
-      } else {
-        print("response is empty");
-      }
-      setState(() {
-        setState(() {
-          isLoading = false;
-        });
-      });
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          isLoading = false;
-        });
-      });
-    });
-    // await authService
-    //     .fetchLoginDataPOST(
-    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
-    //     .then((response) {
-    //   print("data received ");
-    //   if (response.body.isNotEmpty) {
-    //     json.decode(response.body);
-    //     print(json.decode(response.body));
-    //   } else {
-    //     print("response is empty");
-    //   }
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    // }).catchError((onError) {
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    //   print(onError);
-    // });
-  }
-
   Future<void> showNotification(String filePath) async {
     var androidDetails = const AndroidNotificationDetails(
       'channelId',
@@ -590,23 +489,23 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-  void exportToExcel(List<SlotBookingShipmentListingExport> shipments) async {
+  void exportToExcel(List<SlotBookingShipmentListingImport> shipments) async {
     var excel = ex.Excel.createExcel();
     ex.Sheet sheetObject = excel['Sheet1'];
     sheetObject.appendRow([
       ex.TextCellValue("Status"),
       ex.TextCellValue("Booking No."),
       ex.TextCellValue("Booking Date"),
-      ex.TextCellValue("Shipping Bill No."),
-      ex.TextCellValue("Shipping Bill Date"),
+      ex.TextCellValue("BOE No."),
+      ex.TextCellValue("BOE Date"),
     ]);
     for (var shipment in shipments) {
       sheetObject.appendRow([
         ex.TextCellValue(shipment.statusDescription),
         ex.TextCellValue(shipment.bookingNo),
         ex.TextCellValue(shipment.bookingDt),
-        ex.TextCellValue(shipment.sBillNo),
-        ex.TextCellValue(shipment.sBillDt),
+        ex.TextCellValue(shipment.boeNo),
+        ex.TextCellValue(shipment.boeDt),
       ]);
     }
 
@@ -622,7 +521,7 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   getShipmentDetails(String endOfDayFormatted, String startOfDayFormatted,
-      String bookingNo, String sbNo,
+      String bookingNo, String boeNo,
       {int airportId = 151}) async {
     if (isLoading) return;
     listShipmentDetails = [];
@@ -637,36 +536,34 @@ class _ExportScreenState extends State<ExportScreen> {
       "BookingNo": bookingNo,
       "CompanyCode": loginMaster[0].companyCode,
       "BranchCode": loginMaster[0].branchCode,
-      "SBillNo": sbNo,
+      "BOENo": boeNo,
       "TimeZone": loginMaster[0].timeZone,
       "Todate": endOfDayFormatted,
       "Fromdate": startOfDayFormatted
     };
     await authService
         .postData(
-      "api_pcs/ShipmentMaster/GetAll",
+      "api_pcs/ImpShipment/GetAll",
       queryParams,
     )
         .then((response) {
       print("data received ");
       List<dynamic> jsonData = json.decode(response.body);
-      print(jsonData);
       if (jsonData.isEmpty) {
         setState(() {
           hasNoRecord = true;
         });
-      } else {
-        hasNoRecord = false;
       }
-      print("is empty record" + hasNoRecord.toString());
+      else{
+        hasNoRecord=false;
+      }
       listShipmentDetailsBind = jsonData
-          .map((json) => SlotBookingShipmentListingExport.fromJSON(json))
+          .map((json) => SlotBookingShipmentListingImport.fromJSON(json))
           .toList();
-      print("length==  = ${listShipmentDetailsBind.length}");
+      print("length dockInOutVTListExport = ${listShipmentDetailsBind.length}");
       setState(() {
         listShipmentDetails = listShipmentDetailsBind;
         // filteredList = listShipmentDetails;
-        print("length--  = ${listShipmentDetails.length}");
         isLoading = false;
         _isExpandedList = List<bool>.filled(listShipmentDetails.length, false);
       });
@@ -674,40 +571,6 @@ class _ExportScreenState extends State<ExportScreen> {
       setState(() {
         isLoading = false;
       });
-      print(onError);
-    });
-  }
-
-  deleteShipment(bookingId) async {
-    Utils.showLoadingDialog(context);
-
-    var queryParams = {
-      "BookingId": bookingId.toString(),
-      "TimeZone": loginMaster[0].userId,
-    };
-    await authService
-        .postData(
-      "api_pcs/ShipmentMaster/Delete",
-      queryParams,
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      print(jsonData);
-      if (jsonData["ResponseMessage"] == "msg3") {
-        Utils.hideLoadingDialog(context);
-        CustomSnackBar.show(context,
-            message: "Export shipment booking deleted successfully.",
-            backgroundColor: AppColors.successColor,
-            leftIcon: Icons.check_circle);
-
-      }
-      Utils.hideLoadingDialog(context);
-      getShipmentDetails(endOfDayFormatted,
-          startOfDayFormatted, "", "",
-          airportId: selectedTerminalId!);
-    }).catchError((onError) {
-      Utils.hideLoadingDialog(context);
       print(onError);
     });
   }
@@ -882,7 +745,7 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Widget buildShipmentDetailsCardV2(
-      SlotBookingShipmentListingExport shipmentDetails, int index) {
+      SlotBookingShipmentListingImport shipmentDetails, int index) {
     bool isExpanded = _isExpandedList[index];
     return Card(
       color: AppColors.white,
@@ -929,7 +792,6 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ],
                   ),
-
                   GestureDetector(
                     child: Container(
                       // margin: const EdgeInsets.only(right: 8),
@@ -947,13 +809,15 @@ class _ExportScreenState extends State<ExportScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => BookingCreationExport(
+                            builder: (context) => BookingCreationImport(
                               operationType: "V",
                               bookingId: shipmentDetails.bookingId,
+                              isQRVisisble:(shipmentDetails.statusDescription=="PENDING FOR GATE-IN" || shipmentDetails.statusDescription=="REJECT FOR GATE-IN" )?true:false,
                             )),
                       );
                     },
                   ),
+
                 ],
               ),
               SizedBox(height: 8,),
@@ -1005,11 +869,11 @@ class _ExportScreenState extends State<ExportScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'S. Bill No.',
+                                    'BOE No.',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
-                                    '${shipmentDetails.sBillNo}  ',
+                                    '${shipmentDetails.boeNo}  ',
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
@@ -1042,11 +906,11 @@ class _ExportScreenState extends State<ExportScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'S. Bill Date',
+                                    'BOE Date',
                                     style: TextStyle(fontSize: 14),
                                   ),
                                   Text(
-                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
+                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.boeDt))}  ',
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
@@ -1095,10 +959,6 @@ class _ExportScreenState extends State<ExportScreen> {
                     ),
                   ),
                   PopupMenuButton<int>(
-                    child: const Icon(
-                      Icons.more_vert,
-                      color: AppColors.primary,
-                    ),
                     onSelected: (value) async {
                       switch (value) {
                         case 1:
@@ -1111,9 +971,9 @@ class _ExportScreenState extends State<ExportScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => BookingCreationExport(
+                                builder: (context) => BookingCreationImport(
                                   operationType: "E",
-                                  bookingId: shipmentDetails.bookingId,
+                                  bookingId: shipmentDetails.bookingId, isQRVisisble: false,
                                 )),
                           );
                           break;
@@ -1168,6 +1028,10 @@ class _ExportScreenState extends State<ExportScreen> {
                       // ),
                     ],
                     color: AppColors.white,
+                    child: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -1180,7 +1044,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
   Future<void> showShipmentSearchDialog(BuildContext outerContext) async {
     TextEditingController bookingNoController = TextEditingController();
-    TextEditingController shippingBillNoController = TextEditingController();
+    TextEditingController boeNoController = TextEditingController();
 
     Future<void> _selectDate(
         BuildContext context, TextEditingController controller,
@@ -1224,27 +1088,23 @@ class _ExportScreenState extends State<ExportScreen> {
 
     void search() async {
       String bookingNo = bookingNoController.text.trim();
-      String shippingBillNo = shippingBillNoController.text.trim();
+      String boeNo = boeNoController.text.trim();
       String fromDate = fromDateController.text.trim();
       String toDate = toDateController.text.trim();
 
       if (fromDate.isEmpty || toDate.isEmpty) {
         await Future.delayed(const Duration(milliseconds: 100));
-        CustomSnackBar.show(
-          context,
-          message: "Please fill in all fields",
-          backgroundColor: Colors.red,
-        );
+        await Future.delayed(const Duration(milliseconds: 100));
+        CustomSnackBar.show(context,
+            message: "Please fill in all fields",
+            backgroundColor: AppColors.warningColor);
         return;
       }
       DateTime fromDateTime = DateFormat('d MMM yyyy').parse(fromDate);
       DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
 
       if (fromDateTime.isAfter(toDateTime)) {
-        // fromDateController.text = _formatDate(
-        //     DateTime.now().subtract(const Duration(days: 2)));
-        fromDateController.text = '';
-        toDateController.text = _formatDate(DateTime.now());
+        fromDateController.text='';
         CustomSnackBar.show(
           context,
           message: "From Date should be less than To Date",
@@ -1253,9 +1113,8 @@ class _ExportScreenState extends State<ExportScreen> {
         return;
       }
       if (toDateTime.isBefore(fromDateTime)) {
-        // fromDateController.text = _formatDate(
-        //     DateTime.now().subtract(const Duration(days: 2)));
-        toDateController.text = '';
+        toDateController.text ='';
+
         CustomSnackBar.show(
           context,
           message: "To Date should be greater than From Date",
@@ -1268,12 +1127,12 @@ class _ExportScreenState extends State<ExportScreen> {
       String toDateISO = toDateTime.toIso8601String();
 
       print(
-          "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+          "Booking No: $bookingNo, Shipping Bill No: $boeNo, From Date: $fromDateISO, To Date: $toDateISO");
       if (selectedTerminalId != null) {
-        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo,
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo,
             airportId: selectedTerminalId!);
       } else {
-        getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
+        getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo);
       }
 
       Navigator.pop(context);
@@ -1281,7 +1140,7 @@ class _ExportScreenState extends State<ExportScreen> {
 
     return showDialog(
       context: context,
-      barrierColor: Color(0x01000000),
+      barrierColor: const Color(0x01000000),
       builder: (BuildContext context) {
         return Align(
           alignment: Alignment.topCenter,
@@ -1293,8 +1152,9 @@ class _ExportScreenState extends State<ExportScreen> {
                   borderRadius: BorderRadius.circular(10)),
               insetPadding: const EdgeInsets.all(0),
               child: Container(
+
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.textFieldBorderColor),
+                    border: Border.all(color: AppColors.textFieldBorderColor),
                   color: Colors.white,
                 ),
                 padding: const EdgeInsets.all(16.0),
@@ -1310,8 +1170,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         const SizedBox(
                           width: double.infinity,
                           child: Divider(color: Colors.grey),
-                        ),
-                        // Gray horizontal line
+                        ), // Gray horizontal line
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: bookingNoController,
@@ -1320,10 +1179,11 @@ class _ExportScreenState extends State<ExportScreen> {
                         ),
                         const SizedBox(height: 16),
                         CustomTextField(
-                          controller: bookingNoController,
-                          labelText: "Shipping Bill No.",
+                          controller: boeNoController,
+                          labelText: "BOE No.",
                           isValidationRequired: false,
                         ),
+
                         const SizedBox(height: 16),
                         CustomDatePicker(
                           controller: fromDateController,
@@ -1352,19 +1212,6 @@ class _ExportScreenState extends State<ExportScreen> {
                           labelText: 'To Date',
                           otherDateController: fromDateController,
                         ),
-                        // TextField(
-                        //   controller: toDateController,
-                        //   decoration: InputDecoration(
-                        //     labelText: "To Date",
-                        //     suffixIcon: IconButton(
-                        //       icon: const Icon(Icons.calendar_today),
-                        //       onPressed: () => _selectDate(context, toDateController),
-                        //     ),
-                        //     border: OutlineInputBorder(
-                        //       borderRadius: BorderRadius.circular(6),
-                        //     ),
-                        //   ),
-                        // ),
                         SizedBox(
                             height: MediaQuery.sizeOf(context).height * 0.09),
                         const SizedBox(
@@ -1375,10 +1222,9 @@ class _ExportScreenState extends State<ExportScreen> {
 
                         ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKey.currentState!.validate()){
                               search();
                             }
-
                             // Navigator.pop(context); // Close dialog after search
                           },
                           style: ElevatedButton.styleFrom(
@@ -1388,13 +1234,12 @@ class _ExportScreenState extends State<ExportScreen> {
                           child: const Text("SEARCH",
                               style: TextStyle(color: Colors.white)),
                         ),
-                        const SizedBox(height: 16),
-                        // Space between buttons
+                        const SizedBox(height: 16), // Space between buttons
 
                         OutlinedButton(
                           onPressed: () {
                             bookingNoController.clear();
-                            shippingBillNoController.clear();
+                            boeNoController.clear();
                             fromDateController.text = _formatDate(DateTime.now()
                                 .subtract(const Duration(days: 2)));
                             toDateController.text = _formatDate(DateTime.now());
@@ -1412,13 +1257,12 @@ class _ExportScreenState extends State<ExportScreen> {
                                 color: AppColors.primary), // Blue text
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        // Space between buttons
+                        const SizedBox(height: 16), // Space between buttons
                         // Cancel button
                         TextButton(
                           onPressed: () {
                             bookingNoController.clear();
-                            shippingBillNoController.clear();
+                            boeNoController.clear();
                             fromDateController.text = _formatDate(DateTime.now()
                                 .subtract(const Duration(days: 2)));
                             toDateController.text = _formatDate(DateTime.now());
@@ -1451,16 +1295,14 @@ class _ExportScreenState extends State<ExportScreen> {
     });
   }
 
-  List<SlotBookingShipmentListingExport> getFilteredShipmentDetails(
-      List<SlotBookingShipmentListingExport> listShipmentDetails,
+  List<SlotBookingShipmentListingImport> getFilteredShipmentDetails(
+      List<SlotBookingShipmentListingImport> listShipmentDetails,
       List<String> selectedFilters,
       DateTime? selectedDate) {
     return listShipmentDetails.where((shipment) {
-      bool statusMatchFound =
-          true; // Default to true if no status filter is provided
-      bool dateMatchFound = true; // Default to true if no date is provided
+      bool statusMatchFound = true;
+      bool dateMatchFound = true;
 
-      // Check status filters if they are not empty
       if (selectedFilters.isNotEmpty) {
         statusMatchFound = selectedFilters.any((filter) {
           return shipment.statusDescription.trim().toUpperCase() ==
@@ -1468,27 +1310,19 @@ class _ExportScreenState extends State<ExportScreen> {
         });
       }
 
-      // Check date if a date is selected
       if (selectedDate != null) {
         try {
-          // Parse the string date into DateTime (adjust the format if needed)
-          DateFormat format =
-              DateFormat("yyyy-MM-dd"); // Example: adjust this format if needed
+          DateFormat format = DateFormat("yyyy-MM-dd");
           DateTime shipmentDate = format.parse(shipment.bookingDt);
 
-          // Compare the parsed date with the selected date
           dateMatchFound = shipmentDate.year == selectedDate.year &&
               shipmentDate.month == selectedDate.month &&
               shipmentDate.day == selectedDate.day;
         } catch (e) {
           print("Error parsing date: ${shipment.bookingDt}");
-          dateMatchFound =
-              false; // If date parsing fails, exclude this shipment
+          dateMatchFound = false;
         }
       }
-
-      // If no status filters are selected, only date is considered
-      // If no date is selected, only status is considered
       return statusMatchFound && dateMatchFound;
     }).toList();
   }
@@ -1535,7 +1369,6 @@ class _ExportScreenState extends State<ExportScreen> {
         date1.day == date2.day;
   }
 
-// Function to pick a date
   Future<void> pickDate(BuildContext context, StateSetter setState) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -1547,17 +1380,15 @@ class _ExportScreenState extends State<ExportScreen> {
           data: ThemeData(
             useMaterial3: false,
             primaryColor: AppColors.primary,
-
             dialogBackgroundColor: Colors.white,
-            // Change dialog background color
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary, // Change header and button color
-              onPrimary: Colors.white, // Text color on primary (header text)
-              onSurface: Colors.black, // Body text color
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary, // Button text color
+                foregroundColor: AppColors.primary,
               ),
             ),
           ),
@@ -1885,145 +1716,37 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
-// void showCustomBottomSheet(BuildContext context) {
-//   showModalBottomSheet(
-//     context: context,
-//     // shape: RoundedRectangleBorder(
-//     //   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//     // ),
-//     isScrollControlled: true,
-//     builder: (BuildContext context) {
-//       // return DraggableScrollableSheet(
-//       //   expand: false,
-//       //   builder: (context, scrollController) {
-//       return SingleChildScrollView(
-//         // controller: scrollController,
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   const Text(
-//                     'Filter/Sort',
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   TextButton(
-//                     onPressed: () {
-//                       // Add your reset logic here
-//                     },
-//                     child: const Text(
-//                       'RESET',
-//                       style: TextStyle(
-//                         color: AppColors.primary,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//               const Text('Sort by Status'),
-//               SizedBox(
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Wrap(
-//                   spacing: 8.0,
-//                   children: [
-//                     FilterChip(
-//                       label: const Text('Draft'),
-//                       selected: true,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in Pending'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                     FilterChip(
-//                       label: const Text('Gate-in Rejected'),
-//                       selected: false,
-//                       onSelected: (bool selected) {},
-//                       selectedColor: AppColors.primary.withOpacity(0.2),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-//               const Row(
-//                 children: [
-//                   Icon(Icons.calendar_today, color: AppColors.primary),
-//                   SizedBox(width: 8),
-//                   Text(
-//                     'Slot Date',
-//                     style: TextStyle(fontSize: 16),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   TextButton(
-//                     onPressed: () {
-//                       Navigator.pop(context);
-//                     },
-//                     style: TextButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(
-//                         vertical: 12,
-//                         horizontal: 32,
-//                       ),
-//                       backgroundColor: Colors.white,
-//                       shape: RoundedRectangleBorder(
-//                         side: const BorderSide(color: AppColors.primary),
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                     ),
-//                     child: const Text(
-//                       'Cancel',
-//                       style: TextStyle(color: AppColors.primary),
-//                     ),
-//                   ),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       // Add apply logic here
-//                     },
-//                     style: ElevatedButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(
-//                         vertical: 12,
-//                         horizontal: 32,
-//                       ),
-//                       shape: RoundedRectangleBorder(
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                     ),
-//                     child: const Text(
-//                       'Apply',
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 20),
-//             ],
-//           ),
-//         ),
-//       );
-//       //   },
-//       // );
-//     },
-//   );
-// }
+  deleteShipment(bookingId) async {
+    Utils.showLoadingDialog(context);
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].userId,
+    };
+    await authService
+        .postData(
+      "api_pcs/ImpShipment/Delete",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      if (jsonData["ResponseMessage"] == "msg3") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context,
+            message: "Export shipment booking deleted successfully.",
+            backgroundColor: AppColors.successColor,
+            leftIcon: Icons.check_circle);
+
+      }
+      Utils.hideLoadingDialog(context);
+      getShipmentDetails(endOfDayFormatted,
+          startOfDayFormatted, "", "",
+          airportId: selectedTerminalId!);
+    }).catchError((onError) {
+      Utils.hideLoadingDialog(context);
+      print(onError);
+    });
+  }
 }

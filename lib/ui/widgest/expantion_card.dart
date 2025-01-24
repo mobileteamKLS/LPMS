@@ -19,13 +19,14 @@ import 'package:lpms/theme/app_color.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../api/auth.dart';
 import '../../models/ShippingList.dart';
-import '../../screens/AddShipmentDetailsExport.dart';
-import '../../screens/AddShipmentDetailsImport.dart';
-import '../../screens/AddVehicleDetailsExport.dart';
-import '../../screens/SlotBooking.dart';
-import '../../screens/AddVehicleDetailsImport.dart';
+import '../../screens/slot_booking/AddShipmentDetailsExport.dart';
+import '../../screens/slot_booking/AddShipmentDetailsImport.dart';
+import '../../screens/slot_booking/AddVehicleDetailsExport.dart';
+import '../../screens/slot_booking/SlotBooking.dart';
+import '../../screens/slot_booking/AddVehicleDetailsImport.dart';
 import '../../util/Global.dart';
 import 'CustomTextField.dart';
 import 'package:http_parser/http_parser.dart';
@@ -540,6 +541,7 @@ class AddVehicleDetailsListExportsNew extends StatefulWidget {
   final Future<VehicleDetailsExports?> Function() validateAndNavigate;
   final bool isExport;
   final bool isViewOnly;
+  final bool showQR;
 
   AddVehicleDetailsListExportsNew({
     super.key,
@@ -547,6 +549,7 @@ class AddVehicleDetailsListExportsNew extends StatefulWidget {
     required this.validateAndNavigate,
     required this.isExport,
     required this.isViewOnly,
+    required this.showQR,
   });
 
   @override
@@ -804,6 +807,7 @@ class _AddVehicleDetailsListExportsNew
                   vehicleDetailsList: vehicleListExports,
                   isExport: widget.isExport,
                     isViewOnly:widget.isViewOnly,
+                  showQR: widget.showQR,
                 ),
               ),
           ],
@@ -817,9 +821,10 @@ class VehicleItemExportsNew extends StatefulWidget {
   final List<VehicleDetailsExports> vehicleDetailsList;
   final bool isExport;
   final bool isViewOnly;
+  final bool showQR;
 
   const VehicleItemExportsNew(
-      {super.key, required this.vehicleDetailsList, required this.isExport, required this.isViewOnly});
+      {super.key, required this.vehicleDetailsList, required this.isExport, required this.isViewOnly, required this.showQR});
 
   @override
   _VehicleItemExportsNewState createState() => _VehicleItemExportsNewState();
@@ -1472,6 +1477,39 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
       print("Download Failed.\n\n$e");
     }
   }
+
+  void _showQRCodeDialog(BuildContext context, VehicleDetailsExports vehicleDetails) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Scan This QR Code')),
+          surfaceTintColor: AppColors.white,
+          content: Container(
+            color: AppColors.white,
+            height: 300,
+            width: 300,
+            child: QrImageView(
+              data: vehicleDetails.VTNo??"", // Your data to encode
+              size: 200.0,
+              version: QrVersions.auto,
+              backgroundColor: AppColors.white,
+               foregroundColor: AppColors.primary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1638,7 +1676,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           GestureDetector(
                             onTap: () {
@@ -1678,7 +1716,7 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                             ),
                           ),
                           const SizedBox(
-                            width: 18,
+                            width: 12,
                           ),
                           GestureDetector(
                             onTap: () {
@@ -1717,6 +1755,38 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
                               ],
                             ),
                           ),
+                          const SizedBox(
+                            width: 12,
+                          ),
+                         (widget.showQR && !(vehicleDetails.isGateIn!))?GestureDetector(
+                            onTap: () {
+                              _showQRCodeDialog(context,vehicleDetails);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child:  const Icon(
+                                      Icons.file_present_outlined,
+                                      size: 28,
+                                      color: AppColors.primary
+                                         )),
+                                const Text(
+                                  "BS",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color:  AppColors.primary
+                                       ,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ):const SizedBox(),
                         ],
                       ),
                       Column(
@@ -2328,6 +2398,7 @@ class AddVehicleDetailsListNew extends StatefulWidget {
   final Future<VehicleDetailsImports?> Function() validateAndNavigate;
   final bool isExport;
   final bool isViewOnly;
+  final bool showQR;
 
   AddVehicleDetailsListNew({
     super.key,
@@ -2335,6 +2406,7 @@ class AddVehicleDetailsListNew extends StatefulWidget {
     required this.validateAndNavigate,
     required this.isExport,
     required this.isViewOnly,
+    required this.showQR,
   });
 
   @override
@@ -2589,6 +2661,7 @@ class _AddVehicleDetailsListNew extends State<AddVehicleDetailsListNew> {
                   vehicleDetailsList: vehicleListImports,
                   IsExport: widget.isExport,
                     isViewOnly:widget.isViewOnly,
+                  showQR: widget.showQR,
                 ),
               ),
           ],
@@ -2602,9 +2675,10 @@ class VehicleItemNew extends StatefulWidget {
   final List<VehicleDetailsImports> vehicleDetailsList;
   final bool IsExport;
   final bool isViewOnly;
+  final bool showQR;
 
   const VehicleItemNew(
-      {super.key, required this.vehicleDetailsList, required this.IsExport, required this.isViewOnly});
+      {super.key, required this.vehicleDetailsList, required this.IsExport, required this.isViewOnly, required this.showQR});
 
   @override
   _VehicleItemNewState createState() => _VehicleItemNewState();
@@ -3256,6 +3330,38 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
     }
   }
 
+  void _showQRCodeDialog(BuildContext context, VehicleDetailsImports vehicleDetails) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Scan This QR Code')),
+          surfaceTintColor: AppColors.white,
+          content: Container(
+            color: AppColors.white,
+            height: 300,
+            width: 300,
+            child: QrImageView(
+              data: vehicleDetails.VTNo??"", // Your data to encode
+              size: 200.0,
+              version: QrVersions.auto,
+              backgroundColor: AppColors.white,
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -3378,13 +3484,13 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     }
                                   });
                                 },
-                                child:widget.isViewOnly?SizedBox(): Container(
+                                child:widget.isViewOnly?const SizedBox(): Container(
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 8),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child:  Icon(Icons.edit,
+                                    child:  const Icon(Icons.edit,
                                         size: 28, color:AppColors.primary)),
                               ),
                               GestureDetector(
@@ -3461,7 +3567,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                             ),
                           ),
                           const SizedBox(
-                            width: 18,
+                            width: 12,
                           ),
                           GestureDetector(
                             onTap: () {
@@ -3500,6 +3606,38 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                               ],
                             ),
                           ),
+                          const SizedBox(
+                            width: 12,
+                          ),
+                          (widget.showQR && !(vehicleDetails.isGateIn!))?GestureDetector(
+                            onTap: () {
+                              _showQRCodeDialog(context,vehicleDetails);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child:  const Icon(
+                                        Icons.file_present_outlined,
+                                        size: 28,
+                                        color: AppColors.primary
+                                    )),
+                                const Text(
+                                  "BS",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color:  AppColors.primary
+                                    ,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ):const SizedBox(),
                         ],
                       ),
                       Column(

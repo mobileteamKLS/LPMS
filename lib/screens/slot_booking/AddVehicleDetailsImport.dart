@@ -8,31 +8,30 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_color.dart';
-import '../theme/app_theme.dart';
-import '../ui/widgest/AutoSuggest.dart';
-import '../util/Global.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_theme.dart';
+import '../../ui/widgest/AutoSuggest.dart';
+import '../../util/Global.dart';
 import 'BookingCreationExport.dart';
 
-class AddVehicleDetailsExports extends StatefulWidget {
-  final VehicleDetailsExports? vehicleDetails;
 
-  const AddVehicleDetailsExports({super.key, this.vehicleDetails});
+class AddVehicleDetailsImports extends StatefulWidget {
+  final VehicleDetailsImports? vehicleDetails;
+  const AddVehicleDetailsImports({super.key, this.vehicleDetails});
 
   @override
-  State<AddVehicleDetailsExports> createState() =>
-      _AddVehicleDetailsExportsState();
+  State<AddVehicleDetailsImports> createState() => _AddVehicleDetailsImportsState();
 }
 
-class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
+class _AddVehicleDetailsImportsState extends State<AddVehicleDetailsImports> {
   final _formKey = GlobalKey<FormState>();
   late int vehicleTypeId;
   late TextEditingController vehicleTypeController = TextEditingController();
   late TextEditingController vehicleNoController = TextEditingController();
-  late TextEditingController driverLicenseNoController =
-      TextEditingController();
-  late TextEditingController driverMobNoController = TextEditingController();
+  late TextEditingController driverLicenseNoController = TextEditingController();
+  late TextEditingController driverMobNoController =
+  TextEditingController();
   late TextEditingController driverDOBController = TextEditingController();
   late TextEditingController driverNameController = TextEditingController();
   late TextEditingController remarkController = TextEditingController();
@@ -43,59 +42,17 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
   late RegExp hsnPattern = RegExp(r'^\d{6,8}$');
   late RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
   final List<VoidCallback> _markFieldsTouched = [];
-
   void _addMarkTouchedCallback(VoidCallback callback) {
     _markFieldsTouched.add(callback);
   }
-
+  late VehicleDetailsImports editDetails;
   void _markAllFieldsTouched() {
     for (var callback in _markFieldsTouched) {
       callback();
     }
   }
 
-  DrivingLicense dl = DrivingLicense();
-  RcDetails rc = RcDetails();
-  late VehicleDetailsExports editDetails;
-
-  @override
-  void initState() {
-    super.initState();
-    print(widget.vehicleDetails?.vehicleId);
-    vehicleTypeId = widget.vehicleDetails?.vehicleTypeId ?? 0;
-    print(vehicleTypeId);
-    vehicleTypeController = TextEditingController(
-        text: widget.vehicleDetails?.vehicleTypeName ?? '');
-    vehicleNoController =
-        TextEditingController(text: widget.vehicleDetails?.truckNo ?? '');
-    driverLicenseNoController = TextEditingController(
-        text: widget.vehicleDetails?.drivingLicenseNo ?? '');
-    driverDOBController =
-        TextEditingController(text: widget.vehicleDetails?.driverDob ?? '');
-    driverMobNoController =
-        TextEditingController(text: widget.vehicleDetails?.driverContact ?? '');
-    driverNameController =
-        TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
-    remarkController = TextEditingController(
-        text: widget.vehicleDetails?.remarksChassisNo ?? '');
-    if (widget.vehicleDetails?.drivingLicense != null) {
-      dl = (widget.vehicleDetails?.drivingLicense)!;
-      print(dl.toString());
-    }
-    if (widget.vehicleDetails?.rcScanned != null) {
-      rc = (widget.vehicleDetails?.rcScanned)!;
-      print(dl.toString());
-    }
-    if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
-    print("---${widget.vehicleDetails?.isModifySlot}");
-    print("---${widget.vehicleDetails?.isNewSlot}");
-    selectedVehicleList=[];
-    selectedVehicleList = multiSelectController.selectedItems.map((item) {
-      return Vehicle(id: item.value.id, name: item.value.name);
-    }).toList();
-  }
-
-  clearControllers() {
+  clearControllers(){
     vehicleTypeController.clear();
     vehicleNoController.clear();
     driverLicenseNoController.clear();
@@ -103,6 +60,29 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
     driverMobNoController.clear();
     driverNameController.clear();
     remarkController.clear();
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.vehicleDetails?.vehicleId);
+    vehicleTypeId=widget.vehicleDetails?.vehicleTypeId ??0;
+    print(vehicleTypeId);
+    vehicleTypeController = TextEditingController(text: widget.vehicleDetails?.vehicleTypeName ?? '');
+    vehicleNoController = TextEditingController(text: widget.vehicleDetails?.truckNo ?? '');
+    driverLicenseNoController = TextEditingController(text: widget.vehicleDetails?.drivingLicenseNo ?? '');
+    driverDOBController = TextEditingController(text: widget.vehicleDetails?.driverDob ?? '');
+    driverMobNoController = TextEditingController(text: widget.vehicleDetails?.driverContact ?? '');
+    driverNameController = TextEditingController(text: widget.vehicleDetails?.driverName ?? '');
+    remarkController = TextEditingController(text: widget.vehicleDetails?.remarksChassisNo ?? '');
+    if (widget.vehicleDetails != null) editDetails = widget.vehicleDetails!;
+    print((widget.vehicleDetails!.drivingLicense));
+    selectedVehicleList=[];
+    selectedVehicleList = multiSelectController.selectedItems.map((item) {
+      return Vehicle(id:item.value.id, name:item.value.name);
+    }).toList();
+
   }
 
   @override
@@ -117,11 +97,11 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Imports',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
+          toolbarHeight: 60,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -182,7 +162,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Row(
+                      Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
@@ -192,20 +172,14 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                         ),
                         GestureDetector(
                           child: const Row(
-                            children: [
-                              Icon(
-                                Icons.restart_alt_outlined,
-                                color: Colors.grey,
-                              ),
+                            children: [Icon(Icons.restart_alt_outlined, color: Colors.grey,),
                               Text(
                                 'Clear',
                                 style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 18),
-                              ),
-                            ],
+                                    fontWeight: FontWeight.normal, fontSize: 18),
+                              ),],
                           ),
-                          onTap: () {
+                          onTap: (){
                             clearControllers();
                           },
                         )
@@ -375,7 +349,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                               // ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
 
                               // CustomTextField(
@@ -385,10 +359,11 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                               // ),
                               SizedBox(
                                 width: MediaQuery.sizeOf(context).width,
-                                child: TypeAheadField<Vehicle>(
+                                child: TypeAheadField<
+                                    Vehicle>(
                                   controller: vehicleTypeController,
                                   debounceDuration:
-                                      const Duration(milliseconds: 300),
+                                  const Duration(milliseconds: 300),
                                   suggestionsCallback: (search) =>
                                       SelectedVehicleService.find(search),
                                   itemBuilder: (context, item) {
@@ -409,39 +384,42 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                       child: Row(
                                         children: [
                                           Text(item.name),
+
                                         ],
                                       ),
                                     );
                                   },
                                   builder: (context, controller, focusNode) =>
                                       CustomTextField(
-                                    controller: controller,
-                                    labelText: "Types of Vehicle",
-                                    registerTouchedCallback:
+                                        controller: controller,
+                                        labelText: "Types of Vehicle",
+                                        registerTouchedCallback:
                                         _addMarkTouchedCallback,
-                                    focusNode: focusNode,
-                                  ),
+                                        focusNode: focusNode,
+                                      ),
                                   decorationBuilder: (context, child) =>
                                       Material(
-                                    type: MaterialType.card,
-                                    elevation: 4,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: child,
-                                  ),
-                                  // itemSeparatorBuilder: (context, index) =>
-                                  //     Divider(),
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  itemSeparatorBuilder: (context, index) =>
+                                      Divider(),
                                   emptyBuilder: (context) => const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Vehicle Found',
                                         style: TextStyle(fontSize: 16)),
                                   ),
                                   onSelected: (value) {
-                                    vehicleTypeController.text = value.name;
-                                    vehicleTypeId = int.parse(value.id);
+                                    vehicleTypeController.text =
+                                        value.name;
+                                    vehicleTypeId=int.parse(value.id);
                                     _formKey.currentState!.validate();
                                   },
                                 ),
                               ),
+
                               // SizedBox(
                               //   width: MediaQuery.sizeOf(context).width,
                               //   child: FormField<String>(
@@ -509,7 +487,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                               //                     children: [
                               //
                               //                       Text(city.name
-                              //                       ),
+                              //                           ),
                               //                     ],
                               //                   ),
                               //                 );
@@ -546,7 +524,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
 
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: vehicleNoController,
@@ -555,26 +533,25 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(10)
                                 ],
-                                registerTouchedCallback:
-                                    _addMarkTouchedCallback,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: driverLicenseNoController,
                                 labelText: "Driving License No.",
                                 inputType: TextInputType.text,
                                 inputFormatters: [
+
                                   LengthLimitingTextInputFormatter(16)
                                 ],
-                                registerTouchedCallback:
-                                    _addMarkTouchedCallback,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomDatePicker(
                                 controller: driverDOBController,
@@ -585,21 +562,21 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: driverNameController,
                                 labelText: "Driver Name",
                                 inputType: TextInputType.text,
                                 inputFormatters: [
+
                                   LengthLimitingTextInputFormatter(50)
                                 ],
-                                registerTouchedCallback:
-                                    _addMarkTouchedCallback,
+                                registerTouchedCallback: _addMarkTouchedCallback,
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: driverMobNoController,
@@ -613,7 +590,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.sizeOf(context).height * 0.015,
+                                MediaQuery.sizeOf(context).height * 0.015,
                               ),
                               CustomTextField(
                                 controller: remarkController,
@@ -621,8 +598,10 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 inputType: TextInputType.text,
                                 isValidationRequired: false,
                                 inputFormatters: [
+
                                   LengthLimitingTextInputFormatter(16)
                                 ],
+
                               ),
                             ],
                           ),
@@ -649,7 +628,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  MediaQuery.sizeOf(context).width * 0.42,
                                   child: OutlinedButton(
                                     onPressed: () {
                                       Navigator.pop(
@@ -665,57 +644,48 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                 SizedBox(
                                   height: 45,
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.42,
+                                  MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       _markAllFieldsTouched();
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
+                                      if (_formKey.currentState?.validate() ?? false) {
                                         print("$vehicleTypeId");
-                                        if (!isEdit || widget.vehicleDetails==null) {
-                                          final newVehicle =
-                                              VehicleDetailsExports(
-                                            vehicleTypeId: vehicleTypeId,
-                                            vehicleTypeName:
-                                                vehicleTypeController.text,
-                                            truckNo: vehicleNoController.text,
-                                            drivingLicenseNo:
-                                                driverLicenseNoController.text,
-                                            driverContact:
-                                                driverMobNoController.text,
-                                            driverDob: driverDOBController.text,
-                                            driverName:
-                                                driverNameController.text,
-                                            remarksChassisNo:
-                                                remarkController.text,
-                                                isNewSlot:isEdit?false:true,
-                                                isGateIn: isEdit?false:true,
-                                          );
-                                          Navigator.pop(context, newVehicle);
-                                        } else {
-                                          editDetails =
-                                              widget.vehicleDetails!.copyWith(
-                                            vehicleTypeId: vehicleTypeId,
-                                            vehicleTypeName:
-                                                vehicleTypeController.text,
-                                            truckNo: vehicleNoController.text,
-                                            drivingLicenseNo:
-                                                driverLicenseNoController.text,
-                                            driverContact:
-                                                driverMobNoController.text,
-                                            driverDob: driverDOBController.text,
-                                            driverName:
-                                                driverNameController.text,
-                                            remarksChassisNo:
-                                                remarkController.text,
-                                                isNewSlot: false,
-                                                isModifySlot: false,
-                                                // drivingLicense: dl,
-                                                // rcScanned: rc
-                                          );
-                                          Navigator.pop(
-                                              context, editDetails);
-                                        }
+                                       if(!isEdit || widget.vehicleDetails==null){
+                                         final newVehicle = VehicleDetailsImports(
+                                           vehicleTypeId:  vehicleTypeId,
+                                           vehicleTypeName: vehicleTypeController.text,
+                                           truckNo: vehicleNoController.text,
+                                           drivingLicenseNo: driverLicenseNoController.text,
+                                           driverContact: driverMobNoController.text,
+                                           driverDob: driverDOBController.text,
+                                           driverName:driverNameController.text,
+                                           remarksChassisNo:remarkController.text,
+                                           isNewSlot:isEdit?false:true,
+                                           isGateIn: isEdit?false:true,
+                                         );
+                                         Navigator.pop(context,
+                                             newVehicle);
+                                       }
+                                       else{
+                                         editDetails =
+                                             widget.vehicleDetails!.copyWith(
+                                           vehicleTypeId:  vehicleTypeId,
+                                           vehicleTypeName: vehicleTypeController.text,
+                                           truckNo: vehicleNoController.text,
+                                           drivingLicenseNo: driverLicenseNoController.text,
+                                           driverContact: driverMobNoController.text,
+                                           driverDob: driverDOBController.text,
+                                           driverName:driverNameController.text,
+                                           remarksChassisNo:remarkController.text,
+                                           slotConfigId: 0,
+                                           slotDurationId: 0,
+                                               isModifySlot: false,
+                                               isNewSlot: false
+                                         );
+                                         Navigator.pop(context,
+                                             editDetails);
+                                       }
+
                                       }
                                     },
                                     child: const Text(
@@ -795,3 +765,5 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
     );
   }
 }
+
+

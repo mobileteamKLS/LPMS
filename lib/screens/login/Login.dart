@@ -4,17 +4,20 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lpms/screens/ExportDashboard.dart';
+import 'package:lpms/screens/slot_booking/ExportDashboard.dart';
 
 import 'package:lpms/theme/app_color.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/auth.dart';
-import '../models/IPInfo.dart';
-import '../models/LoginMaster.dart';
-import '../util/Global.dart';
-import 'Encryption.dart';
+import '../../api/auth.dart';
+import '../../models/IPInfo.dart';
+import '../../models/LoginMaster.dart';
+import '../../util/Global.dart';
+import '../../util/media_query.dart';
+import '../../core/Encryption.dart';
+import 'forgot_password.dart';
+import 'forgot_username.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -135,9 +138,9 @@ class _LoginPageState extends State<LoginPage> {
       });
       // _usernameController.clear();
       // _passwordController.clear();
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const ExportScreen()),
+        MaterialPageRoute(builder: (context) => const ExportScreen()),(route) => false,
       );
     });
 
@@ -228,6 +231,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenDimension().init(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -339,14 +343,12 @@ class _LoginPageState extends State<LoginPage> {
                               labelText: 'Password',
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  // Based on passwordVisible state choose the icon
                                   isPasswordVisible
                                       ? Icons.visibility_off_outlined
                                       :Icons.visibility_outlined ,
                                   color: AppColors.primary,
                                 ),
                                 onPressed: () {
-                                  // Update the state i.e. toogle the state of passwordVisible variable
                                   setState(() {
                                     isPasswordVisible = !isPasswordVisible;
                                   });
@@ -400,13 +402,34 @@ class _LoginPageState extends State<LoginPage> {
                                 )
                               ],
                             ),
-                            const Text(
+
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment:MainAxisAlignment.end,
+                          children: [
+                          GestureDetector(
+                            child:  const Text(
+                              ' Forgot Username',
+                              style: TextStyle(
+                                  fontSize: 14, color: AppColors.primary),
+                            ),
+                            onTap: (){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>const ForgotUserIdScreen()));
+                            },
+                          ),
+                          const Text("  | "),
+                          GestureDetector(
+                            child:  const Text(
                               ' Forgot Password',
                               style: TextStyle(
                                   fontSize: 14, color: AppColors.primary),
-                            )
-                          ],
-                        ),
+                            ),
+                            onTap: (){
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>const ForgotPasswordScreen()));
+                            },
+                          )
+                        ],),
                         const SizedBox(
                           height: 16,
                         ),

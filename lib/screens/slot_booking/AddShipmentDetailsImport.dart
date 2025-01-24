@@ -9,10 +9,10 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Global.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_color.dart';
-import '../theme/app_theme.dart';
-import '../ui/widgest/AutoSuggest.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_theme.dart';
+import '../../ui/widgest/AutoSuggest.dart';
 
 class AddShipmentDetailsImports extends StatefulWidget {
   final ShipmentDetailsImports? shipment;
@@ -125,7 +125,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
+          toolbarHeight: 60,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(

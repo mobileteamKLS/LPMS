@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -8,53 +9,65 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lpms/screens/AddVehicleDetailsImport.dart';
-import 'package:lpms/ui/widgest/CustomTextField.dart';
+import 'package:lpms/screens/slot_booking/AddVehicleDetailsImport.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../api/auth.dart';
-import '../models/LoginMaster.dart';
-import '../models/SelectionModel.dart';
-import '../models/ShippingList.dart';
-import '../theme/app_color.dart';
-import '../theme/app_theme.dart';
-import '../ui/widgest/AutoSuggest.dart';
-import '../ui/widgest/expantion_card.dart';
-import '../util/Global.dart';
-import 'AddVehicleDetailsExport.dart';
-import 'Encryption.dart';
+import '../../api/auth.dart';
+import '../../models/SelectionModel.dart';
+import '../../models/ShippingList.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_theme.dart';
+import '../../ui/widgest/AutoSuggest.dart';
+import '../../ui/widgest/CustomTextField.dart';
+import '../../ui/widgest/expantion_card.dart';
+import '../../util/Global.dart';
+import 'AddShipmentDetailsImport.dart';
+import 'BookingCreationExport.dart';
+import '../../core/Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
-import 'ExportDashboard.dart';
+import 'ImportDashboard.dart';
 
-class BookingCreationExport extends StatefulWidget {
+class BookingCreationImport extends StatefulWidget {
   final String operationType;
+  final bool isQRVisisble;
   final int? bookingId;
-  const BookingCreationExport({super.key, required this.operationType, this.bookingId});
+  const BookingCreationImport({super.key,required this.operationType, this.bookingId, required this.isQRVisisble});
 
   @override
-  State<BookingCreationExport> createState() => _BookingCreationExportState();
+  State<BookingCreationImport> createState() => _BookingCreationExportState();
 }
 
-class _BookingCreationExportState extends State<BookingCreationExport> {
+class _BookingCreationExportState extends State<BookingCreationImport> {
+  // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
+
+  // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
-  final FocusNode chaFocusNode = FocusNode();
+  final FocusNode _cityFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int modeSelected = 0;
   int chaIdMaster = 0;
-  String bookingDate="";
+  String bookingDate = "";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
   final double initialHeight = 45;
   final double errorHeight = 65;
+  final List categoriesData = [
+    {
+      'name': 'SHIPMENT DETAILS',
+      'sub_categories': [],
+    },
+  ];
+
+  bool _isLoading = false;
   final AuthService authService = AuthService();
   final EncryptionService encryptionService = EncryptionService();
 
   List<SelectionModels> vehicleTypes = [];
-  bool _isLoading = false;
+  bool isLoading = false;
   final List<VoidCallback> _markFieldsTouched = [];
 
   void _addMarkTouchedCallback(VoidCallback callback) {
@@ -79,23 +92,241 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     }
     if (!isFTlAndOneShipment && noOfVehiclesController.text.isNotEmpty) {
       int maxItems = int.tryParse(noOfVehiclesController.text) ?? 1;
-      if (vehicleListExports.length > maxItems) {
-        vehicleListExports = vehicleListExports.sublist(0, maxItems);
+      if (vehicleListImports.length > maxItems) {
+        vehicleListImports = vehicleListImports.sublist(0, maxItems);
       }
     }
     Utils.clearMasterDataForToggle();
+  }
+
+  getOriginDestination() async {
+    setState(() {
+      _isLoading = true;
+    });
+    var queryParams = {
+      "TerminalId": selectedTerminalId,
+      "IsImportShipment": true,
+    };
+    await authService
+        .postData(
+      "api_master/Airport/GetAirportOriginDestination",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+        setState(() {
+          originMaster = jsonData["Origin"];
+          destinationMaster = jsonData["Destination"];
+        });
+        callAllApis();
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        CustomSnackBar.show(context, message: "No Data Found");
+        Navigator.pop(context);
+      }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+  getViewEditShipmentImport(bookingId) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    var queryParams = {
+      "BookingId": bookingId.toString(),
+      "TimeZone": loginMaster[0].timeZone,
+    };
+    await authService
+        .getData(
+      "api_pcs/ImpShipment/GetById",
+      queryParams,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      setState(() {
+        shipmentListImports=(jsonData['ImpBOEDetails'] as List).map((item) => ShipmentDetailsImports.fromJson(item))
+            .toList();
+      });
+      setState(() {
+        vehicleListImports=(jsonData['ImpVehicleDetails'] as List).map((item) => VehicleDetailsImports.fromJson(item))
+            .toList();
+      });
+      print(vehicleListImports.length);
+      setState(() {
+        chaIdMaster=jsonData["CHAId"];
+        bookingDate=jsonData["BookingDt"];
+        noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
+        chaNameMaster=jsonData["ChaName"];
+        chaController.text=jsonData["ChaName"].toUpperCase();
+        if(jsonData["IsFTL"]){
+          modeSelected=0;
+        }
+        if(jsonData["IsLTL"]){
+          modeSelected=1;
+        }
+        List<String> vehicleIdList = List<String>.from(
+            jsonData["VehicleType"].map((id) => id.toString())
+        );
+        print(vehicleIdList.toString());
+        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
+      });
+
+      setState(() {
+        _isLoading = false;
+      });
+      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+      //   setState(() {
+      //     originMaster = jsonData["Origin"];
+      //     destinationMaster = jsonData["Destination"];
+      //   });
+      //   callAllApis();
+      // } else {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   CustomSnackBar.show(context, message: "No Data Found");
+      //   Navigator.pop(context);
+      // }
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
+  saveBookingDetailsImport() async {
+    // if (shipmentListImports.isEmpty && vehicleListImports.isEmpty) {
+    //   CustomSnackBar.show(context,
+    //       message: "Shipment and Vehicle Details are required");
+    //   return;
+    // }
+    if (shipmentListImports.isEmpty) {
+      CustomSnackBar.show(context, message: "Please fill up Shipment Details.");
+      return;
+    }
+    // if (vehicleListImports.isEmpty) {
+    //   CustomSnackBar.show(context, message: "Vehicle Details are required");
+    //   return;
+    // }
+    if (vehicleListImports.isNotEmpty){
+      if (int.parse(noOfVehiclesController.text) != vehicleListImports.length) {
+        CustomSnackBar.show(context,
+            message: "Please add details for remaining vehicles.");
+        return;
+      }
+    }
+
+
+    // for (var vehicleDetails in vehicleListExports) {
+    //   String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
+    //   if (slotViewDateTimeError != "") {
+    //     CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}" );
+    //     return;
+    //   }
+    // }
+
+    // setState(() {
+    //   _isLoading = true;
+    // });
+    if(vehicleListImports.isEmpty){
+      selectedVehicleList = multiSelectController.selectedItems.map((item) {
+        return Vehicle(id: item.value.id, name: item.value.name);
+      }).toList();
+    }
+    List<String> vehicleIdList =
+        selectedVehicleList.map((vehicle) => vehicle.id).toList();
+
+    final bookingCreationImport = SlotBookingCreationImport(
+      bookingId: widget.operationType=="E"?widget.bookingId!:0,
+      vehicleType: vehicleIdList,
+      bookingDt: widget.operationType=="E"?bookingDate: null,
+      noofVehicle: int.parse(noOfVehiclesController.text),
+      isFtl: modeSelected == 0,
+      isLtl: modeSelected == 1,
+      origin: originMaster,
+      destination: destinationMaster,
+      hsnCode: null,
+      cargoValue: null,
+      impBoeDetails: shipmentListImports,
+      impVehicleDetails: vehicleListImports,
+      chaName: chaNameMaster,
+      chaId: chaIdMaster.toString(),
+      orgProdId: loginMaster[0].adminOrgProdId,
+      userId: loginMaster[0].userId,
+      branchCode: loginMaster[0].branchCode,
+      companyCode: loginMaster[0].companyCode,
+      airportId: selectedTerminalId!,
+      paCompanyCode: loginMaster[0].companyCode,
+      screenId: 9065,
+      adminOrgProdId: loginMaster[0].adminOrgProdId,
+      orgId: loginMaster[0].adminOrgId,
+      isYes: false,
+      isNo: true,
+      landportAirportId: 0,
+      eventCode: widget.operationType=="E"?"UpdeteImpSlotBooking":"CreateImpSlotBooking",
+      directImportId: 0,
+    );
+    Map<String, dynamic> payload = bookingCreationImport.toJson();
+    Utils.printPayload(payload);
+    Utils.showLoadingDialog(context);
+    await authService
+        .postData(
+      "api_pcs/ImpShipment/UpSert",
+      payload,
+    )
+        .then((response) {
+      print("data received ");
+      Map<String, dynamic> jsonData = json.decode(response.body);
+      print(jsonData);
+      if (jsonData["ResponseMessage"] =="msg15") {
+        Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "BOE no already exists.");
+        return;
+      }
+      Utils.hideLoadingDialog(context);
+        CustomSnackBar.show(context, message: "Import Shipment Booking Created Successfully",backgroundColor: AppColors.successColor,leftIcon: Icons.check_circle);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
+      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
+      //   setState(() {
+      //     originMaster = jsonData["Origin"];
+      //     destinationMaster = jsonData["Destination"];
+      //   });
+      //   callAllApis();
+      // } else {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   CustomSnackBar.show(context, message: "No Data Found");
+      //   Navigator.pop(context);
+      // }
+    }).catchError((onError) {
+      setState(() {
+        Utils.hideLoadingDialog(context);
+      });
+      print(onError);
+    });
   }
 
   @override
   void initState() {
     super.initState();
     originMaster = "";
+    getOriginDestination();
     destinationMaster = "";
     noOfVehiclesController.clear();
-    multiSelectController.clearAll();
     Utils.clearMasterData();
     isFTlAndOneShipment = true;
-    getOriginDestination();
     noOfVehiclesController.text = "1";
     if(widget.operationType=="E"){
       isEdit=true;
@@ -103,24 +334,232 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     else{
       isEdit=false;
     }
-    //
-    // chaFocusNode.addListener(() async {
-    //   if (!chaFocusNode.hasFocus) {
-    //     final input = chaController.text;
-    //     final suggestions = await CHAAgentService.isValidAgent(input);
-    //     if (!suggestions) {
-    //       chaController.clear();
-    //       chaNameMaster = '';
-    //       chaIdMaster = 0;
-    //       // formFieldState.didChange(null);
-    //     }
-    //   }
-    // });
   }
 
-  @override
-  void dispose() {
-    chaController.dispose();
+  Future<ShipmentDetailsImports?> validateAndNavigate() async {
+    _markAllFieldsTouched();
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<ShipmentDetailsImports>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddShipmentDetailsImports(
+            isExport: false,
+          ),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<VehicleDetailsImports?> validateAndNavigateV2() async {
+    _markAllFieldsTouched();
+    if (_formKey.currentState!.validate()) {
+      return await Navigator.push<VehicleDetailsImports>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddVehicleDetailsImports(),
+        ),
+      );
+    } else {
+      // Return null if validation fails
+      return null;
+    }
+  }
+
+  Future<void> callAllApis() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await Future.wait([
+        loadCargoTypes(),
+        loadCHAExporterNames('Agent'),
+        loadCHAExporterNames('Importer'),
+      ]);
+      if(widget.operationType!="C"){
+        getViewEditShipmentImport(widget.bookingId);
+      }
+    } catch (e) {
+      print("Error calling APIs: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Map<String, dynamic> transformJson(Map<String, dynamic> secondJson) {
+  //   return {
+  //     "jointablename": secondJson["jointablename"] ?? "",
+  //     "jointablecondition": secondJson["jointablecondition"] ?? "",
+  //     "toprecord": secondJson["toprecord"] ?? 999,
+  //     "AllRecord": secondJson["AllRecord"] ?? false,
+  //     "Istariff": secondJson["Istariff"] ?? false,
+  //     "IsDisabled": secondJson["IsDisabled"] ?? false,
+  //     "wherecondition": secondJson["wherecondition"] ?? "",
+  //     "ReferenceId": secondJson["ReferenceId"] ?? "VehicleType",
+  //     "IsAll": secondJson["IsAll"] ?? true,
+  //   };
+  // }
+
+  Future<void> loadCargoTypes() async {
+    cargoTypeList = [];
+    await Future.delayed(const Duration(seconds: 2));
+
+    final mdl = SelectionModels();
+    mdl.topRecord ??= 10; // Assign 10 if topRecord is null
+    mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
+    mdl.allRecord = false;
+    mdl.isTariff = false;
+    mdl.isDisabled = false;
+    mdl.whereCondition =
+        "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
+    mdl.description = "Concat(CLOV.Code,'' - '',CLOV.Description)";
+
+    SelectionQuery body = SelectionQuery();
+    body.query =
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    mdl.query = body.query;
+    print("---cargo Type---");
+    String abc =
+        "LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9AjJCH8YswkgxyDLWPe2L9BJr/S0YYYjX8WLY6+QL6pqV+E2/UQrlxumfhvcXiKzlkvZ3lC4rI36AAaT9Jd9wlRn7R6La8WnqMuCXUoI8RwYi5HLLlNrZUVuJqXlE35qCwOLCkGlNpVTmjOHM6SIK9OY+KVbrzPq7J5MM7/nldDpbTc4fJrAJXIcoHqZZpiau6XCm1EDgc/3m+Y8EAuq6TcuyV/6cG7YPe15DzKpGVk3jGBlP+owYqWJTq8DYgNWswY+zJbjFeR1UB1M9XFXmjpsxNdSEcwBIBWwvFFCmhCfg==";
+    Utils.printPrettyJson(
+        encryptionService.decryptUsingRandomKeyPrivateKey(abc));
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    try {
+      final response = await authService.sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api_master/GenericDropDown/GetAllClientListOfValues",
+      );
+
+      if (response.body.isNotEmpty) {
+        print("-----Cargo Types-----");
+        List<dynamic> jsonData = json.decode(response.body);
+        print("-----Cargo Types----- $jsonData");
+        print("-----Cargo Types Length= ${jsonData.length}-----");
+
+        setState(() {
+          cargoTypeList = jsonData
+              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+              .toList();
+        });
+        print("-----Cargo Types Length= ${cargoTypeList.length}-----");
+      } else {
+        print("Response is empty");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
+
+  Future<void> loadCHAExporterNames(basedOnPrevious) async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    exporterList = [];
+    chaAgentList = [];
+    final mdl = SelectionModels();
+    mdl.jointableName = 'Organization_Businessline OB ';
+    mdl.allRecord = true;
+    mdl.jointableCondition =
+        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
+    if (basedOnPrevious != null) {
+      mdl.whereCondition =
+          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
+    } else {
+      mdl.whereCondition =
+          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
+    }
+    SelectionQuery body = SelectionQuery();
+    body.query =
+        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+
+    mdl.query = body.query;
+    Utils.printPrettyJson(
+        encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
+
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+            headers: headers,
+            fields: fields,
+            endPoint: "api_master/GenericDropDown/GetAllOrganizations")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        json.decode(response.body);
+        print("-----$basedOnPrevious-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        if (basedOnPrevious == "Exporter") {
+          setState(() {
+            exporterList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
+          });
+          print("-----$basedOnPrevious Length= ${exporterList.length}-----");
+        } else if (basedOnPrevious == "Agent") {
+          setState(() {
+            chaAgentList = jsonData
+                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+                .toList();
+          });
+          print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
+        } else if (basedOnPrevious == "Importer") {
+          importerList = jsonData
+              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
+              .toList();
+        }
+      } else {
+        print("response is empty");
+      }
+    }).catchError((onError) {
+      setState(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    });
+    // await authService
+    //     .fetchLoginDataPOST(
+    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
+    //     .then((response) {
+    //   print("data received ");
+    //   if (response.body.isNotEmpty) {
+    //     json.decode(response.body);
+    //     print(json.decode(response.body));
+    //   } else {
+    //     print("response is empty");
+    //   }
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    // }).catchError((onError) {
+    //   setState(() {
+    //     setState(() {
+    //       _isLoading = false;
+    //     });
+    //   });
+    //   print(onError);
+    // });
   }
 
   @override
@@ -128,11 +567,11 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Imports',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
-          toolbarHeight: 80,
+          toolbarHeight: 60,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -329,7 +768,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       child:  Padding(
                                         padding:
                                             const EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
+                                        child:Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
                                       ),
                                     )
                                   ],
@@ -369,17 +808,18 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                 children: [
                                   SizedBox(
                                     width:
-                                        MediaQuery.sizeOf(context).width * 0.88,
+                                        MediaQuery.sizeOf(context).width * 0.87,
                                     child: MultiDropdown<Vehicle>(
                                       items: items,
                                       controller: multiSelectController,
                                       enabled:widget.operationType=="V"?false: true,
                                       searchEnabled: false,
                                       chipDecoration: const ChipDecoration(
-                                        backgroundColor: AppColors.secondary,
+                                        backgroundColor: AppColors.textFieldBorderColor,
                                         wrap: false,
                                         runSpacing: 4,
                                         spacing: 4,
+
                                       ),
                                       fieldDecoration: FieldDecoration(
                                         hintText: 'Types of Vehicles*',
@@ -472,20 +912,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         MediaQuery.sizeOf(context).width * 0.42,
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
-                                      enabled: (modeSelected == 1 ||  widget.operationType=="V") ? false : true,
-                                      onChanged: (value) {
+                                      enabled: (modeSelected == 1 ||  widget.operationType=="V")? false : true,
+                                      onChanged: (value){
                                         if (int.parse(
-                                                noOfVehiclesController.text) ==
+                                            noOfVehiclesController.text) ==
                                             0) {
                                           noOfVehiclesController.text = "1";
                                         }
                                         setState(() {
                                           int maxItems =
                                               int.tryParse(value) ?? 1;
-                                          if (vehicleListExports.length >
+                                          if (vehicleListImports.length >
                                               maxItems) {
-                                            vehicleListExports =
-                                                vehicleListExports.sublist(
+                                            vehicleListImports =
+                                                vehicleListImports.sublist(
                                                     0, maxItems);
                                           }
                                         });
@@ -532,7 +972,6 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         minWidth:
                                             MediaQuery.sizeOf(context).width *
                                                 0.5,
-                                        // states: [false],
                                         minHeight: 45.0,
                                         fontSize: 14.0,
                                         initialLabelIndex: modeSelected,
@@ -547,14 +986,13 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         cornerRadius: 0.0,
                                         borderWidth: 0.5,
                                         borderColor: [Colors.grey],
-                                        onToggle:widget.operationType!="C"? null: (index) {
-                                          print('switched to: ${widget.operationType}');
-                                              setState(() {
-                                                modeSelected = index!;
-                                              });
-                                              _updateTextField();
+                                        onToggle:widget.operationType!="C"?null:  (index) {
+                                          print('switched to: $index');
+                                          setState(() {
+                                            modeSelected = index!;
+                                          });
+                                          _updateTextField();
                                         },
-
                                       ),
                                     ),
                                   ),
@@ -570,7 +1008,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                     CargoTypeExporterImporterAgent>(
                                   controller: chaController,
                                   debounceDuration:
-                                      const Duration(milliseconds: 300),
+                                  const Duration(milliseconds: 300),
                                   suggestionsCallback: (search) =>
                                       CHAAgentService.find(search),
                                   itemBuilder: (context, item) {
@@ -599,20 +1037,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   },
                                   builder: (context, controller, focusNode) =>
                                       CustomTextField(
-                                    controller: controller,
-                                    labelText: "CHA Name",
-                                    isEnabled:  !(widget.operationType=="V"),
-                                    registerTouchedCallback:
+                                        controller: controller,
+                                        labelText: "CHA Name",
+                                        isEnabled:  !(widget.operationType=="V"),
+                                        registerTouchedCallback:
                                         _addMarkTouchedCallback,
-                                    focusNode: focusNode,
-                                  ),
+                                        focusNode: focusNode,
+                                      ),
                                   decorationBuilder: (context, child) =>
                                       Material(
-                                    type: MaterialType.card,
-                                    elevation: 4,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: child,
-                                  ),
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
                                   // itemSeparatorBuilder: (context, index) =>
                                   //     Divider(),
                                   emptyBuilder: (context) => const Padding(
@@ -640,90 +1078,120 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                               //         return 'Field is Required';
                               //       }
                               //       setState(() {
-                              //         _textFieldHeight = initialHeight; // Reset to initial height if valid
+                              //         _textFieldHeight =
+                              //             initialHeight; // Reset to initial height if valid
                               //       });
                               //       return null; // Valid input
                               //     },
                               //     builder: (formFieldState) {
-                              //
-                              //       chaController.addListener(() {
-                              //         if (formFieldState.hasError && chaController.text.isNotEmpty) {
-                              //           formFieldState.didChange(chaController.text); // Clear error
-                              //         }
-                              //       });
-                              //
                               //       return Column(
-                              //         crossAxisAlignment: CrossAxisAlignment.start,
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.start,
                               //         children: [
                               //           AnimatedContainer(
                               //             duration: Duration(milliseconds: 200),
-                              //             height: _textFieldHeight, // Dynamic height based on validation
-                              //             child: TypeAheadField<CargoTypeExporterImporterAgent>(
-                              //               hideSuggestionsOnKeyboardHide: true,
+                              //             height: _textFieldHeight,
+                              //             // Dynamic height based on validation
+                              //             child: TypeAheadField<
+                              //                 CargoTypeExporterImporterAgent>(
+                              //               hideSuggestionsOnKeyboardHide:
+                              //               true,
                               //               ignoreAccessibleNavigation: true,
-                              //               textFieldConfiguration: TextFieldConfiguration(
+                              //               textFieldConfiguration:
+                              //                   TextFieldConfiguration(
                               //                 controller: chaController,
-                              //                 focusNode: chaFocusNode,
+                              //                 focusNode: _cityFocusNode,
                               //                 decoration: InputDecoration(
-                              //                   contentPadding: const EdgeInsets.symmetric(
-                              //                       vertical: 12.0, horizontal: 10.0),
-                              //                   labelText: 'CHA Name*',
-                              //                   labelStyle: TextStyle(
-                              //                     color: formFieldState.hasError
-                              //                         ? AppColors.errorRed
-                              //                         : Colors.black87,
-                              //                   ),
-                              //                   // Set border depending on the error state
-                              //                   border: OutlineInputBorder(
-                              //                     borderRadius: BorderRadius.circular(4),
-                              //                     borderSide: const BorderSide(
-                              //                       color:  AppColors.errorRed
-                              //                           ,
+                              //                     contentPadding:
+                              //                         const EdgeInsets
+                              //                             .symmetric(
+                              //                             vertical: 12.0,
+                              //                             horizontal: 10.0),
+                              //                     border: OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
                               //                     ),
-                              //                   ),
-                              //
-                              //                   errorBorder:
-                              //                       OutlineInputBorder(
-                              //                     borderRadius: BorderRadius.circular(4),
-                              //                     borderSide: const BorderSide(color: AppColors.errorRed),
-                              //                   )
-                              //                       ,
-                              //                   focusedErrorBorder:  OutlineInputBorder(
-                              //                     borderRadius: BorderRadius.circular(4),
-                              //                     borderSide: BorderSide(color: AppColors.errorRed),
-                              //                   )
-                              //                      ,
-                              //                 ),
+                              //                     labelText: 'CHA Name*',
+                              //                     labelStyle: formFieldState
+                              //                             .hasError
+                              //                         ? const TextStyle(
+                              //                             color: AppColors
+                              //                                 .errorRed)
+                              //                         : const TextStyle(
+                              //                             color:
+                              //                                 Colors.black87),
+                              //                     errorBorder:
+                              //                         OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
+                              //                     ),
+                              //                     focusedErrorBorder:
+                              //                         OutlineInputBorder(
+                              //                       borderRadius:
+                              //                           BorderRadius.circular(
+                              //                               4),
+                              //                       borderSide:
+                              //                           const BorderSide(
+                              //                               color: AppColors
+                              //                                   .errorRed),
+                              //                     )),
                               //               ),
-                              //               suggestionsCallback: (search) => CHAAgentService.find(search),
+                              //               suggestionsCallback: (search) =>
+                              //                   CHAAgentService.find(search),
                               //               itemBuilder: (context, city) {
                               //                 return Container(
                               //                   decoration: const BoxDecoration(
                               //                     border: Border(
-                              //                       top: BorderSide(color: Colors.black, width: 0.2),
-                              //                       left: BorderSide(color: Colors.black, width: 0.2),
-                              //                       right: BorderSide(color: Colors.black, width: 0.2),
-                              //                       bottom: BorderSide.none, // No border on the bottom
+                              //                       top: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       left: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       right: BorderSide(
+                              //                           color: Colors.black,
+                              //                           width: 0.2),
+                              //                       bottom: BorderSide
+                              //                           .none, // No border on the bottom
                               //                     ),
                               //                   ),
-                              //                   padding: const EdgeInsets.all(8.0),
+                              //                   padding:
+                              //                       const EdgeInsets.all(8.0),
                               //                   child: Row(
                               //                     children: [
-                              //                       Text(city.code.toUpperCase()),
-                              //                       const SizedBox(width: 10),
-                              //                       Text(city.description.toUpperCase()),
+                              //                       Text(city.code
+                              //                           .toUpperCase()),
+                              //                       const SizedBox(
+                              //                         width: 10,
+                              //                       ),
+                              //                       Text(city.description
+                              //                           .toUpperCase()),
                               //                     ],
                               //                   ),
                               //                 );
                               //               },
                               //               onSuggestionSelected: (city) {
-                              //                 chaController.text = city.description.toUpperCase();
-                              //                 chaNameMaster = city.description;
+                              //                 chaController.text = city
+                              //                     .description
+                              //                     .toUpperCase();
+                              //                 chaNameMaster= city
+                              //                     .description;
                               //                 chaIdMaster = int.parse(city.value);
-                              //                 formFieldState.didChange(chaController.text);
-                              //                 _formKey.currentState!.validate();
+                              //                 formFieldState.didChange(
+                              //                     chaController.text);
                               //               },
-                              //               noItemsFoundBuilder: (context) => const Padding(
+                              //               noItemsFoundBuilder: (context) =>
+                              //                   const Padding(
                               //                 padding: EdgeInsets.all(8.0),
                               //                 child: Text('No CHA Found'),
                               //               ),
@@ -731,18 +1199,19 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                               //           ),
                               //           if (formFieldState.hasError)
                               //             Padding(
-                              //               padding: const EdgeInsets.only(top: 4.0, left: 16),
+                              //               padding: const EdgeInsets.only(
+                              //                   top: 4.0, left: 16),
                               //               child: Text(
                               //                 formFieldState.errorText ?? '',
                               //                 style: const TextStyle(
-                              //                     color: AppColors.errorRed, fontSize: 12),
+                              //                     color: AppColors.errorRed,
+                              //                     fontSize: 12),
                               //               ),
                               //             ),
                               //         ],
                               //       );
                               //     },
-                              //   )
-                              //   ,
+                              //   ),
                               // ),
                             ],
                           ),
@@ -752,25 +1221,26 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddShipmentDetailsListNew(
-                      shipmentDetailsList: shipmentListExports,
+                    AddShipmentDetailsListImportsNew(
+                      shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,
-                      isExport: true,
-                      isViewOnly:  widget.operationType=="V",
+                      isExport: false,
+                      isViewOnly: widget.operationType=="V",
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                    AddVehicleDetailsListExportsNew(
-                      vehicleDetailsList: vehicleListExports,
+                    AddVehicleDetailsListNew(
+                      vehicleDetailsList: vehicleListImports,
                       validateAndNavigate: validateAndNavigateV2,
-                      isExport: true,
-                      isViewOnly:  widget.operationType=="V",
+                      isExport: false,
+                      isViewOnly: widget.operationType=="V",
+                      showQR: widget.isQRVisisble,
                     ),
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
-                   Container(
+                    Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
                         color: AppColors.white,
@@ -791,7 +1261,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   child: OutlinedButton(
                                     onPressed: () {
                                       multiSelectController.clearAll();
-                                      Navigator.pop(context);
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>const ImportScreen()));
                                     },
                                     child: widget.operationType=="V"?const Text("Back"):const Text("Cancel"),
                                   ),
@@ -804,10 +1274,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   width:
                                       MediaQuery.sizeOf(context).width * 0.42,
                                   child: ElevatedButton(
-                                    onPressed:widget.operationType=="V"?null:  () {
+                                    onPressed:widget.operationType=="V"?null: () {
                                       _markAllFieldsTouched();
                                       if (_formKey.currentState!.validate()) {
-                                        saveBookingDetailsExport();
+                                        saveBookingDetailsImport();
                                       }
                                     },
                                     child: const Text(
@@ -915,473 +1385,4 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       ),
     );
   }
-
-  Future<ShipmentDetailsExports?> validateAndNavigate() async {
-    _markAllFieldsTouched();
-    if (_formKey.currentState!.validate()) {
-      return await Navigator.push<ShipmentDetailsExports>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddShipmentDetails(
-            isExport: true,
-          ),
-        ),
-      );
-    } else {
-      // Return null if validation fails
-      return null;
-    }
-  }
-
-  Future<VehicleDetailsExports?> validateAndNavigateV2() async {
-    _markAllFieldsTouched();
-    if (_formKey.currentState!.validate()) {
-      return await Navigator.push<VehicleDetailsExports>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddVehicleDetailsExports(),
-        ),
-      );
-    } else {
-
-      return null;
-    }
-  }
-
-  Future<void> callAllApis() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      await Future.wait([
-        loadCargoTypes(),
-        loadCHAExporterNames('Agent'),
-        loadCHAExporterNames('Exporter'),
-
-      ]);
-      if(widget.operationType!="C"){
-        getViewEditShipmentExport(widget.bookingId);
-      }
-    } catch (e) {
-      print("Error calling APIs: $e");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> loadCargoTypes() async {
-    cargoTypeList = [];
-    await Future.delayed(const Duration(seconds: 2));
-
-    final mdl = SelectionModels();
-    mdl.topRecord ??= 10; // Assign 10 if topRecord is null
-    mdl.topRecord = mdl.topRecord == 10 ? 999 : mdl.topRecord;
-    mdl.allRecord = false;
-    mdl.isTariff = false;
-    mdl.isDisabled = false;
-    mdl.whereCondition =
-        "CLOV.Identifier = ''CargoType'' AND Coalesce(CLOV.IsDeleted,0) = 0 AND Coalesce(CLOV.IsActive,0) = 1 AND ISNULL(CLOV.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId}";
-    mdl.description = "Concat(CLOV.Code,'' - '',CLOV.Description)";
-
-    SelectionQuery body = SelectionQuery();
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-    mdl.query = body.query;
-
-    var headers = {
-      'Accept': 'text/plain',
-      'Content-Type': 'multipart/form-data',
-    };
-    var fields = {
-      'Query': '${body.query}',
-    };
-
-    try {
-      final response = await authService.sendMultipartRequest(
-        headers: headers,
-        fields: fields,
-        endPoint: "api/GenericDropDown/GetAllClientListOfValues",
-      );
-
-      if (response.body.isNotEmpty) {
-        print("-----Cargo Types-----");
-        List<dynamic> jsonData = json.decode(response.body);
-        print("-----Cargo Types----- $jsonData");
-        print("-----Cargo Types Length= ${jsonData.length}-----");
-
-        setState(() {
-          cargoTypeList = jsonData
-              .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-              .toList();
-        });
-        print("-----Cargo Types Length= ${cargoTypeList.length}-----");
-      } else {
-        print("Response is empty");
-      }
-    } catch (error) {
-      print("Error: $error");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> loadCHAExporterNames(basedOnPrevious) async {
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _isLoading = true;
-    });
-    exporterList = [];
-    cargoTypeList = [];
-    final mdl = SelectionModels();
-    mdl.jointableName = 'Organization_Businessline OB ';
-    mdl.allRecord = true;
-    mdl.jointableCondition =
-        '''OB.OrgId = O.OrgId inner join OrganizationDetails OD with(nolock) on OD.OrgId = O.OrgId and OD.RegistrationPaymentStatus=''PAID'' and OD.RequestStatus=''Activated'' and OD.SubscriptionStatus=''Active'' AND COALESCE(OD.IsExpire, 0) = 0 ''';
-    if (basedOnPrevious != null) {
-      mdl.whereCondition =
-          '''O.Community_Admin_OrgId=${loginMaster[0].adminOrgId} AND OB.BusinesslineId = (select top 1 BusinessTypeID from Master_BusinessType where Community_Admin_OrgId=${loginMaster[0].adminOrgId} and LOWER(BusinessType) = LOWER(''${basedOnPrevious}''))''';
-    } else {
-      mdl.whereCondition =
-          'O.Community_Admin_OrgId=${loginMaster[0].adminOrgId}';
-    }
-    SelectionQuery body = SelectionQuery();
-    body.query =
-        await encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-
-    mdl.query = body.query;
-    Utils.printPrettyJson(
-        encryptionService.decryptUsingRandomKeyPrivateKey(body.query));
-
-    var headers = {
-      'Accept': 'text/plain',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ${loginMaster[0].token}',
-    };
-    var fields = {
-      'Query': '${body.query}',
-    };
-
-    await authService
-        .sendMultipartRequest(
-            headers: headers,
-            fields: fields,
-            endPoint: "api/GenericDropDown/GetAllOrganizations")
-        .then((response) {
-      if (response.body.isNotEmpty) {
-        json.decode(response.body);
-        print("-----$basedOnPrevious-----");
-        print(json.decode(response.body));
-        List<dynamic> jsonData = json.decode(response.body);
-        if (basedOnPrevious == "Exporter") {
-          setState(() {
-            exporterList = jsonData
-                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-                .toList();
-          });
-          print("-----$basedOnPrevious Length= ${exporterList.length}-----");
-        } else if (basedOnPrevious == "Agent") {
-          setState(() {
-            chaAgentList = jsonData
-                .map((json) => CargoTypeExporterImporterAgent.fromJSON(json))
-                .toList();
-          });
-          print("-----$basedOnPrevious Length= ${chaAgentList.length}-----");
-        }
-      } else {
-        print("response is empty");
-      }
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    });
-    // await authService
-    //     .fetchLoginDataPOST(
-    //         "api/GenericDropDown/GetAllVehicleType", fields, headers)
-    //     .then((response) {
-    //   print("data received ");
-    //   if (response.body.isNotEmpty) {
-    //     json.decode(response.body);
-    //     print(json.decode(response.body));
-    //   } else {
-    //     print("response is empty");
-    //   }
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    // }).catchError((onError) {
-    //   setState(() {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
-    //   print(onError);
-    // });
-  }
-
-  bool validateVehicleDetailsList() {
-    for (var obj in vehicleListExports) {
-      if (obj.drivingLicense == null ||
-          obj.rcScanned == null ||
-          obj.slotViewDateTime.isEmpty) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  saveBookingDetailsExport() async {
-    // if (shipmentListExports.isEmpty && vehicleListExports.isEmpty) {
-    //   CustomSnackBar.show(context,
-    //       message: "Shipment and Vehicle Details are required");
-    //   return;
-    // }
-    if (shipmentListExports.isEmpty) {
-      CustomSnackBar.show(context, message: "Please fill up Shipment Details.");
-      return;
-    }
-    // if (vehicleListExports.isEmpty) {
-    //   CustomSnackBar.show(context, message: "Vehicle Details are required");
-    //   return;
-    // }
-    for (var vehicleDetails in vehicleListExports) {
-      String? drivingLicenseError = vehicleDetails.validateDrivingLicense();
-      if (drivingLicenseError != null) {
-        CustomSnackBar.show(context,
-            message: "$drivingLicenseError ${vehicleDetails.truckNo}");
-        print("Dl");
-        return;
-      }
-
-      String? rcScannedError = vehicleDetails.validateRcScanned();
-      if (rcScannedError != null) {
-        CustomSnackBar.show(context,
-            message: "$rcScannedError ${vehicleDetails.truckNo}");
-        print("rc");
-        return;
-      }
-      if (vehicleListExports.isNotEmpty) {
-        if (int.parse(noOfVehiclesController.text) !=
-            vehicleListExports.length) {
-          CustomSnackBar.show(context,
-              message: "Please add details for remaining vehicles.");
-          return;
-        }
-      }
-
-      // String slotViewDateTimeError = vehicleDetails.validateSlotViewDateTime();
-      // if (slotViewDateTimeError != "") {
-      //   CustomSnackBar.show(context, message: "$slotViewDateTimeError ${vehicleDetails.truckNo}");
-      //   print("slotdt");
-      //   return;
-      // }
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-    if(vehicleListExports.isEmpty){
-      selectedVehicleList = multiSelectController.selectedItems.map((item) {
-        return Vehicle(id: item.value.id, name: item.value.name);
-      }).toList();
-    }
-    // Utils.showLoadingDialog(context);
-    List<String> vehicleIdList =
-        selectedVehicleList.map((vehicle) => vehicle.id).toList();
-
-    SlotBookingCreationExport bookingCreationExport = SlotBookingCreationExport(
-      bookingId:widget.operationType=="E"?widget.bookingId!:0,
-      vehicleType: vehicleIdList,
-      bookingDt:widget.operationType=="E"?bookingDate: null,
-      noofVehicle: int.parse(noOfVehiclesController.text),
-      isFtl: modeSelected == 0,
-      isLtl: modeSelected == 1,
-      origin: originMaster,
-      destination: destinationMaster,
-      hsnCode: null,
-      cargoValue: null,
-      shipmentDetailsList: shipmentListExports,
-      vehicalDetailsList: vehicleListExports,
-      chaName: chaNameMaster,
-      chaId: chaIdMaster,
-      unitOfQt: null,
-      portOfDest: null,
-      grossQt: null,
-      orgProdId: loginMaster[0].adminOrgProdId,
-      userId: loginMaster[0].userId,
-      branchCode: loginMaster[0].branchCode,
-      companyCode: loginMaster[0].companyCode,
-      airportId: selectedTerminalId!,
-      paCompanyCode: loginMaster[0].companyCode,
-      screenId: 9065,
-      adminOrgProdId: loginMaster[0].adminOrgProdId,
-      orgId: loginMaster[0].adminOrgId,
-      eventCode: widget.operationType=="E"?"UpdeteExpSlotBooking":"CreateExpSlotBooking"
-    );
-    Map<String, dynamic> payload = bookingCreationExport.toJson();
-    Utils.printPayload(payload);
-    // return;
-    await authService
-        .postData(
-      "api_pcs/ShipmentMaster/UpSertShipment",
-      payload,
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      print(jsonData);
-      if (jsonData["ResponseMessage"] == "msg15") {
-        Utils.hideLoadingDialog(context);
-        CustomSnackBar.show(context,
-            message: "Shipping bill no already exists.");
-        return;
-      }
-      Utils.hideLoadingDialog(context);
-      CustomSnackBar.show(context,
-          message: "Export Shipment Booking Created Successfully",
-          backgroundColor: AppColors.successColor,
-          leftIcon: Icons.check_circle);
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const ExportScreen()));
-    }).catchError((onError) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(onError);
-    });
-  }
-
-  getOriginDestination() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await Future.delayed(const Duration(seconds: 2));
-    var queryParams = {
-      "TerminalId": selectedTerminalId,
-      "IsImportShipment": false,
-    };
-    await authService
-        .postData(
-      "api_master/Airport/GetAirportOriginDestination",
-      queryParams,
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
-        setState(() {
-          originMaster = jsonData["Origin"];
-          destinationMaster = jsonData["Destination"];
-        });
-        callAllApis();
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        CustomSnackBar.show(context, message: "No Data Found");
-        Navigator.pop(context);
-      }
-    }).catchError((onError) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(onError);
-    });
-  }
-
-  getViewEditShipmentExport(bookingId) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    var queryParams = {
-      "BookingId": bookingId.toString(),
-      "TimeZone": loginMaster[0].timeZone,
-    };
-    await authService
-        .getData(
-      "api_pcs/ShipmentMaster/GetShipmentById",
-      queryParams,
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      print(jsonData);
-      setState(() {
-        shipmentListExports=(jsonData['ShipmentDetailsList'] as List).map((item) => ShipmentDetailsExports.fromJson(item))
-            .toList();
-      });
-      setState(() {
-        vehicleListExports=(jsonData['VehicalDetailsList'] as List).map((item) => VehicleDetailsExports.fromJson(item))
-            .toList();
-      });
-      setState(() {
-        chaIdMaster=jsonData["CHAId"];
-        bookingDate=jsonData["BookingDt"];
-        chaNameMaster=jsonData["ChaName"];
-        noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
-        chaController.text=jsonData["ChaName"].toUpperCase();
-        if(jsonData["IsFTL"]){
-          modeSelected=0;
-        }
-        if(jsonData["IsLTL"]){
-          modeSelected=1;
-        }
-        List<String> vehicleIdList = List<String>.from(
-            jsonData["VehicleType"].map((id) => id.toString())
-        );
-        // print(vehicleIdList.toString());
-        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
-        // selectedVehicleList=vehicleIdList.addAll([42, 44, 89].map((id) => id.toString()));
-      });
-
-      // print("Driver Name: ${vehicleListExports[0].driverName}");
-      // print("Driving License Document Name: ${vehicleListExports[0].drivingLicense!.documentName}");
-      // print("RC Document File Path: ${vehicleListExports[0].rcScanned?.filePath}");
-
-      setState(() {
-        _isLoading = false;
-      });
-      // if (jsonData["Origin"] != null && jsonData["Origin"] != null) {
-      //   setState(() {
-      //     originMaster = jsonData["Origin"];
-      //     destinationMaster = jsonData["Destination"];
-      //   });
-      //   callAllApis();
-      // } else {
-      //   setState(() {
-      //     _isLoading = false;
-      //   });
-      //   CustomSnackBar.show(context, message: "No Data Found");
-      //   Navigator.pop(context);
-      // }
-    }).catchError((onError) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(onError);
-    });
-  }
-
-}
-
-class Vehicle {
-  final String name;
-  final String id;
-
-  Vehicle({required this.name, required this.id});
 }

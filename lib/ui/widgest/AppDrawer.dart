@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lpms/screens/ExportDashboard.dart';
-import 'package:lpms/screens/ImportDashboard.dart';
+import 'package:lpms/screens/slot_booking/ExportDashboard.dart';
+import 'package:lpms/screens/slot_booking/ImportDashboard.dart';
 import 'package:lpms/theme/app_color.dart';
 
 class AppDrawer extends StatefulWidget {
