@@ -682,8 +682,8 @@ class VehicleDetailsExports {
   String? grossWt;
   String? tareWt;
   String? netWt;
-  String? isvehicleVerified;
-  String? isDriverVerified;
+  bool? isvehicleVerified;
+  bool? isDriverVerified;
   String? VTNo;
 
   VehicleDetailsExports({
@@ -758,7 +758,7 @@ class VehicleDetailsExports {
        vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,//json["VehicleType"]==42?"Truck":"AUTO"
       slotViewDateTime:
       json['SlotDateTime'] != null
-          ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
+          ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'].trim()?? ""}"
           : "",
      VTNo:  json["VTNo"],
     );
@@ -823,8 +823,8 @@ class VehicleDetailsExports {
     String? grossWt,
     String? tareWt,
     String? netWt,
-    String? isvehicleVerified,
-    String? isDriverVerified,
+    bool? isvehicleVerified,
+    bool? isDriverVerified,
     // String? VTNo,
   }) {
     return VehicleDetailsExports(
@@ -974,7 +974,7 @@ class VehicleDetailsImports {
         bookedTimeSlot:json['BookedTimeSlot'],
 
         slotViewDateTime:json['SlotDateTime'] != null
-            ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'] ?? ""}"
+            ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'].trim() ?? ""}"
             : "",
         gateinNo: json["GateInNo"]??"",
         VTNo:  json["VTNo"],

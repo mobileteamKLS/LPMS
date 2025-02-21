@@ -884,7 +884,7 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ? ScreenDimension.onePercentOfScreenHight*25.7 :  ScreenDimension.onePercentOfScreenHight*14.1,
+        height: isExpanded ?216 : 116,// ScreenDimension.onePercentOfScreenHight*25.7 :  ScreenDimension.onePercentOfScreenHight*14.1,
         child: Padding(
           padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight*defaultContainerPadding),
           child: Column(
@@ -1658,6 +1658,7 @@ class _ExportScreenState extends State<ExportScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+
       builder: (BuildContext context) {
         // List<String> selectedFilters = [];
 

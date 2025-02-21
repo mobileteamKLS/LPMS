@@ -32,6 +32,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   bool _isLoading=false;
   final AuthService authService = AuthService();
   int secondsRemaining = 180;
+  int attempt = 3;
   Timer? timer;
   bool isButtonDisabled = false;
   String? otp;
@@ -39,7 +40,9 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   void startTimer() {
     isButtonDisabled = true;
     secondsRemaining = 180;
-
+    setState(() {
+      attempt = 3;
+    });
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (secondsRemaining == 0) {
         timer?.cancel();
@@ -147,60 +150,12 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
     });
   }
 
-  getUserIdMail() async {
-    FocusScope.of(context).requestFocus(FocusNode());
-    if(otp==null){
-      CustomSnackBar.show(context, message: "OTP expired, resend it now.",backgroundColor: AppColors.errorRed,leftIcon: Icons.info_outlined);
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
 
-    var queryParam = {"LoginName": otpController.text.trim()};
-    var headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-    await authService
-        .fetchLoginDataPOST(
-        "api_login/Login/ResetRegisteredEmailId",
-        queryParam,headers
-    )
-        .then((response) {
-      print("data received ");
-      Map<String, dynamic> jsonData = json.decode(response.body);
-      if(jsonData.isNotEmpty){
-        setState(() {
-          _isLoading = false;
-        });
-        CustomSnackBar.show(context, message: "${jsonData["OtherMessage"]}",backgroundColor: AppColors.successColor,leftIcon: Icons.check_circle);
-        Future.delayed(const Duration(milliseconds: 1800), ()
-        {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => const LoginPageNew()));
-        });
-      }
-      else{
-        setState(() {
-          _isLoading = false;
-        });
-      }
-
-
-    }).catchError((onError) {
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-      print(onError);
-    });
-  }
 
   Future<void> loginUsingPhoneNo() async {
     FocusScope.of(context).requestFocus(FocusNode());
     if(otp==null){
+      otpController.clear();
       CustomSnackBar.show(context, message: "OTP expired, resend it now.",backgroundColor: AppColors.errorRed,leftIcon: Icons.info_outlined);
       return;
     }
@@ -414,7 +369,29 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                                     print("Sign In");
                                     if (formKey.currentState!.validate()) {
                                       loginUsingPhoneNo();
-                                    }
+                                    }else{
+                                      FocusScope.of(context).requestFocus(FocusNode());
+                                      if(attempt>1){
+                                        setState(() {
+                                          attempt--;
+                                        });
+                                        otpController.clear();
+                                        CustomSnackBar.show(context, message: "Invalid OTP. You have $attempt attempt(s) remaining.",backgroundColor: AppColors.warningColor,leftIcon: Icons.info_outlined);
+                                      }
+                                      else{
+                                        setState(() {
+                                          otpController.clear();
+                                           secondsRemaining=0;
+                                          isButtonDisabled = false;
+                                          print("----$isButtonDisabled");
+                                           formKey.currentState!.reset();
+                                          otp=null;
+                                        });
+                                        CustomSnackBar.show(context, message: "Maximum attempts exceeded. Please try again later.",backgroundColor: AppColors.warningColor,leftIcon: Icons.info_outlined);
+
+                                      }
+
+                                   }
                                   }
                               ),
                               SizedBox(height: ScreenDimension.onePercentOfScreenHight * 2,),
@@ -437,7 +414,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
                                       ],
                                     ),
                                     onTap: (){
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>const LoginPageNew()));
+                                      Navigator.pop(context);
                                     },
                                   ),
                                   isButtonDisabled?

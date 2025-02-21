@@ -22,6 +22,7 @@ class AuthService {
   Future<IpInfo> fetchIpInfo() async {
     final response = await http.get(Uri.parse("https://ipapi.co/json/"));
     final int statusCode = response.statusCode;
+    print("Status Code $statusCode");
     if (statusCode <= 200 || statusCode > 400) {
       final data = json.decode(response.body);
       debugPrint(IpInfo.fromJson(data).toString());
