@@ -37,7 +37,7 @@ class _ImportScreenState extends State<ImportScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // List of terminal data with id as int
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<SlotBookingShipmentListingImport> listShipmentDetails = [];
   List<SlotBookingShipmentListingImport> listShipmentDetailsBind = [];
   final AuthService authService = AuthService();
@@ -91,6 +91,7 @@ class _ImportScreenState extends State<ImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
           title: const Text(
             'Imports',
@@ -195,7 +196,9 @@ class _ImportScreenState extends State<ImportScreen> {
               onPressed: () {},
             ),
           ]),
-      drawer: AppDrawer(selectedScreen: "Import"),
+      drawer: AppDrawer(onDrawerCloseIcon: (){
+        _scaffoldKey.currentState?.closeDrawer();
+      },),
       body: Stack(
         children: [
           Container(

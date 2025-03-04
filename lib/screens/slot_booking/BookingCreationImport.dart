@@ -15,7 +15,7 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/auth.dart';
-import '../../models/SelectionModel.dart';
+import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
 import '../../theme/app_color.dart';
 import '../../theme/app_theme.dart';

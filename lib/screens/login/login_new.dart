@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api/auth.dart';
 import '../../models/IPInfo.dart';
-import '../../models/LoginMaster.dart';
+import '../../models/login_model.dart';
 import '../../ui/widgest/app_button.dart';
 import '../../util/Global.dart';
 import '../../core/dimensions.dart';
@@ -335,7 +335,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                   top: 70,
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: ScreenDimension.onePercentOfScreenWidth*headingTextHorizontalPadding,
+                      horizontal: ScreenDimension.onePercentOfScreenWidth*AppDimensions.headingTextHorizontalPadding,
                     ),
                     child: Text.rich(
                       TextSpan(
@@ -343,7 +343,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                           TextSpan(
                             text: "LPMS \n",
                             style:TextStyle(
-                              fontSize: ScreenDimension.textSize * headingText,
+                              fontSize: ScreenDimension.textSize * AppDimensions.headingText,
                               color: AppColors.white,
                               fontWeight: FontWeight.w700,
                             ),
@@ -352,7 +352,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                           TextSpan(
                             text: "Land Port Management System",
                             style:  TextStyle(
-                              fontSize: ScreenDimension.textSize * headingText,
+                              fontSize: ScreenDimension.textSize * AppDimensions.headingText,
                               color: AppColors.white,
                               fontWeight: FontWeight.w300,
 
@@ -374,12 +374,12 @@ class _LoginPageNewState extends State<LoginPageNew> {
                         Container(
                           height:ScreenDimension.onePercentOfScreenHight*75,
                           padding: EdgeInsets.all(
-                              ScreenDimension.onePercentOfScreenHight * cardPadding),
+                              ScreenDimension.onePercentOfScreenHight * AppDimensions.cardPadding),
                           decoration: BoxDecoration(
                               color: AppColors.white,
                               borderRadius:BorderRadius.only(
-                                topRight: Radius.circular(ScreenDimension.onePercentOfScreenWidth * cardBorderRadiusCurve),
-                                topLeft: Radius.circular(ScreenDimension.onePercentOfScreenWidth * cardBorderRadiusCurve),
+                                topRight: Radius.circular(ScreenDimension.onePercentOfScreenWidth * AppDimensions.cardBorderRadiusCurve),
+                                topLeft: Radius.circular(ScreenDimension.onePercentOfScreenWidth * AppDimensions.cardBorderRadiusCurve),
                               )
 
                           ),
@@ -396,7 +396,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                       style:  TextStyle(
                                           color: AppColors.textColorPrimary,
                                           letterSpacing: 0.8,
-                                          fontSize: ScreenDimension.textSize * headingText,
+                                          fontSize: ScreenDimension.textSize * AppDimensions.headingText,
                                           fontWeight: FontWeight.w900)),
 
                                 ],),
@@ -505,7 +505,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                                    Text(
                                                     'Remember',
                                                     style: TextStyle(
-                                                        fontSize: ScreenDimension.textSize * bodyTextSmall, color: Colors.black),
+                                                        fontSize: ScreenDimension.textSize *AppDimensions. bodyTextSmall, color: Colors.black),
                                                   )
                                                 ],
                                               ),
@@ -517,7 +517,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                                       ' Forgot User ID',
                                                       style: TextStyle(
                                                           fontWeight: FontWeight.w400,
-                                                          fontSize:ScreenDimension.textSize * bodyTextSmall, color: AppColors.primary),
+                                                          fontSize:ScreenDimension.textSize * AppDimensions.bodyTextSmall, color: AppColors.primary),
                                                     ),
                                                     onTap: (){
                                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>const ForgotUserIdScreen()));
@@ -529,7 +529,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                                       ' Forgot Password',
                                                       style: TextStyle(fontWeight: FontWeight.w400,
 
-                                                          fontSize: ScreenDimension.textSize * bodyTextSmall, color: AppColors.primary),
+                                                          fontSize: ScreenDimension.textSize * AppDimensions.bodyTextSmall, color: AppColors.primary),
                                                     ),
                                                     onTap: (){
                                                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>const ForgotPasswordScreen()));
@@ -597,7 +597,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                       TextSpan(
                                         text: "Land Ports \n",
                                         style:TextStyle(
-                                          fontSize: ScreenDimension.textSize * bodyTextLarge,
+                                          fontSize: ScreenDimension.textSize *AppDimensions. bodyTextLarge,
                                           color: const Color(0xff266d96),
                                           fontWeight: FontWeight.w800,
                                           height: 1.0,
@@ -607,7 +607,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                       TextSpan(
                                         text: "Authority of India\n",
                                         style:  TextStyle(
-                                          fontSize: ScreenDimension.textSize * bodyTextLarge,
+                                          fontSize: ScreenDimension.textSize * AppDimensions.bodyTextLarge,
                                           color: const Color(0xff266d96),
                                           fontWeight: FontWeight.w800,
                                           height: 1.0,
@@ -636,7 +636,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                     TextSpan(
                                       text: "Read ",
                                       style:  TextStyle(
-                                        fontSize: ScreenDimension.textSize * bodyTextMedium,
+                                        fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium,
                                         color: AppColors.textColorPrimary,
                                         fontWeight: FontWeight.w500,
 
@@ -646,7 +646,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                     TextSpan(
                                       text: "Privacy Policy",
                                       style: TextStyle(
-                                        fontSize: ScreenDimension.textSize *bodyTextMedium,
+                                        fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium,
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -655,7 +655,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                     TextSpan(
                                       text: " and ",
                                       style: TextStyle(
-                                        fontSize: ScreenDimension.textSize *bodyTextMedium,
+                                        fontSize: ScreenDimension.textSize *AppDimensions.bodyTextMedium,
                                         color: AppColors.textColorPrimary,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -664,7 +664,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                                     TextSpan(
                                       text: "Terms & Conditions",
                                       style: TextStyle(
-                                        fontSize: ScreenDimension.textSize *  bodyTextMedium,
+                                        fontSize: ScreenDimension.textSize * AppDimensions. bodyTextMedium,
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -678,7 +678,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: ScreenDimension.onePercentOfScreenHight * 2),
                                 child: Text("Kale Logistics Solution", style: TextStyle(
-                                  color: AppColors.textColorSecondary, fontSize: ScreenDimension.textSize * bodyTextMedium, fontWeight: FontWeight.w400,
+                                  color: AppColors.textColorSecondary, fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium, fontWeight: FontWeight.w400,
                                 ),),
                               ),
 

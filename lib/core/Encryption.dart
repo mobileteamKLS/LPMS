@@ -51,8 +51,8 @@ class EncryptionService {
       return '';
     }
 
-    final key = encrypt.Key.fromUtf8(keys); // AES key
-    final iv = encrypt.IV.fromUtf8(keys);   // IV (Initialization Vector)
+    final key = encrypt.Key.fromUtf8(keys);
+    final iv = encrypt.IV.fromUtf8(keys);
     final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.ecb, padding: 'PKCS7'));
 
     try {

@@ -14,7 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../api/auth.dart';
 import '../../core/dimensions.dart';
 import '../../core/img_assets.dart';
-import '../../models/SelectionModel.dart';
+import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
 import '../../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -52,7 +52,7 @@ class _ExportScreenState extends State<ExportScreen> {
   List<bool> _isExpandedList = [];
   List<String> selectedFilters = [];
   List<SlotBookingShipmentListingExport> filteredList = [];
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
   }
@@ -101,6 +101,7 @@ class _ExportScreenState extends State<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
           title: const Text(
             'Exports',
@@ -192,12 +193,14 @@ class _ExportScreenState extends State<ExportScreen> {
             ),
 
           ]),
-      drawer: AppDrawer(selectedScreen: "Export"),
+      drawer: AppDrawer(onDrawerCloseIcon: (){
+        _scaffoldKey.currentState?.closeDrawer();
+      },),
       body: Stack(
         children: [
           Container(
             constraints: const BoxConstraints.expand(),
-            padding: EdgeInsets.symmetric(horizontal: ScreenDimension.onePercentOfScreenWidth*defaultPageHorizontalPadding),
+            padding: EdgeInsets.symmetric(horizontal: ScreenDimension.onePercentOfScreenWidth*AppDimensions.defaultPageHorizontalPadding),
             color: AppColors.background,
             child: Column(
               children: [
@@ -886,7 +889,7 @@ class _ExportScreenState extends State<ExportScreen> {
       child: SizedBox(
         height: isExpanded ?216 : 116,// ScreenDimension.onePercentOfScreenHight*25.7 :  ScreenDimension.onePercentOfScreenHight*14.1,
         child: Padding(
-          padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight*defaultContainerPadding),
+          padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight*AppDimensions.defaultContainerPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

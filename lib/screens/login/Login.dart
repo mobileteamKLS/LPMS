@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api/auth.dart';
 import '../../models/IPInfo.dart';
-import '../../models/LoginMaster.dart';
+import '../../models/login_model.dart';
 import '../../util/Global.dart';
 import '../../util/media_query.dart';
 import '../../core/Encryption.dart';

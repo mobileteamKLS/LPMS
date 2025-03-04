@@ -6,35 +6,6 @@ import 'package:lpms/util/Uitlity.dart';
 import '../../screens/slot_booking/BookingCreationExport.dart';
 import '../../util/Global.dart';
 
-// City model class
-class City {
-  final String name;
-  final String country;
-
-  City({required this.name, required this.country});
-}
-
-// City Service to simulate fetching city data
-class CityService {
-  static final List<City> _cities = [
-    City(name: 'New York', country: 'USA'),
-    City(name: 'Los Angeles', country: 'USA'),
-    City(name: 'London', country: 'UK'),
-    City(name: 'Paris', country: 'France'),
-    City(name: 'Tokyo', country: 'Japan'),
-  ];
-
-  // Method to find cities based on search
-  static List<City> find(String search) {
-    return _cities.where((city) => city.name.toLowerCase().contains(search.toLowerCase())).toList();
-  }
-
-  // Method to check if the input matches a city exactly
-  static bool isValidCity(String input) {
-    return _cities.any((city) => '${city.name}, ${city.country}'.toLowerCase() == input.toLowerCase());
-  }
-}
-
 class CHAAgentService {
   static List<CargoTypeExporterImporterAgent> find(String search) {
     String normalizedSearch = Utils.normalizeString(search);
@@ -113,6 +84,7 @@ class CargoTypeService {
     });
   }
 }
+
 class SelectedVehicleService {
   static List<Vehicle> find(String search) {
     return selectedVehicleList.where((agent) => agent.name.toLowerCase().contains(search.toLowerCase())).toList();

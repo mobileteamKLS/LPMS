@@ -3,16 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lpms/util/Uitlity.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import '../models/IPInfo.dart';
-import '../models/SelectionModel.dart';
 import '../util/Global.dart';
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 
 class AuthService {
-
   Future<Post> getUserAuthenticationDetails(service, payload, headers) async {
     print("payload $payload");
     print("encoded payload ${json.encode(payload)}");
