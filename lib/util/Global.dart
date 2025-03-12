@@ -6,8 +6,11 @@ import '../models/login_model.dart';
 import '../models/ShippingList.dart';
 import '../screens/slot_booking/BookingCreationExport.dart';
 
-var baseAPIUrl="https://acs2devapi.azurewebsites.net/";
-var baseUIUrl="https://acs2devui.azurewebsites.net/";
+// var baseAPIUrl="https://acs2devapi.azurewebsites.net/";
+// var baseUIUrl="https://acs2devui.azurewebsites.net/";
+//UAT
+var baseAPIUrl="https://lpmsuatapi.kalelogistics.com/";
+var baseUIUrl="https://lpmsuat.kalelogistics.com/";
 late IpInfo ipInfo;
 List<LoginDetailsMaster> loginMaster = [];
 List<AllVehicleTypes> vehicleTypeList = [];

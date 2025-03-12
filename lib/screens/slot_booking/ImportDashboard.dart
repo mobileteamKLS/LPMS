@@ -10,6 +10,7 @@ import 'package:lpms/screens/slot_booking/BookingCreationExport.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../api/auth.dart';
+import '../../core/img_assets.dart';
 import '../../models/ShippingList.dart';
 import '../../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,6 +21,7 @@ import '../../util/Uitlity.dart';
 import 'dart:io';
 
 import 'BookingCreationImport.dart';
+import 'ExportDashboard.dart';
 
 class ImportScreen extends StatefulWidget {
   const ImportScreen({super.key});
@@ -90,11 +92,40 @@ class _ImportScreenState extends State<ImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<MenuData> menuItems = [
+      MenuData(
+        title: "Slot Booking",
+        icon: slot,
+        hasSubmenu: true,
+        submenuItems: [
+          SubmenuItem(
+            title: "Export Booking",
+            icon: exportSvg,
+            route: '',
+            onTap: () {
+              // Navigate to create import screen
+              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ExportScreen ()));
+            },
+          ),
+          SubmenuItem(
+            title: "Import Booking",
+            icon: importSvg,
+            route: '',
+            onTap: () {
+              // Navigate to export reports screen
+              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ImportScreen()));
+            },
+          ),
+
+        ],
+      ),
+
+    ];
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
           title: const Text(
-            'Imports',
+            'Import',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
@@ -198,7 +229,7 @@ class _ImportScreenState extends State<ImportScreen> {
           ]),
       drawer: AppDrawer(onDrawerCloseIcon: (){
         _scaffoldKey.currentState?.closeDrawer();
-      },),
+      }, menuItems: menuItems,),
       body: Stack(
         children: [
           Container(

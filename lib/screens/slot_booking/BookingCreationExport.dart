@@ -267,7 +267,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                             spreadRadius: 2,
                             blurRadius: 8,
                             offset: const Offset(
-                                0, 3), // changes position of shadow
+                                0, 3),
                           ),
                         ],
                       ),

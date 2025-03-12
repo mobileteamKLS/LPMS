@@ -26,6 +26,7 @@ import 'dart:io';
 
 import '../../core/Encryption.dart';
 import '../../util/media_query.dart';
+import 'ImportDashboard.dart';
 
 class ExportScreen extends StatefulWidget {
   const ExportScreen({super.key});
@@ -98,13 +99,41 @@ class _ExportScreenState extends State<ExportScreen> {
     loadVehicleTypes();
   }
 
+
   @override
   Widget build(BuildContext context) {
+    final List<MenuData> menuItems = [
+      MenuData(
+        title: "Slot Booking",
+        icon: slot,
+        hasSubmenu: true,
+        submenuItems: [
+          SubmenuItem(
+            title: "Export Booking",
+            icon: exportSvg,
+            route: '',
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ExportScreen ()));
+            },
+          ),
+          SubmenuItem(
+            title: "Import Booking",
+            icon: importSvg,
+            route: '',
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ImportScreen()));
+            },
+          ),
+
+        ],
+      ),
+
+    ];
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Export',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
@@ -195,7 +224,7 @@ class _ExportScreenState extends State<ExportScreen> {
           ]),
       drawer: AppDrawer(onDrawerCloseIcon: (){
         _scaffoldKey.currentState?.closeDrawer();
-      },),
+      }, menuItems: menuItems,),
       body: Stack(
         children: [
           Container(
@@ -1660,7 +1689,7 @@ class _ExportScreenState extends State<ExportScreen> {
   void showShipmentSearchBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+        isScrollControlled: true,
 
       builder: (BuildContext context) {
         // List<String> selectedFilters = [];
