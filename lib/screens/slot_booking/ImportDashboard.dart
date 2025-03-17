@@ -227,9 +227,10 @@ class _ImportScreenState extends State<ImportScreen> {
               onPressed: () {},
             ),
           ]),
-      drawer: AppDrawer(onDrawerCloseIcon: (){
-        _scaffoldKey.currentState?.closeDrawer();
-      }, menuItems: menuItems,),
+        drawer: AppDrawerOld(selectedScreen: "Import",),
+      // drawer: AppDrawer(onDrawerCloseIcon: (){
+      //   _scaffoldKey.currentState?.closeDrawer();
+      // }, menuItems: menuItems,),
       body: Stack(
         children: [
           Container(

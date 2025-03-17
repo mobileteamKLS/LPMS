@@ -228,11 +228,21 @@ class Utils {
     );
   }
 
-// static void printLongString(String text) {
-//   const int chunkSize = 1000;
-//   for (var i = 0; i < text.length; i += chunkSize) {
-//     print(text.substring(
-//         i, i + chunkSize > text.length ? text.length : i + chunkSize));
-//   }
-// }
+  static Widget customDivider({
+    double space = 20,
+    Color color = AppColors.black,
+    bool hasColor = false,
+    double? height = 0.5,
+    double? thickness = 0.5,
+  }) {
+    return Column(
+      children: [
+        Divider(
+          color: hasColor ? color.withOpacity(0.2) : color.withOpacity(0),
+          height: height,
+          thickness: thickness,
+        ),
+      ],
+    );
+  }
 }

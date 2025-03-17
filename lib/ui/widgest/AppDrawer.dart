@@ -10,6 +10,7 @@ import '../../screens/login/login_new.dart';
 import '../../util/Global.dart';
 import '../../util/media_query.dart';
 import 'CustomTextField.dart';
+
 class AppDrawerOld extends StatefulWidget {
   final String selectedScreen;
 
@@ -26,78 +27,513 @@ class _AppDrawerOldState extends State<AppDrawerOld> {
   void initState() {
     super.initState();
 
-    if (widget.selectedScreen == 'Import' || widget.selectedScreen == 'Export') {
+    if (widget.selectedScreen == 'Import' ||
+        widget.selectedScreen == 'Export') {
       showSlotBookingItems = true;
     }
   }
 
+  bool isMenuExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0057D8),
-                  Color(0xFF1c86ff),
+          SizedBox(
+            height: ScreenDimension.onePercentOfScreenHight * 29,
+            child: DrawerHeader(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            lpaiImage2,
+                            height: ScreenDimension.onePercentOfScreenHight * 7,
+                          ),
+                          SizedBox(
+                            width: ScreenDimension.onePercentOfScreenWidth * 1,
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Land Ports \n",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.bodyTextLarge,
+                                    color: const Color(0xff266d96),
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.0,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "Authority of India\n",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.bodyTextLarge,
+                                    color: const Color(0xff266d96),
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.0,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "Systematic Seamless Secure",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize * 1.0,
+                                    color: AppColors.textColorPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
+                  CustomDivider(
+                    space: 0,
+                    color: AppColors.textColorPrimary,
+                    hascolor: true,
+                    thickness: 1,
+                  ),
+
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
+
+                  // Profile section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 0.0),
+                        child: CustomText(
+                            text: "PROFILE",
+                            fontColor: AppColors.textColorPrimary,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_3,
+                            fontWeight: FontWeight.w500,
+                            textAlign: TextAlign.start),
+                      ),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.TEXTSIZE_2_3,
+                              child: Image.asset(
+                                lpaiImage2,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  AppDimensions.WIDTH2,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText(
+                                    text: loginMaster.first.firstName,
+                                    textAlign: TextAlign.center,
+                                    fontWeight: FontWeight.w600,
+                                    fontColor: AppColors.textColorPrimary,
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.TEXTSIZE_1_5,
+                                  ),
+                                  CustomText(
+                                    text: "===",
+                                    textAlign: TextAlign.center,
+                                    fontWeight: FontWeight.w400,
+                                    fontColor: AppColors.textColorPrimary,
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.TEXTSIZE_1_3,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            InkWell(
+                                onTap: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) =>
+                                          const LoginPageNew(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                },
+                                child: SvgPicture.asset(
+                                  logout,
+                                  height:
+                                      ScreenDimension.onePercentOfScreenHight *
+                                          AppDimensions.ICONSIZE_2_6,
+                                )),
+                            SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  AppDimensions.WIDTH6,
+                            ),
+                            SvgPicture.asset(
+                              more,
+                              height: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.ICONSIZE_2_6,
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
                 ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-            child: Text(
-              'LPMS',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
               ),
             ),
           ),
-          ExpansionTile(
-            title: const Text("Slot Booking"),
-            leading: const Icon(Icons.local_shipping_outlined),
-            initiallyExpanded: showSlotBookingItems,
-            backgroundColor: (widget.selectedScreen == 'Import' || widget.selectedScreen == 'Export')
-                ? Colors.grey[300]
-                : null,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListTile(
-                leading: const Icon(
-                  Icons.import_export_outlined,
-                  color: AppColors.primary,
-                ),
-                title: const Text('Export'),
-                selected: widget.selectedScreen == 'Export',
-                selectedTileColor: Colors.grey[300],
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ExportScreen()),
-                  );
-                },
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: CustomText(
+                    text: "SERVICES",
+                    fontColor: AppColors.textColorPrimary,
+                    fontSize:
+                        ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_3,
+                    fontWeight: FontWeight.w500,
+                    textAlign: TextAlign.start),
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.import_export_outlined,
-                  color: AppColors.primary,
+              Container(
+                width: double.infinity,
+                height:ScreenDimension.onePercentOfScreenHight*30,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Import'),
-                selected: widget.selectedScreen == 'Import',
-                selectedTileColor: Colors.grey[300],
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ImportScreen()),
-                  );
-                },
+                child: Column(
+                  children: [
+                    // Search field
+                    GroupIdCustomTextField(
+                      controller: null,
+                      focusNode: null,
+                      hasIcon: true,
+                      hastextcolor: true,
+                      animatedLabel: false,
+                      needOutlineBorder: true,
+                      isShowPrefixIcon: true,
+                      isIcon: true,
+                      isSearch: true,
+                      prefixIconcolor: AppColors.black,
+                      hintText: "Search Menu",
+                      onPress: () {},
+                      readOnly: false,
+                      onChanged: (value) {
+                        setState(() {
+                          // searchQuery = value;
+                        });
+                      },
+                      fillColor: AppColors.white,
+                      textInputType: TextInputType.text,
+                      inputAction: TextInputAction.next,
+                      hintTextcolor: AppColors.black.withOpacity(0.7),
+                      verticalPadding: 0,
+                      maxLength: 15,
+                      fontSize:
+                          ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_8,
+                      circularCorner: ScreenDimension.onePercentOfScreenWidth *
+                          AppDimensions.CIRCULARBORDER,
+                      boxHeight: ScreenDimension.onePercentOfScreenHight *
+                          AppDimensions.HEIGHT6,
+                      isDigitsOnly: false,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Please fill out this field";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+
+                    SizedBox(
+                      height: ScreenDimension.onePercentOfScreenHight,
+                    ),
+
+                    // Dynamic menu items
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0, vertical: 0),
+                      child: Column(children: [
+                        ExpansionTile(
+                          title: CustomText(
+                            text: "Slot Booking",
+                            textAlign: TextAlign.left,
+                            fontWeight:
+                                isMenuExpanded ? FontWeight.w600 : FontWeight.w500,
+                            fontColor: isMenuExpanded
+                                ? AppColors.primary
+                                : AppColors.textColorPrimary,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_5,
+                          ),
+                          shape: const Border(),
+                          onExpansionChanged: (bool value) {
+                            setState(() {
+                              isMenuExpanded = value;
+                            });
+                          },
+                          leading: SvgPicture.asset(
+                            slot,
+                            height: ScreenDimension.onePercentOfScreenHight *
+                                AppDimensions.ICONSIZE_2_5,
+                            color: isMenuExpanded
+                                ? AppColors.primary
+                                : AppColors.textColorPrimary,
+                          ),
+                          trailing: SvgPicture.asset(
+                            isMenuExpanded ? circleUp : circleDown,
+                            height: ScreenDimension.onePercentOfScreenHight *
+                                AppDimensions.ICONSIZE_2_5,
+                            color: isMenuExpanded
+                                ? AppColors.primary
+                                : AppColors.textColorPrimary,
+                          ),
+                          initiallyExpanded: showSlotBookingItems,
+                          backgroundColor: isMenuExpanded ? Colors.white : null,
+                          children: [
+                            ListTile(
+                              leading: SvgPicture.asset(
+                                exportSvg,
+                                height:
+                                    ScreenDimension.onePercentOfScreenHight *
+                                        AppDimensions.ICONSIZE_2_5,
+                                color: widget.selectedScreen == 'Export'
+                                    ? AppColors.primary
+                                    : AppColors.textColorPrimary,
+                              ),
+                              title: CustomText(
+                                text: "Export",
+                                textAlign: TextAlign.left,
+                                fontWeight: widget.selectedScreen == 'Export'
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                fontColor: widget.selectedScreen == 'Export'
+                                    ? AppColors.primary
+                                    : AppColors.textColorPrimary,
+                                fontSize: ScreenDimension.textSize *
+                                    AppDimensions.TEXTSIZE_1_5,
+                              ),
+                              selected: widget.selectedScreen == 'Export',
+                              selectedTileColor:
+                                  AppColors.primary.withOpacity(0.1),
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ExportScreen()),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: SvgPicture.asset(
+                                importSvg,
+                                height:
+                                    ScreenDimension.onePercentOfScreenHight *
+                                        AppDimensions.ICONSIZE_2_5,
+                                color: widget.selectedScreen == 'Import'
+                                    ? AppColors.primary
+                                    : AppColors.textColorPrimary,
+                              ),
+                              title: CustomText(
+                                text: "Import",
+                                textAlign: TextAlign.left,
+                                fontWeight: widget.selectedScreen == 'Import'
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                fontColor: widget.selectedScreen == 'Import'
+                                    ? AppColors.primary
+                                    : AppColors.textColorPrimary,
+                                fontSize: ScreenDimension.textSize *
+                                    AppDimensions.TEXTSIZE_1_5,
+                              ),
+                              selected: widget.selectedScreen == 'Import',
+                              selectedTileColor:
+                                  AppColors.primary.withOpacity(0.1),
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ImportScreen()),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                      ]),
+                    )
+                  ],
+                ),
               ),
+              SizedBox(
+                height: ScreenDimension.onePercentOfScreenHight,
+              ),
+
+              // App info section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: CustomText(
+                        text: "APP INFO",
+                        fontColor: AppColors.textColorPrimary,
+                        fontSize: ScreenDimension.textSize *
+                            AppDimensions.TEXTSIZE_1_3,
+                        fontWeight: FontWeight.w500,
+                        textAlign: TextAlign.start),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    margin:
+                    EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 0),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightPurple,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      manual,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.ICONSIZE3,
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    CustomText(
+                                      text: "Product Manual",
+                                      textAlign: TextAlign.center,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.textColorPrimary,
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.TEXTSIZE_1_5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      comments,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.ICONSIZE3,
+                                    ),
+                                    SizedBox(
+                                      width: 12,
+                                    ),
+                                    CustomText(
+                                      text: "FAQ",
+                                      textAlign: TextAlign.center,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.textColorPrimary,
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.TEXTSIZE_1_5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: InkWell(
+                                  onTap: () async {
+                                    // widget.onDrawerCloseIcon();
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        info,
+                                        height: ScreenDimension
+                                            .onePercentOfScreenHight *
+                                            AppDimensions.ICONSIZE3,
+                                        color: AppColors.textColorPrimary,
+                                      ),
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      CustomText(
+                                        text: "App release note",
+                                        textAlign: TextAlign.center,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor:
+                                        AppColors.textColorPrimary,
+                                        fontSize: ScreenDimension.textSize *
+                                            AppDimensions.TEXTSIZE_1_5,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              )
             ],
-          )
+          ),
+
           // ListTile(
           //   leading: Icon(Icons.settings),
           //   title: Text('Settings'),
@@ -145,7 +581,6 @@ class _AppDrawerState extends State<AppDrawer> {
       return widget.menuItems;
     }
     return widget.menuItems.where((menu) {
-
       if (menu.title.toLowerCase().contains(searchQuery.toLowerCase())) {
         return true;
       }
@@ -198,7 +633,8 @@ class _AppDrawerState extends State<AppDrawer> {
                 children: [
                   // Header with logo and close button
                   Container(
-                    padding: const EdgeInsets.only(left: 10, right: 20, top: 48, bottom: 12),
+                    padding: const EdgeInsets.only(
+                        left: 10, right: 20, top: 48, bottom: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -206,15 +642,23 @@ class _AppDrawerState extends State<AppDrawer> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset(lpaiImage2, height: ScreenDimension.onePercentOfScreenHight * 7,),
-                            SizedBox(width: ScreenDimension.onePercentOfScreenWidth*1,),
+                            Image.asset(
+                              lpaiImage2,
+                              height:
+                                  ScreenDimension.onePercentOfScreenHight * 7,
+                            ),
+                            SizedBox(
+                              width:
+                                  ScreenDimension.onePercentOfScreenWidth * 1,
+                            ),
                             Text.rich(
                               TextSpan(
                                 children: [
                                   TextSpan(
                                     text: "Land Ports \n",
-                                    style:TextStyle(
-                                      fontSize: ScreenDimension.textSize *AppDimensions.bodyTextLarge,
+                                    style: TextStyle(
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.bodyTextLarge,
                                       color: const Color(0xff266d96),
                                       fontWeight: FontWeight.w800,
                                       height: 1.0,
@@ -222,8 +666,9 @@ class _AppDrawerState extends State<AppDrawer> {
                                   ),
                                   TextSpan(
                                     text: "Authority of India\n",
-                                    style:  TextStyle(
-                                      fontSize: ScreenDimension.textSize * AppDimensions.bodyTextLarge,
+                                    style: TextStyle(
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.bodyTextLarge,
                                       color: const Color(0xff266d96),
                                       fontWeight: FontWeight.w800,
                                       height: 1.0,
@@ -231,7 +676,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                   ),
                                   TextSpan(
                                     text: "Systematic Seamless Secure",
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                       fontSize: ScreenDimension.textSize * 1.0,
                                       color: AppColors.textColorPrimary,
                                       fontWeight: FontWeight.w600,
@@ -245,7 +690,11 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         InkWell(
                             onTap: widget.onDrawerCloseIcon,
-                            child: SvgPicture.asset(cancel, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.HEIGHT3,))
+                            child: SvgPicture.asset(
+                              cancel,
+                              height: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.HEIGHT3,
+                            ))
                       ],
                     ),
                   ),
@@ -257,7 +706,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     thickness: 1,
                   ),
 
-                  SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
 
                   // Profile section
                   Column(
@@ -268,14 +719,16 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: CustomText(
                             text: "PROFILE",
                             fontColor: AppColors.textColorPrimary,
-                            fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_3,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_3,
                             fontWeight: FontWeight.w500,
-                            textAlign: TextAlign.start
-                        ),
+                            textAlign: TextAlign.start),
                       ),
                       Container(
-                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 16),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(8),
@@ -284,10 +737,17 @@ class _AppDrawerState extends State<AppDrawer> {
                           children: [
                             CircleAvatar(
                               backgroundColor: Colors.transparent,
-                              radius: ScreenDimension.onePercentOfScreenHight * AppDimensions.TEXTSIZE_2_3,
-                              child: Image.asset(lpaiImage2, fit: BoxFit.cover,),
+                              radius: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.TEXTSIZE_2_3,
+                              child: Image.asset(
+                                lpaiImage2,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            SizedBox(width: ScreenDimension.onePercentOfScreenWidth * AppDimensions.WIDTH2,),
+                            SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  AppDimensions.WIDTH2,
+                            ),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,32 +757,56 @@ class _AppDrawerState extends State<AppDrawer> {
                                     textAlign: TextAlign.center,
                                     fontWeight: FontWeight.w600,
                                     fontColor: AppColors.textColorPrimary,
-                                    fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.TEXTSIZE_1_5,
+                                  ),
                                   CustomText(
                                     text: "===",
                                     textAlign: TextAlign.center,
                                     fontWeight: FontWeight.w400,
                                     fontColor: AppColors.textColorPrimary,
-                                    fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_3,),
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.TEXTSIZE_1_3,
+                                  ),
                                 ],
                               ),
                             ),
                             InkWell(
                                 onTap: () {
                                   widget.onDrawerCloseIcon();
-                                  Navigator.pushAndRemoveUntil(context, CupertinoPageRoute(builder: (context) => const LoginPageNew(),), (route) => false,);
-
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) =>
+                                          const LoginPageNew(),
+                                    ),
+                                    (route) => false,
+                                  );
                                 },
-                                child: SvgPicture.asset(logout, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE_2_6,)),
-                            SizedBox(width: ScreenDimension.onePercentOfScreenWidth * AppDimensions.WIDTH6,),
-                            SvgPicture.asset(more, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE_2_6,)
+                                child: SvgPicture.asset(
+                                  logout,
+                                  height:
+                                      ScreenDimension.onePercentOfScreenHight *
+                                          AppDimensions.ICONSIZE_2_6,
+                                )),
+                            SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  AppDimensions.WIDTH6,
+                            ),
+                            SvgPicture.asset(
+                              more,
+                              height: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.ICONSIZE_2_6,
+                            )
                           ],
                         ),
                       )
                     ],
                   ),
 
-                  SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
 
                   // Services section with search and menus
                   Column(
@@ -333,15 +817,17 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: CustomText(
                             text: "SERVICES",
                             fontColor: AppColors.textColorPrimary,
-                            fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_3,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_3,
                             fontWeight: FontWeight.w500,
-                            textAlign: TextAlign.start
-                        ),
+                            textAlign: TextAlign.start),
                       ),
                       Container(
                         width: double.infinity,
-                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 16),
                         decoration: BoxDecoration(
                           color: AppColors.background,
                           borderRadius: BorderRadius.circular(8),
@@ -374,9 +860,14 @@ class _AppDrawerState extends State<AppDrawer> {
                               hintTextcolor: AppColors.black.withOpacity(0.7),
                               verticalPadding: 0,
                               maxLength: 15,
-                              fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_8,
-                              circularCorner: ScreenDimension.onePercentOfScreenWidth * AppDimensions.CIRCULARBORDER,
-                              boxHeight: ScreenDimension.onePercentOfScreenHight * AppDimensions.HEIGHT6,
+                              fontSize: ScreenDimension.textSize *
+                                  AppDimensions.TEXTSIZE_1_8,
+                              circularCorner:
+                                  ScreenDimension.onePercentOfScreenWidth *
+                                      AppDimensions.CIRCULARBORDER,
+                              boxHeight:
+                                  ScreenDimension.onePercentOfScreenHight *
+                                      AppDimensions.HEIGHT6,
                               isDigitsOnly: false,
                               validator: (value) {
                                 if (value!.isEmpty) {
@@ -387,26 +878,34 @@ class _AppDrawerState extends State<AppDrawer> {
                               },
                             ),
 
-                            SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                            SizedBox(
+                              height: ScreenDimension.onePercentOfScreenHight,
+                            ),
 
                             // Dynamic menu items
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               child: Column(
                                 children: filteredMenuItems.isEmpty
                                     ? [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: CustomText(
-                                      text: "No menu items found",
-                                      textAlign: TextAlign.center,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.textColorSecondary,
-                                      fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,
-                                    ),
-                                  )
-                                ]
-                                    : filteredMenuItems.map((menuItem) => _buildMenuItemWithSubmenu(menuItem)).toList(),
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: CustomText(
+                                            text: "No menu items found",
+                                            textAlign: TextAlign.center,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor:
+                                                AppColors.textColorSecondary,
+                                            fontSize: ScreenDimension.textSize *
+                                                AppDimensions.TEXTSIZE_1_5,
+                                          ),
+                                        )
+                                      ]
+                                    : filteredMenuItems
+                                        .map((menuItem) =>
+                                            _buildMenuItemWithSubmenu(menuItem))
+                                        .toList(),
                               ),
                             )
                           ],
@@ -415,7 +914,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     ],
                   ),
 
-                  SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                  SizedBox(
+                    height: ScreenDimension.onePercentOfScreenHight,
+                  ),
 
                   // App info section
                   Column(
@@ -426,15 +927,17 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: CustomText(
                             text: "APP INFO",
                             fontColor: AppColors.textColorPrimary,
-                            fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_3,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_3,
                             fontWeight: FontWeight.w500,
-                            textAlign: TextAlign.start
-                        ),
+                            textAlign: TextAlign.start),
                       ),
                       Container(
                         width: double.infinity,
-                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 0),
                         decoration: BoxDecoration(
                           color: AppColors.lightPurple,
                           borderRadius: BorderRadius.circular(8),
@@ -442,7 +945,8 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 4),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -450,34 +954,56 @@ class _AppDrawerState extends State<AppDrawer> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       children: [
-                                        SvgPicture.asset(manual, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,),
-                                        SizedBox(width: 20,),
+                                        SvgPicture.asset(
+                                          manual,
+                                          height: ScreenDimension
+                                                  .onePercentOfScreenHight *
+                                              AppDimensions.ICONSIZE3,
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
                                         CustomText(
                                           text: "Product Manual",
                                           textAlign: TextAlign.center,
                                           fontWeight: FontWeight.w500,
                                           fontColor: AppColors.textColorPrimary,
-                                          fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                                          fontSize: ScreenDimension.textSize *
+                                              AppDimensions.TEXTSIZE_1_5,
+                                        ),
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: 5,),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       children: [
-                                        SvgPicture.asset(comments, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,),
-                                        SizedBox(width: 12,),
+                                        SvgPicture.asset(
+                                          comments,
+                                          height: ScreenDimension
+                                                  .onePercentOfScreenHight *
+                                              AppDimensions.ICONSIZE3,
+                                        ),
+                                        SizedBox(
+                                          width: 12,
+                                        ),
                                         CustomText(
                                           text: "FAQ",
                                           textAlign: TextAlign.center,
                                           fontWeight: FontWeight.w500,
                                           fontColor: AppColors.textColorPrimary,
-                                          fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                                          fontSize: ScreenDimension.textSize *
+                                              AppDimensions.TEXTSIZE_1_5,
+                                        ),
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: 5,),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: InkWell(
@@ -486,14 +1012,25 @@ class _AppDrawerState extends State<AppDrawer> {
                                       },
                                       child: Row(
                                         children: [
-                                          SvgPicture.asset(info, height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3, color: AppColors.textColorPrimary,),
-                                          SizedBox(width: 15,),
+                                          SvgPicture.asset(
+                                            info,
+                                            height: ScreenDimension
+                                                    .onePercentOfScreenHight *
+                                                AppDimensions.ICONSIZE3,
+                                            color: AppColors.textColorPrimary,
+                                          ),
+                                          SizedBox(
+                                            width: 15,
+                                          ),
                                           CustomText(
                                             text: "App release note",
                                             textAlign: TextAlign.center,
                                             fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.textColorPrimary,
-                                            fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                                            fontColor:
+                                                AppColors.textColorPrimary,
+                                            fontSize: ScreenDimension.textSize *
+                                                AppDimensions.TEXTSIZE_1_5,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -523,13 +1060,17 @@ class _AppDrawerState extends State<AppDrawer> {
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.textColorSecondary,
-                  fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                  fontSize:
+                      ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,
+                ),
                 CustomText(
                   text: "App Build 1.0.0",
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.textColorSecondary,
-                  fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,),
+                  fontSize:
+                      ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,
+                ),
               ],
             ),
           )
@@ -539,15 +1080,14 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Widget _buildMenuItemWithSubmenu(MenuData menuItem) {
-    bool isExpanded = expandedMenus[menuItem.title] ?? false;
+    bool isMenuExpanded = expandedMenus[menuItem.title] ?? false;
     bool isSelected = selectedMenuTitle == menuItem.title;
 
     if (searchQuery.isNotEmpty && menuItem.hasSubmenu) {
-      final hasMatchingSubmenu = menuItem.submenuItems.any(
-              (submenu) => submenu.title.toLowerCase().contains(searchQuery.toLowerCase())
-      );
+      final hasMatchingSubmenu = menuItem.submenuItems.any((submenu) =>
+          submenu.title.toLowerCase().contains(searchQuery.toLowerCase()));
       if (hasMatchingSubmenu) {
-        isExpanded = true;
+        isMenuExpanded = true;
       }
     }
 
@@ -555,7 +1095,9 @@ class _AppDrawerState extends State<AppDrawer> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
@@ -567,41 +1109,48 @@ class _AppDrawerState extends State<AppDrawer> {
                   child: InkWell(
                     onTap: menuItem.hasSubmenu
                         ? () {
-                      setState(() {
-                        // Toggle the expansion state of this menu
-                        expandedMenus[menuItem.title] = !isExpanded;
-                        // Set as selected parent menu
-                        selectedMenuTitle = menuItem.title;
-                        // Clear submenu selection when parent is clicked
-                        selectedSubmenuTitle = null;
-                      });
-                    }
+                            setState(() {
+                              // Toggle the expansion state of this menu
+                              expandedMenus[menuItem.title] = !isMenuExpanded;
+                              // Set as selected parent menu
+                              selectedMenuTitle = menuItem.title;
+                              // Clear submenu selection when parent is clicked
+                              selectedSubmenuTitle = null;
+                            });
+                          }
                         : () {
-                      // Handle navigation for menu items without submenus
-                      setState(() {
-                        selectedMenuTitle = menuItem.title;
-                        selectedSubmenuTitle = null;
-                      });
-                      widget.onDrawerCloseIcon();
-                      if (menuItem.onTap != null) {
-                        menuItem.onTap!();
-                      }
-                    },
+                            // Handle navigation for menu items without submenus
+                            setState(() {
+                              selectedMenuTitle = menuItem.title;
+                              selectedSubmenuTitle = null;
+                            });
+                            widget.onDrawerCloseIcon();
+                            if (menuItem.onTap != null) {
+                              menuItem.onTap!();
+                            }
+                          },
                     child: Row(
                       children: [
                         SvgPicture.asset(
                           menuItem.icon,
-                          height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,
-                          color: isSelected ? AppColors.primary : AppColors.textColorPrimary,
+                          height: ScreenDimension.onePercentOfScreenHight *
+                              AppDimensions.ICONSIZE3,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textColorPrimary,
                         ),
                         SizedBox(width: 20),
                         Expanded(
                           child: CustomText(
                             text: menuItem.title,
                             textAlign: TextAlign.left,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontColor: isSelected ? AppColors.primary : AppColors.textColorPrimary,
-                            fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_5,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w500,
+                            fontColor: isSelected
+                                ? AppColors.primary
+                                : AppColors.textColorPrimary,
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.TEXTSIZE_1_5,
                           ),
                         ),
                       ],
@@ -613,23 +1162,25 @@ class _AppDrawerState extends State<AppDrawer> {
                     onTap: () {
                       setState(() {
                         // Toggle the expansion state of this menu
-                        expandedMenus[menuItem.title] = !isExpanded;
+                        expandedMenus[menuItem.title] = !isMenuExpanded;
                         // Set as selected parent menu when clicked
                         selectedMenuTitle = menuItem.title;
                       });
                     },
                     child: SvgPicture.asset(
-                      isExpanded ? circleUp : circleDown,
-                      height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,
-                      color: isSelected ? AppColors.primary : AppColors.textColorPrimary,
+                      isMenuExpanded ? circleUp : circleDown,
+                      height: ScreenDimension.onePercentOfScreenHight *
+                          AppDimensions.ICONSIZE3,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textColorPrimary,
                     ),
                   ),
               ],
             ),
           ),
         ),
-
-        if (menuItem.hasSubmenu && isExpanded)
+        if (menuItem.hasSubmenu && isMenuExpanded)
           Container(
             margin: const EdgeInsets.only(left: 12),
             child: Stack(
@@ -648,18 +1199,22 @@ class _AppDrawerState extends State<AppDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (var submenu in menuItem.submenuItems)
-                    // If searching, only show matching submenu items
+                      // If searching, only show matching submenu items
                       if (searchQuery.isEmpty ||
-                          submenu.title.toLowerCase().contains(searchQuery.toLowerCase()))
+                          submenu.title
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase()))
                         Container(
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
                           decoration: BoxDecoration(
-                            color: selectedSubmenuTitle == submenu.title ?
-                            AppColors.primary.withOpacity(0.1) : Colors.transparent,
+                            color: selectedSubmenuTitle == submenu.title
+                                ? AppColors.primary.withOpacity(0.1)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 12.0),
                             child: InkWell(
                               onTap: () {
                                 setState(() {
@@ -675,20 +1230,28 @@ class _AppDrawerState extends State<AppDrawer> {
                                 children: [
                                   SvgPicture.asset(
                                     submenu.icon,
-                                    height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,
-                                    color: selectedSubmenuTitle == submenu.title ?
-                                    AppColors.primary : AppColors.textColorPrimary,
+                                    height: ScreenDimension
+                                            .onePercentOfScreenHight *
+                                        AppDimensions.ICONSIZE3,
+                                    color: selectedSubmenuTitle == submenu.title
+                                        ? AppColors.primary
+                                        : AppColors.textColorPrimary,
                                   ),
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: CustomText(
                                       text: submenu.title,
                                       textAlign: TextAlign.start,
-                                      fontWeight: selectedSubmenuTitle == submenu.title ?
-                                      FontWeight.w500 : FontWeight.w400,
-                                      fontColor: selectedSubmenuTitle == submenu.title ?
-                                      AppColors.primary : AppColors.textColorPrimary,
-                                      fontSize: ScreenDimension.textSize * AppDimensions.TEXTSIZE_1_4,
+                                      fontWeight:
+                                          selectedSubmenuTitle == submenu.title
+                                              ? FontWeight.w500
+                                              : FontWeight.w400,
+                                      fontColor:
+                                          selectedSubmenuTitle == submenu.title
+                                              ? AppColors.primary
+                                              : AppColors.textColorPrimary,
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.TEXTSIZE_1_4,
                                     ),
                                   ),
                                 ],
@@ -735,8 +1298,6 @@ class SubmenuItem {
     this.onTap,
   });
 }
-
-
 
 // class AppDrawer extends StatefulWidget {
 //   final VoidCallback onDrawerCloseIcon;
@@ -1168,7 +1729,7 @@ class SubmenuItem {
 //
 //   // Build menu item with submenu support
 //   Widget _buildMenuItemWithSubmenu(MenuData menuItem) {
-//     bool isExpanded = menuItem.title == "Import" ? isImportExpanded :
+//     bool isMenuExpanded = menuItem.title == "Import" ? isImportExpanded :
 //     menuItem.title == "Export" ? isExportExpanded : false;
 //
 //     return Column(
@@ -1208,7 +1769,7 @@ class SubmenuItem {
 //                     });
 //                   },
 //                   child: SvgPicture.asset(
-//                     isExpanded ? circleUp : circleDown,
+//                     isMenuExpanded ? circleUp : circleDown,
 //                     height: ScreenDimension.onePercentOfScreenHight * AppDimensions.ICONSIZE3,
 //                   ),
 //                 ),
@@ -1217,7 +1778,7 @@ class SubmenuItem {
 //         ),
 //
 //         // Show submenu items if expanded
-//         if (menuItem.hasSubmenu && isExpanded)
+//         if (menuItem.hasSubmenu && isMenuExpanded)
 //           Container(
 //             margin: EdgeInsets.only(left: 35),
 //             child: Column(
@@ -1517,7 +2078,7 @@ class SubmenuItem {
 //                                       child: _buildMenuItem(
 //                                         icon: importSvg,
 //                                         title: "Import (${widget.importSubMenuList!.length})",
-//                                         isExpanded: isImportExpanded,
+//                                         isMenuExpanded: isImportExpanded,
 //                                         onIconTap: () {
 //                                           setState(() {
 //                                             isImportExpanded = !isImportExpanded;
@@ -1727,19 +2288,23 @@ class CustomDivider extends StatelessWidget {
 
   CustomDivider(
       {Key? key,
-        this.height = 0.5,
-        this.thickness = 0.5,
-        this.space = 20,
-        this.color = AppColors.black, this.hascolor =false})
+      this.height = 0.5,
+      this.thickness = 0.5,
+      this.space = 20,
+      this.color = AppColors.black,
+      this.hascolor = false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Divider(color:
-        hascolor ==true?
-        color.withOpacity(0.2):color.withOpacity(0), height: height, thickness: thickness),
+        Divider(
+            color: hascolor == true
+                ? color.withOpacity(0.2)
+                : color.withOpacity(0),
+            height: height,
+            thickness: thickness),
       ],
     );
   }

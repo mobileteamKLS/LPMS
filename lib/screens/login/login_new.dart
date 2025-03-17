@@ -13,7 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api/auth.dart';
 import '../../models/IPInfo.dart';
+import '../../models/TerminalMaster.dart';
 import '../../models/login_model.dart';
+import '../../models/selection_model.dart';
 import '../../ui/widgest/app_button.dart';
 import '../../util/Global.dart';
 import '../../core/dimensions.dart';
@@ -144,15 +146,83 @@ class _LoginPageNewState extends State<LoginPageNew> {
       });
       // _usernameController.clear();
       // _passwordController.clear();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const ExportScreen()),(route) => false,
-      );
+      loadTerminals();
     });
+  }
 
+  Future<void> loadTerminals() async {
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
     });
+    terminalsList = [];
+    final mdl = SelectionModels(
+      jointableName: "",
+      jointableCondition: "",
+      topRecord: 50,
+      allRecord: false,
+      isTariff: false,
+      isDisabled: false,
+      whereCondition:
+      " Coalesce(MT.IsDeleted,0) = 0  AND ISNULL(MT.Community_Admin_OrgId,0)=${loginMaster[0].adminOrgId} AND Coalesce(MT.IsActive,0)=1",
+      value: "MT.TerminalId",
+      description:"MT.TerminalName",
+      orgProdId: loginMaster[0].adminOrgProdId,
+    );
+    if (mdl.topRecord == null || mdl.topRecord == 10) {
+      mdl.topRecord = 999;
+    }
+    SelectionQuery body = SelectionQuery();
+
+    body.query =encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+   mdl.query = body.query;
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api_master/GenericDropDown/GetAllTerminals")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        print("-----Vehicle Types-----");
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          terminalsList =
+              jsonData.map((json) => TerminalMaster.fromJson(json)).toList();
+          terminalsList.forEach((element) {
+
+          });
+        });
+        print("-----Terminal Lenght=${terminalsList.length}-----");
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const ExportScreen()),(route) => false,
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        print("response is empty");
+      }
+        setState(() {
+          _isLoading = false;
+
+      });
+    }).catchError((onError) {
+        setState(() {
+          _isLoading = false;
+        });
+
+    });
+   
   }
 
   Future<void> fetchIpInfo() async {

@@ -59,6 +59,7 @@ class SelectionModels {
   bool isHaz;
   int? serviceLimit;
   bool isOccupied;
+  dynamic orgProdId;
 
   SelectionModels({
     this.description = "",
@@ -121,6 +122,7 @@ class SelectionModels {
     this.isHaz = false,
     this.serviceLimit,
     this.isOccupied = false,
+    this.orgProdId,
   });
 
   // JSON serialization
@@ -184,6 +186,7 @@ class SelectionModels {
       "IsHaz": isHaz,
       "ServiceLimit": serviceLimit,
       "IsOccupied": isOccupied,
+      "OrgProdId": orgProdId,
     };
   }
 
@@ -247,6 +250,7 @@ class SelectionModels {
       isHaz: json["IsHaz"] ?? false,
       serviceLimit: json["ServiceLimit"],
       isOccupied: json["IsOccupied"] ?? false,
+      orgProdId: json["OrgProdId"] ,
     );
   }
 

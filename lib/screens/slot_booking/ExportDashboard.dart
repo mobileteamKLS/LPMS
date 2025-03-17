@@ -20,6 +20,7 @@ import '../../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../ui/widgest/AppDrawer.dart';
 import '../../ui/widgest/CustomTextField.dart';
+import '../../ui/widgest/buttons.dart';
 import '../../util/Global.dart';
 import '../../util/Uitlity.dart';
 import 'dart:io';
@@ -54,6 +55,7 @@ class _ExportScreenState extends State<ExportScreen> {
   List<String> selectedFilters = [];
   List<SlotBookingShipmentListingExport> filteredList = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   String _formatDate(DateTime date) {
     return DateFormat('d MMM yyyy').format(date);
   }
@@ -99,7 +101,6 @@ class _ExportScreenState extends State<ExportScreen> {
     loadVehicleTypes();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final List<MenuData> menuItems = [
@@ -113,7 +114,10 @@ class _ExportScreenState extends State<ExportScreen> {
             icon: exportSvg,
             route: '',
             onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ExportScreen ()));
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => const ExportScreen()));
             },
           ),
           SubmenuItem(
@@ -121,13 +125,14 @@ class _ExportScreenState extends State<ExportScreen> {
             icon: importSvg,
             route: '',
             onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (context) => const ImportScreen()));
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => const ImportScreen()));
             },
           ),
-
         ],
       ),
-
     ];
     return Scaffold(
       key: _scaffoldKey,
@@ -156,7 +161,7 @@ class _ExportScreenState extends State<ExportScreen> {
                 userSettings,
                 height: 25,
               ),
-              onTap: (){
+              onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -192,13 +197,11 @@ class _ExportScreenState extends State<ExportScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            fromDateController.text = _formatDate(
-                                DateTime.now()
-                                    .subtract(const Duration(days: 2)));
-                            toDateController.text =
-                                _formatDate(DateTime.now());
-                            getShipmentDetails(endOfDayFormatted,
-                                startOfDayFormatted, "", "",
+                            fromDateController.text = _formatDate(DateTime.now()
+                                .subtract(const Duration(days: 2)));
+                            toDateController.text = _formatDate(DateTime.now());
+                            getShipmentDetails(
+                                endOfDayFormatted, startOfDayFormatted, "", "",
                                 airportId: selectedTerminalId!);
                             Navigator.pop(context, 'OK');
                           },
@@ -220,121 +223,175 @@ class _ExportScreenState extends State<ExportScreen> {
             const SizedBox(
               width: 10,
             ),
-
           ]),
-      drawer: AppDrawer(onDrawerCloseIcon: (){
-        _scaffoldKey.currentState?.closeDrawer();
-      }, menuItems: menuItems,),
+      drawer: AppDrawerOld(
+        selectedScreen: "Export",
+      ),
+      // drawer: AppDrawer(onDrawerCloseIcon: (){
+      //   _scaffoldKey.currentState?.closeDrawer();
+      // }, menuItems: menuItems,),
       body: Stack(
         children: [
           Container(
             constraints: const BoxConstraints.expand(),
-            padding: EdgeInsets.symmetric(horizontal: ScreenDimension.onePercentOfScreenWidth*AppDimensions.defaultPageHorizontalPadding),
+            padding: EdgeInsets.symmetric(
+                horizontal: ScreenDimension.onePercentOfScreenWidth *
+                    AppDimensions.defaultPageHorizontalPadding),
             color: AppColors.background,
             child: Column(
               children: [
-                Material(
-                  color: Colors.transparent,
-                  // Ensures background transparency
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: ScreenDimension.onePercentOfScreenWidth,
+                      vertical: ScreenDimension.onePercentOfScreenHight),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(CupertinoIcons.cube),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6.0),
+                            child: SvgPicture.asset(
+                              menu,
+                              height: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.defaultIconSize,
+                            ),
+                          ),
                           Text(
-                            '  SHIPMENT LIST',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
+                            'SHIPMENT LIST',
+                            style: AppStyle.subHeading,
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.search,
-                              color: AppColors.primary,
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                more,
+                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                height: ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize,
+                              ),
                             ),
-                            onPressed: () {
-                              print("Search button pressed");
-                              showShipmentSearchDialog(context);
+                            onTap: () {
+
                             },
                           ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.more_vert_outlined,
-                              color: AppColors.primary,
-                            ),
-                            onPressed: () {
-                              print("More button pressed");
-                            },
-                          ),
+                          SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  1.5),
                         ],
                       ),
                     ],
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Showing (0/0)',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.upload_file,
-                                color: AppColors.primary,
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: ScreenDimension.onePercentOfScreenWidth,
+                      vertical: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                       Text(
+                        'Showing (0/0)',
+                        style:
+                        AppStyle.defaultTitle,
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                search_scan,
+                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                height: ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize,
                               ),
-                              Text(
-                                ' Export',
-                                style: TextStyle(fontSize: 16),
-                              )
-                            ],
+                            ),
+                            onTap: () {
+                              print("Search button pressed");
+                              showFlightSearchBottomSheet(context);
+                            },
                           ),
-                          onTap: () {
-                            if (filteredList.isEmpty &&
-                                listShipmentDetails.isEmpty) {
-                              CustomSnackBar.show(context,
-                                  message: "No Data Found");
-                              return;
-                            }
-                            if (filteredList.isNotEmpty) {
-                              exportToExcel(filteredList);
-                            } else {
-                              exportToExcel(listShipmentDetails);
-                            }
-                          },
-                        ),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        GestureDetector(
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.filter_alt_outlined,
-                                color: AppColors.primary,
+                          SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  4),
+                          InkWell(
+                            onTap: () {
+                              showFlightFilterBottomSheet(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                filter,
+                                height:
+                                ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize1,
                               ),
-                              Text(
-                                ' Filter',
-                                style: TextStyle(fontSize: 16),
-                              )
-                            ],
+                            ),
                           ),
-                          onTap: () {
-                            showShipmentSearchBottomSheet(context);
-                          },
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      ),
+                      // Row(
+                      //   children: [
+                      //     GestureDetector(
+                      //       child: const Row(
+                      //         children: [
+                      //           Icon(
+                      //             Icons.upload_file,
+                      //             color: AppColors.primary,
+                      //           ),
+                      //           Text(
+                      //             ' Export',
+                      //             style: TextStyle(fontSize: 16),
+                      //           )
+                      //         ],
+                      //       ),
+                      //       onTap: () {
+                      //         if (filteredList.isEmpty &&
+                      //             listShipmentDetails.isEmpty) {
+                      //           CustomSnackBar.show(context,
+                      //               message: "No Data Found");
+                      //           return;
+                      //         }
+                      //         if (filteredList.isNotEmpty) {
+                      //           exportToExcel(filteredList);
+                      //         } else {
+                      //           exportToExcel(listShipmentDetails);
+                      //         }
+                      //       },
+                      //     ),
+                      //     const SizedBox(
+                      //       width: 8,
+                      //     ),
+                      //     GestureDetector(
+                      //       child:  Row(
+                      //         children: [
+                      //           Padding(
+                      //             padding: const EdgeInsets.all(4.0),
+                      //             child: SvgPicture.asset(
+                      //               filter,
+                      //               height: ScreenDimension.onePercentOfScreenHight *
+                      //                   AppDimensions.ICONSIZE2,
+                      //             ),
+                      //           ),
+                      //           const Text(
+                      //             'Filter',
+                      //             style: TextStyle(fontSize: 16),
+                      //           )
+                      //         ],
+                      //       ),
+                      //       onTap: () {
+                      //         showShipmentSearchBottomSheet(context);
+                      //       },
+                      //     ),
+                      //   ],
+                      // )
+                    ],
+                  ),
                 ),
                 isLoading
                     ? const Center(
@@ -517,8 +574,10 @@ class _ExportScreenState extends State<ExportScreen> {
 
     SelectionQuery body = SelectionQuery();
 
-    body.query =encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
-    print(encryptionService.decryptUsingRandomKeyPrivateKey("LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK"));
+    body.query =
+        encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    print(encryptionService.decryptUsingRandomKeyPrivateKey(
+        "LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK"));
     mdl.query = body.query;
     var headers = {
       'Accept': 'text/plain',
@@ -724,11 +783,9 @@ class _ExportScreenState extends State<ExportScreen> {
             message: "Export shipment booking deleted successfully.",
             backgroundColor: AppColors.successColor,
             leftIcon: Icons.check_circle);
-
       }
       Utils.hideLoadingDialog(context);
-      getShipmentDetails(endOfDayFormatted,
-          startOfDayFormatted, "", "",
+      getShipmentDetails(endOfDayFormatted, startOfDayFormatted, "", "",
           airportId: selectedTerminalId!);
     }).catchError((onError) {
       Utils.hideLoadingDialog(context);
@@ -916,9 +973,11 @@ class _ExportScreenState extends State<ExportScreen> {
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ?216 : 116,// ScreenDimension.onePercentOfScreenHight*25.7 :  ScreenDimension.onePercentOfScreenHight*14.1,
+        height: isExpanded ? 216 : 116,
+        // ScreenDimension.onePercentOfScreenHight*25.7 :  ScreenDimension.onePercentOfScreenHight*14.1,
         child: Padding(
-          padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight*AppDimensions.defaultContainerPadding),
+          padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight *
+              AppDimensions.defaultContainerPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -953,7 +1012,6 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                     ],
                   ),
-
                   GestureDetector(
                     child: Container(
                       // margin: const EdgeInsets.only(right: 8),
@@ -967,22 +1025,29 @@ class _ExportScreenState extends State<ExportScreen> {
                         color: AppColors.primary,
                       ),
                     ),
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => BookingCreationExport(
-                              operationType: "V",
-                              bookingId: shipmentDetails.bookingId,
-                              isQRVisisble:  (shipmentDetails.statusDescription=="PENDING FOR GATE-IN" || shipmentDetails.statusDescription=="REJECT FOR GATE-IN" )?true:false,
-
-                            )),
+                                  operationType: "V",
+                                  bookingId: shipmentDetails.bookingId,
+                                  isQRVisisble: (shipmentDetails
+                                                  .statusDescription ==
+                                              "PENDING FOR GATE-IN" ||
+                                          shipmentDetails.statusDescription ==
+                                              "REJECT FOR GATE-IN")
+                                      ? true
+                                      : false,
+                                )),
                       );
                     },
                   ),
                 ],
               ),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               Row(
                 children: [
                   Text(
@@ -1131,35 +1196,35 @@ class _ExportScreenState extends State<ExportScreen> {
                           if (shipmentDetails.statusDescription == "GATED-IN") {
                             CustomSnackBar.show(context,
                                 message:
-                                "Slot booking is already Gate In. Booking cannot be edited");
+                                    "Slot booking is already Gate In. Booking cannot be edited");
                             return;
                           }
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => BookingCreationExport(
-                                  operationType: "E",
-                                  bookingId: shipmentDetails.bookingId,
-                                  isQRVisisble: false,
-                                )),
+                                      operationType: "E",
+                                      bookingId: shipmentDetails.bookingId,
+                                      isQRVisisble: false,
+                                    )),
                           );
                           break;
                         case 2:
                           if (shipmentDetails.statusDescription == "GATED-IN") {
                             CustomSnackBar.show(context,
                                 message:
-                                "Slot booking is already Gate In. Booking cannot be deleted");
+                                    "Slot booking is already Gate In. Booking cannot be deleted");
                             return;
                           }
                           bool? isTrue =
-                          await Utils.confirmationDialog(context);
+                              await Utils.confirmationDialog(context);
                           if (isTrue!) {
                             deleteShipment(shipmentDetails.bookingId);
                           }
                           break;
-                      // case 3:
-                      //   // Handle Audit Log action
-                      //   break;
+                        // case 3:
+                        //   // Handle Audit Log action
+                        //   break;
                       }
                     },
                     itemBuilder: (context) => [
@@ -1208,46 +1273,6 @@ class _ExportScreenState extends State<ExportScreen> {
   Future<void> showShipmentSearchDialog(BuildContext outerContext) async {
     TextEditingController bookingNoController = TextEditingController();
     TextEditingController shippingBillNoController = TextEditingController();
-
-    Future<void> _selectDate(
-        BuildContext context, TextEditingController controller,
-        {bool isFromDate = false}) async {
-      final DateTime? picked = await showDatePicker(
-        context: context,
-        //initialEntryMode: DatePickerEntryMode.calendarOnly,
-        initialDate: isFromDate
-            ? DateTime.now().subtract(const Duration(days: 2))
-            : DateTime.now(),
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2101),
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: ThemeData(
-              useMaterial3: false,
-              primaryColor: AppColors.primary,
-
-              dialogBackgroundColor: Colors.white,
-              // Change dialog background color
-              colorScheme: const ColorScheme.light(
-                primary: AppColors.primary, // Change header and button color
-                onPrimary: Colors.white, // Text color on primary (header text)
-                onSurface: Colors.black, // Body text color
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.primary, // Button text color
-                ),
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-
-      if (picked != null) {
-        controller.text = DateFormat('d MMM yyyy').format(picked);
-      }
-    }
 
     void search() async {
       String bookingNo = bookingNoController.text.trim();
@@ -1471,6 +1496,555 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
+  void showFlightSearchBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        TextEditingController bookingNoController = TextEditingController();
+        TextEditingController shippingBillNoController = TextEditingController();
+
+        void search() async {
+          String bookingNo = bookingNoController.text.trim();
+          String shippingBillNo = shippingBillNoController.text.trim();
+          String fromDate = fromDateController.text.trim();
+          String toDate = toDateController.text.trim();
+
+          if (fromDate.isEmpty || toDate.isEmpty) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            CustomSnackBar.show(
+              context,
+              message: "Please fill in all fields",
+              backgroundColor: Colors.red,
+            );
+            return;
+          }
+          DateTime fromDateTime = DateFormat('d MMM yyyy').parse(fromDate);
+          DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
+
+          if (fromDateTime.isAfter(toDateTime)) {
+            // fromDateController.text = _formatDate(
+            //     DateTime.now().subtract(const Duration(days: 2)));
+            fromDateController.text = '';
+            toDateController.text = _formatDate(DateTime.now());
+            CustomSnackBar.show(
+              context,
+              message: "From Date should be less than To Date",
+              backgroundColor: AppColors.warningColor,
+            );
+            return;
+          }
+          if (toDateTime.isBefore(fromDateTime)) {
+            // fromDateController.text = _formatDate(
+            //     DateTime.now().subtract(const Duration(days: 2)));
+            toDateController.text = '';
+            CustomSnackBar.show(
+              context,
+              message: "To Date should be greater than From Date",
+              backgroundColor: AppColors.warningColor,
+            );
+            return;
+          }
+
+          String fromDateISO = fromDateTime.toIso8601String();
+          String toDateISO = toDateTime.toIso8601String();
+
+          print(
+              "Booking No: $bookingNo, Shipping Bill No: $shippingBillNo, From Date: $fromDateISO, To Date: $toDateISO");
+          if (selectedTerminalId != null) {
+            getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo,
+                airportId: selectedTerminalId!);
+          } else {
+            getShipmentDetails(toDateISO, fromDateISO, bookingNo, shippingBillNo);
+          }
+
+          Navigator.pop(context);
+        }
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return FractionallySizedBox(
+              widthFactor: 1,
+              child: Container(
+                height: ScreenDimension.onePercentOfScreenHight * 96,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: SvgPicture.asset(
+                                    searchBlack,
+                                    height: ScreenDimension
+                                        .onePercentOfScreenHight *
+                                        AppDimensions.defaultIconSize,
+                                  ),
+                                ),
+                                Text(
+                                  'Search Flight',
+                                  style: AppStyle.defaultHeading,
+                                ),
+                              ],
+                            ),
+                            InkWell(
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: SvgPicture.asset(
+                                      cancel,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.defaultIconSize,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Enter details to search",
+                              style: TextStyle(
+                                fontSize: ScreenDimension.textSize *
+                                    AppDimensions.titleText3,
+                                color: AppColors.textColorPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: SvgPicture.asset(
+                                    clear,
+                                    height: ScreenDimension
+                                        .onePercentOfScreenHight *
+                                        AppDimensions.cardIconsSize2,
+                                  ),
+                                ),
+                                Text("Clear",
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.bodyTextMedium,
+                                      fontWeight: FontWeight.w500,
+                                    )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              CustomTextField(
+                                controller: bookingNoController,
+                                labelText: "Booking No.",
+                                isValidationRequired: false,
+                              ),
+                               SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                              CustomTextField(
+                                controller: bookingNoController,
+                                labelText: "Shipping Bill No.",
+                                isValidationRequired: false,
+                              ),
+                              SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                              CustomDatePicker(
+                                controller: fromDateController,
+                                labelText: 'From Date',
+                                isFromDate: true,
+                                otherDateController: toDateController,
+                              ),
+                              SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                              CustomDatePicker(
+                                controller: toDateController,
+                                labelText: 'To Date',
+                                otherDateController: fromDateController,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: ScreenDimension.onePercentOfScreenHight * 50,
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ButtonWidgets.buildRoundedGradientButton(
+                                  text: 'Cancel',
+                                  isborderButton: true,
+                                  textColor: AppColors.primary,
+                                  verticalPadding: 10,
+                                  press: () {
+                                    bookingNoController.clear();
+                                    shippingBillNoController.clear();
+                                    fromDateController.text = _formatDate(DateTime.now()
+                                        .subtract(const Duration(days: 2)));
+                                    toDateController.text = _formatDate(DateTime.now());
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: ButtonWidgets.buildRoundedGradientButton(
+                                  text: 'Search',
+                                  press: () {
+                                    search();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void showFlightFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        TextEditingController originController = TextEditingController();
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return FractionallySizedBox(
+              widthFactor: 1,
+              child: Container(
+                height: ScreenDimension.onePercentOfScreenHight * 42,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Filter/Sort',
+                              style: AppStyle.defaultHeading,
+                            ),
+                            InkWell(
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: SvgPicture.asset(
+                                      clear,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.cardIconsSize,
+                                    ),
+                                  ),
+                                  Text("Clear",
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: ScreenDimension.textSize *
+                                            AppDimensions.bodyTextLarge,
+                                        fontWeight: FontWeight.w500,
+                                      )),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Text(
+                          "SORT BY STATUS",
+                          style: TextStyle(
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.bodyTextSmall,
+                            color: AppColors.textColorSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 8.0),
+                        child: Wrap(
+                          spacing: 8.0,
+                          children: [
+                            FilterChip(
+                              label: const Text(
+                                'Draft',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected: selectedFilters.contains('DRAFT'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('DRAFT')
+                                      : selectedFilters.remove('DRAFT');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters.contains('DRAFT')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              checkmarkColor: AppColors.primary,
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gated-in',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected: selectedFilters.contains('GATED-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('GATED-IN')
+                                      : selectedFilters.remove('GATED-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters.contains('GATED-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gate-in Pending',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected:
+                              selectedFilters.contains('PENDING FOR GATE-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('PENDING FOR GATE-IN')
+                                      : selectedFilters
+                                      .remove('PENDING FOR GATE-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters
+                                      .contains('PENDING FOR GATE-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gate-in Rejected',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected:
+                              selectedFilters.contains('REJECT FOR GATE-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('REJECT FOR GATE-IN')
+                                      : selectedFilters
+                                      .remove('REJECT FOR GATE-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters
+                                      .contains('REJECT FOR GATE-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Text(
+                          "FILTER BY DATE",
+                          style: TextStyle(
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.bodyTextSmall,
+                            color: AppColors.textColorSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all( 16),
+                        child: GestureDetector(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.calendar_today,
+                                  color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                slotFilterDate,
+                                style: const TextStyle(
+                                    fontSize: 16, color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            pickDate(context, setState);
+                          },
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ButtonWidgets.buildRoundedGradientButton(
+                                  text: 'Cancel',
+                                  isborderButton: true,
+                                  textColor: AppColors.primary,
+                                  verticalPadding: 10,
+                                  press: () {
+                                    setState(() {
+                                      selectedFilters.clear();
+                                      isFilterApplied = false;
+                                      selectedDate = null;
+                                      slotFilterDate = "Slot Date";
+                                    });
+                                    Navigator.pop(context);
+                                    filterShipments();
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: ButtonWidgets.buildRoundedGradientButton(
+                                  text: 'Apply',
+                                  press: () {
+                                    Navigator.pop(context);
+                                    filterShipments();
+                                    setState(() {
+                                      isFilterApplied = true;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void filterShipments() {
     setState(() {
       filteredList = getFilteredShipmentDetails(
@@ -1689,8 +2263,8 @@ class _ExportScreenState extends State<ExportScreen> {
   void showShipmentSearchBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-        isScrollControlled: true,
-
+      backgroundColor: AppColors.white,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         // List<String> selectedFilters = [];
 

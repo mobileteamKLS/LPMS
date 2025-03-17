@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+    import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -262,8 +262,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
           labelText: widget.isValidationRequired
               ? "${widget.labelText}*"
               : widget.labelText,
+          labelStyle: TextStyle(color: AppColors.textColorPrimary),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
           ),
           errorText: _isTouched ? errorMessage : null,
         ),
@@ -488,8 +498,18 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
               const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
           errorStyle: const TextStyle(height: 0),
           labelText: widget.labelText,
+          labelStyle: TextStyle(color: AppColors.textColorPrimary),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
           ),
           suffixIcon: IconButton(
             onPressed: () => _selectDate(context),

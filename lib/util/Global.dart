@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
 import '../models/IPInfo.dart';
+import '../models/TerminalMaster.dart';
 import '../models/login_model.dart';
 import '../models/ShippingList.dart';
 import '../screens/slot_booking/BookingCreationExport.dart';
@@ -14,6 +15,7 @@ var baseUIUrl="https://lpmsuat.kalelogistics.com/";
 late IpInfo ipInfo;
 List<LoginDetailsMaster> loginMaster = [];
 List<AllVehicleTypes> vehicleTypeList = [];
+List<TerminalMaster> terminalsList = [];
 List<CargoTypeExporterImporterAgent> cargoTypeList = [];
 List<Vehicle> selectedVehicleList = [];
 List<CargoTypeExporterImporterAgent> chaAgentList = [];
@@ -33,13 +35,18 @@ late int maxVehicleNo;
 String originMaster="";
 String destinationMaster="";
 String chaNameMaster="";
-int? selectedTerminalId = 151;
+int? selectedTerminalId = 139;
 bool isEdit=false;
+bool isMenuExpanded = false;
 final List<Map<String, dynamic>> terminals = [
-  {'id': 157, 'name': 'AKOLA'},
-  {'id': 155, 'name': 'ATTARI'},
-  {'id': 154, 'name': 'RAXAUL'},
-  {'id': 153, 'name': 'JOGBANI'},
-  {'id': 152, 'name': 'PETRAPOLE'},
-  {'id': 151, 'name': 'AGARTALA'},
+  {'id': 157, 'name': 'Mankachar'},
+  {'id': 154, 'name': 'ATTARI'},
+  {'id': 141, 'name': 'Jogbani'},
+  {'id': 153, 'name': 'Darranga'},
+  {'id': 158, 'name': 'GOLAKGANJ'},
+  {'id': 139, 'name': 'AGARTALA'},
+  {'id': 140, 'name': 'Petrapole'},
+  {'id': 142, 'name': 'Raxaul'},
+  {'id': 155, 'name': 'Srimantapur'},
+  {'id': 159, 'name': 'Sutarkandi'},
 ];

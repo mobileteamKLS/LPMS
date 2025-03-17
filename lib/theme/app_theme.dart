@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lpms/theme/app_color.dart';
 
+import '../core/dimensions.dart';
+import '../util/media_query.dart';
+
 // class AppTheme{
 //   static final lightTheme=ThemeData(
 //     primaryColor: AppColors.primary,
@@ -71,48 +74,58 @@ class AppTheme {
   );
 }
 
-// class AppBarPainter extends CustomPainter {
-//   @override
-//   bool shouldRepaint(AppBarPainter oldDelegate) => false;
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     Paint paint_1 = Paint()
-//       ..color = AppColors.primary
-//       ..style = PaintingStyle.fill;
-//
-//     Path path_1 = Path()
-//       ..moveTo(0, 0)
-//       ..lineTo(size.width * 0.08, 0.0)
-//       ..cubicTo(
-//         size.width * 0.04, 0.0, // control point 1
-//         0.0, 0.04 * size.width, // control point 2
-//         0.0, 0.1 * size.width, // end point
-//       );
-//
-//     Path path_2 = Path()
-//       ..moveTo(size.width, 0)
-//       ..lineTo(size.width * 0.92, 0.0)
-//       ..cubicTo(
-//         size.width * 0.96, 0.0, // control point 1
-//         size.width, 0.04 * size.width, // control point 2
-//         size.width, 0.1 * size.width, // end point
-//       );
-//
-//     Paint paint_2 = Paint()
-//       ..color = AppColors.secondary
-//       ..strokeWidth = 1
-//       ..style = PaintingStyle.stroke;
-//
-//     Path path_3 = Path()
-//       ..moveTo(0, 0)
-//       ..lineTo(size.width, 0);
-//
-//     canvas.drawPath(path_1, paint_1);
-//     canvas.drawPath(path_2, paint_1);
-//     canvas.drawPath(path_3, paint_2);
-//   }
-// }
+class AppStyle{
+  static TextStyle sideDashboardTitleText = TextStyle(
+    color: AppColors.textColorSecondary,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium,
+    fontWeight: FontWeight.w700,
+  );
+
+  static TextStyle defaultHeading = TextStyle(
+    color: AppColors.textColorPrimary,
+    fontSize: ScreenDimension.textSize * AppDimensions.headingText4,
+    fontWeight: FontWeight.w700,
+  );
+  static TextStyle defaultTitle = TextStyle(
+    color: AppColors.textColorPrimary,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextLarge,
+    fontWeight: FontWeight.w700,
+  );
+
+  static TextStyle subHeading = TextStyle(
+    color: AppColors.textColorPrimary,
+    fontSize: ScreenDimension.textSize * AppDimensions.titleText,
+    fontWeight: FontWeight.w700,
+  );
+
+  static TextStyle sideDescText = TextStyle(
+    color: AppColors.textColorSecondary,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextSmall,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle statusText = TextStyle(
+    color: AppColors.textColorPrimary,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium,
+    fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle cardDescText = TextStyle(
+    color: AppColors.textColorSecondary,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextMedium,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle cardValueText = TextStyle(
+    color: AppColors.textColorPrimary,
+    fontSize: ScreenDimension.textSize * AppDimensions.titleText3,
+    fontWeight: FontWeight.w700,
+  );
+  static TextStyle cardBlueText = TextStyle(
+    color: AppColors.primary,
+    fontSize: ScreenDimension.textSize * AppDimensions.titleText3,
+    fontWeight: FontWeight.w500,
+  );
+}
 
 class AppBarPainterGradient extends CustomPainter {
   @override
