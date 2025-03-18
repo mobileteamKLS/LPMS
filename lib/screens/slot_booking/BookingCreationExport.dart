@@ -15,6 +15,7 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/auth.dart';
+import '../../core/dimensions.dart';
 import '../../models/login_model.dart';
 import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
@@ -23,6 +24,7 @@ import '../../theme/app_theme.dart';
 import '../../ui/widgest/AutoSuggest.dart';
 import '../../ui/widgest/expantion_card.dart';
 import '../../util/Global.dart';
+import '../../util/media_query.dart';
 import 'AddVehicleDetailsExport.dart';
 import '../../core/Encryption.dart';
 import 'AddShipmentDetailsExport.dart';
@@ -129,7 +131,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Exports',
+            'Export',
             style: TextStyle(color: Colors.white),
           ),
           iconTheme: const IconThemeData(color: Colors.white, size: 32),
@@ -234,21 +236,24 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
             constraints: const BoxConstraints.expand(),
             color: AppColors.background,
             child: Padding(
-              padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
+              padding:EdgeInsets.symmetric(
+                  horizontal: ScreenDimension.onePercentOfScreenWidth *
+                      AppDimensions.defaultPageHorizontalPadding),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Row(
-                      children: [
-                        Text(
-                          'Booking Creation',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: ScreenDimension.onePercentOfScreenWidth,
+                          vertical: ScreenDimension.onePercentOfScreenHight*1.5),
+                      child:  Row(
+                        children: [
+                          Text(
+                            'Booking Creation',
+                            style: AppStyle.defaultHeading,
+                          ),
+                        ],
+                      ),
                     ),
                     Container(
                       decoration: BoxDecoration(
@@ -263,11 +268,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 2,
-                            blurRadius: 8,
-                            offset: const Offset(
-                                0, 3),
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
                           ),
                         ],
                       ),
@@ -277,14 +281,16 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Row(
+                             Row(
                               children: [
                                 Text(
                                   "BOOKING INFO.",
                                   style: TextStyle(
-                                      color: AppColors.cardTextColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ],
                             ),
@@ -330,7 +336,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       child:  Padding(
                                         padding:
                                             const EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
+                                        child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING",style: AppStyle.statusText,)
                                       ),
                                     )
                                   ],
@@ -341,26 +347,34 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 10,
+                     SizedBox(
+                      height: ScreenDimension.onePercentOfScreenHight,
                     ),
                     Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 1.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
                         color: AppColors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
+                          ),
+                        ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 10),
+                        padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight *
+                            AppDimensions.defaultContainerPadding),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                               Text(
                                 "BASIC DETAILS",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 14),
+                                style: AppStyle.defaultTitle,
                               ),
                               SizedBox(
                                 height:
@@ -587,6 +601,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                           bottom: BorderSide
                                               .none, // No border on the bottom
                                         ),
+                                        color: AppColors.white
                                       ),
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
@@ -598,6 +613,17 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                       ),
                                     );
                                   },
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<CargoTypeExporterImporterAgent>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
+                                  ),
                                   builder: (context, controller, focusNode) =>
                                       CustomTextField(
                                     controller: controller,

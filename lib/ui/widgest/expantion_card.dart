@@ -71,9 +71,21 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
         return Column(
           children: [
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1.0),
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              color: Colors.white,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // Shadow position
+                  ),
+                ],
+                color: Colors.white,
+              ),
+
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -161,9 +173,21 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
             if (expanded[index])
               Container(
                 width: MediaQuery.sizeOf(context).width,
+                margin: const EdgeInsets.symmetric(horizontal: 1.0),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                      offset: const Offset(0, 1), // Shadow position
+                    ),
+                  ],
+                ),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -255,13 +279,21 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
   Widget _buildEmptyShipmentDetails() {
     return Container(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
-      decoration: const BoxDecoration(
+      decoration:  BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.all(Radius.circular(12)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 1,
+            offset: const Offset(0, 1), // Shadow position
+          ),
+        ],
         border: Border(
           bottom: BorderSide(
             color: AppColors.background,
-            width: 4.0,
+            width: 1.0,
           ),
         ),
       ),
@@ -350,8 +382,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
       ),
     );
   }
-
-  // Method to build the widget when shipmentDetailsList is not empty
+  //TODO: BOX shadow need to done for this whole file.
   Widget _buildShipmentDetailsList() {
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -360,6 +391,7 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
         Column(
           children: [
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1.0),
               padding:
                   const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
               decoration: BoxDecoration(
@@ -374,10 +406,18 @@ class _AddShipmentDetailsListNew extends State<AddShipmentDetailsListNew> {
                       ? const Radius.circular(12)
                       : const Radius.circular(0),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // Shadow position
+                  ),
+                ],
                 border: const Border(
                   bottom: BorderSide(
                     color: AppColors.background,
-                    width: 4.0,
+                    width: 1.0,
                   ),
                 ),
               ),
@@ -582,15 +622,23 @@ class _AddVehicleDetailsListExportsNew
   Widget _buildEmptyVehicleDetails() {
     return Container(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
-      decoration: const BoxDecoration(
+      decoration:  BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.all(Radius.circular(12)),
         border: Border(
           bottom: BorderSide(
             color: AppColors.background,
-            width: 4.0,
+            width: 1.0,
           ),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 1,
+            offset: const Offset(0, 1), // Shadow position
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -669,6 +717,7 @@ class _AddVehicleDetailsListExportsNew
         Column(
           children: [
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1.0),
               padding:
                   const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
               decoration: BoxDecoration(
@@ -686,9 +735,17 @@ class _AddVehicleDetailsListExportsNew
                 border: const Border(
                   bottom: BorderSide(
                     color: AppColors.background,
-                    width: 4.0,
+                    width: 1.0,
                   ),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // Shadow position
+                  ),
+                ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -788,6 +845,7 @@ class _AddVehicleDetailsListExportsNew
                         decoration: BoxDecoration(
                           color: AppColors.containerBgColor,
                           borderRadius: BorderRadius.circular(20),
+
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1552,9 +1610,21 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
         return Column(
           children: [
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1.0),
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              color: Colors.white,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // Shadow position
+                  ),
+
+                ],
+                color: Colors.white,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -1838,9 +1908,21 @@ class _VehicleItemExportsNewState extends State<VehicleItemExportsNew> {
             if (expanded[index])
               Container(
                 width: MediaQuery.sizeOf(context).width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                      offset: const Offset(0, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 1.0),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                color: Colors.white,
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1927,15 +2009,23 @@ class _AddShipmentDetailsListImportsNew
   Widget _buildEmptyShipmentDetails() {
     return Container(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 14.0),
-      decoration: const BoxDecoration(
+      decoration:  BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.all(Radius.circular(12)),
         border: Border(
           bottom: BorderSide(
             color: AppColors.background,
-            width: 4.0,
+            width: 1.0,
           ),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 1,
+            offset: const Offset(0, 1), // Shadow position
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2046,6 +2136,14 @@ class _AddShipmentDetailsListImportsNew
                       ? const Radius.circular(12)
                       : const Radius.circular(0),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // Shadow position
+                  ),
+                ],
                 border: const Border(
                   bottom: BorderSide(
                     color: AppColors.background,
@@ -2343,7 +2441,17 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                 width: MediaQuery.sizeOf(context).width,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                      offset: const Offset(0, 1), // Shadow position
+                    ),
+                  ],
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

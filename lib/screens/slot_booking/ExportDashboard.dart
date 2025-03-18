@@ -62,6 +62,8 @@ class _ExportScreenState extends State<ExportScreen> {
 
   late TextEditingController fromDateController;
   late TextEditingController toDateController;
+  TextEditingController bookingNoController = TextEditingController();
+  TextEditingController shippingBillNoController = TextEditingController();
   late String startOfDayFormatted;
   late String endOfDayFormatted;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -243,7 +245,7 @@ class _ExportScreenState extends State<ExportScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: ScreenDimension.onePercentOfScreenWidth,
-                      vertical: ScreenDimension.onePercentOfScreenHight),
+                      vertical: ScreenDimension.onePercentOfScreenHight*1.5),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -258,8 +260,8 @@ class _ExportScreenState extends State<ExportScreen> {
                             ),
                           ),
                           Text(
-                            'SHIPMENT LIST',
-                            style: AppStyle.subHeading,
+                            'Shipment Listing',
+                            style: AppStyle.defaultHeading,
                           ),
                         ],
                       ),
@@ -422,7 +424,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                             SlotBookingShipmentListingExport
                                                 shipmentDetails =
                                                 filteredList.elementAt(index);
-                                            return buildShipmentDetailsCardV2(
+                                            return buildShipmentDetailsCardV3(
                                                 shipmentDetails, index);
                                           },
                                           itemCount: filteredList.length,
@@ -441,7 +443,7 @@ class _ExportScreenState extends State<ExportScreen> {
                                                 shipmentDetails =
                                                 listShipmentDetails
                                                     .elementAt(index);
-                                            return buildShipmentDetailsCardV2(
+                                            return buildShipmentDetailsCardV3(
                                                 shipmentDetails, index);
                                           },
                                           itemCount: listShipmentDetails.length,
@@ -1270,6 +1272,316 @@ class _ExportScreenState extends State<ExportScreen> {
     );
   }
 
+  Widget buildShipmentDetailsCardV3(
+      SlotBookingShipmentListingExport shipmentDetails, int index) {
+    bool isExpanded = _isExpandedList[index];
+    return Card(
+      color: AppColors.white,
+      surfaceTintColor: AppColors.white,
+      margin: EdgeInsets.symmetric(horizontal: 0,vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      elevation: 3,
+      child: SizedBox(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Utils.getStatusColor(
+                              shipmentDetails.statusDescription),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        child: Row(
+                          children: [
+                            Utils.getStatusIcon(
+                                shipmentDetails.statusDescription),
+                            const SizedBox(width: 4),
+                            Text(
+                              shipmentDetails.statusDescription,
+                              style: AppStyle.statusText,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    child: Container(
+                      // margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: AppColors.gradient1,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          rightArrow,
+                          height: ScreenDimension.onePercentOfScreenHight *
+                              AppDimensions.cardIconsSize2,
+                        ),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BookingCreationExport(
+                              operationType: "V",
+                              bookingId: shipmentDetails.bookingId,
+                              isQRVisisble: (shipmentDetails
+                                  .statusDescription ==
+                                  "PENDING FOR GATE-IN" ||
+                                  shipmentDetails.statusDescription ==
+                                      "REJECT FOR GATE-IN")
+                                  ? true
+                                  : false,
+                            )),
+                      );
+                    },
+                  ),
+
+                ],
+              ),
+              SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.4),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    shipmentDetails.bookingNo,
+                    style:AppStyle.subHeading,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children:  [
+                      Text(
+                        'Slot Booking Date:',
+                        style: AppStyle.defaultTitle,
+                      ),
+                      SizedBox(width: ScreenDimension.onePercentOfScreenWidth),
+                      Text(
+                        "${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}",
+                        style:  AppStyle.sideDescText,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              isExpanded
+                  ? Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Column(
+                  children: [
+                    Utils.customDivider(
+                      space: 0,
+                      color: Colors.black,
+                      hasColor: true,
+                      thickness: 1,
+                    ),
+                    SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: ScreenDimension.onePercentOfScreenWidth*44,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'S. Bill No.',
+                                    style:  AppStyle.sideDescText,
+                                  ),
+                                  Text(
+                                    '${shipmentDetails.sBillNo}  ',
+                                    style: AppStyle.defaultTitle,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'CHA Name',
+                                    style: AppStyle.sideDescText,
+                                  ),
+                                  Text(
+                                    'ABC',
+                                    style: AppStyle.defaultTitle,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: ScreenDimension.onePercentOfScreenWidth*44,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'S. Bill Date',
+                                    style: AppStyle.sideDescText,
+                                  ),
+                                  Text(
+                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.sBillDt))}  ',
+                                    style: AppStyle.defaultTitle,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Exporter Name',
+                                    style: AppStyle.sideDescText,
+                                  ),
+                                  Text(
+                                    shipmentDetails.exporterImporter,
+                                    style: AppStyle.defaultTitle,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                    Utils.customDivider(
+                      space: 0,
+                      color: Colors.black,
+                      hasColor: true,
+                      thickness: 1,
+                    ),
+                  ],
+                ),
+              )
+                  : const SizedBox(),
+              SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpandedList[index] = !_isExpandedList[index];
+                      });
+                    },
+                    child: Text(
+                      isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  PopupMenuButton<int>(
+                    child: const Icon(
+                      Icons.more_vert,
+                      color: AppColors.primary,
+                    ),
+                    onSelected: (value) async {
+                      switch (value) {
+                        case 1:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be edited");
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BookingCreationExport(
+                                  operationType: "E",
+                                  bookingId: shipmentDetails.bookingId,
+                                  isQRVisisble: false,
+                                )),
+                          );
+                          break;
+                        case 2:
+                          if (shipmentDetails.statusDescription == "GATED-IN") {
+                            CustomSnackBar.show(context,
+                                message:
+                                "Slot booking is already Gate In. Booking cannot be deleted");
+                            return;
+                          }
+                          bool? isTrue =
+                          await Utils.confirmationDialog(context);
+                          if (isTrue!) {
+                            deleteShipment(shipmentDetails.bookingId);
+                          }
+                          break;
+                      // case 3:
+                      //   // Handle Audit Log action
+                      //   break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, color: AppColors.primary),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, color: AppColors.errorRed),
+                            SizedBox(width: 8),
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                      // const PopupMenuItem(
+                      //   value: 3,
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(Icons.list_alt, color: AppColors.primary),
+                      //       SizedBox(width: 8),
+                      //       Text('Audit Log'),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                    color: AppColors.white,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> showShipmentSearchDialog(BuildContext outerContext) async {
     TextEditingController bookingNoController = TextEditingController();
     TextEditingController shippingBillNoController = TextEditingController();
@@ -1372,7 +1684,7 @@ class _ExportScreenState extends State<ExportScreen> {
                         ),
                         const SizedBox(height: 16),
                         CustomTextField(
-                          controller: bookingNoController,
+                          controller: shippingBillNoController,
                           labelText: "Shipping Bill No.",
                           isValidationRequired: false,
                         ),
@@ -1503,8 +1815,6 @@ class _ExportScreenState extends State<ExportScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (BuildContext context) {
-        TextEditingController bookingNoController = TextEditingController();
-        TextEditingController shippingBillNoController = TextEditingController();
 
         void search() async {
           String bookingNo = bookingNoController.text.trim();
@@ -1664,36 +1974,33 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: Expanded(
-                          flex: 1,
-                          child: Column(
-                            children: [
-                              CustomTextField(
-                                controller: bookingNoController,
-                                labelText: "Booking No.",
-                                isValidationRequired: false,
-                              ),
-                               SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
-                              CustomTextField(
-                                controller: bookingNoController,
-                                labelText: "Shipping Bill No.",
-                                isValidationRequired: false,
-                              ),
-                              SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
-                              CustomDatePicker(
-                                controller: fromDateController,
-                                labelText: 'From Date',
-                                isFromDate: true,
-                                otherDateController: toDateController,
-                              ),
-                              SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
-                              CustomDatePicker(
-                                controller: toDateController,
-                                labelText: 'To Date',
-                                otherDateController: fromDateController,
-                              ),
-                            ],
-                          ),
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              controller: bookingNoController,
+                              labelText: "Booking No.",
+                              isValidationRequired: false,
+                            ),
+                             SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomTextField(
+                              controller: shippingBillNoController,
+                              labelText: "Shipping Bill No.",
+                              isValidationRequired: false,
+                            ),
+                            SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomDatePicker(
+                              controller: fromDateController,
+                              labelText: 'From Date',
+                              isFromDate: true,
+                              otherDateController: toDateController,
+                            ),
+                            SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomDatePicker(
+                              controller: toDateController,
+                              labelText: 'To Date',
+                              otherDateController: fromDateController,
+                            ),
+                          ],
                         ),
                       ),
 
@@ -1708,39 +2015,36 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: Expanded(
-                          flex: 1,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: ButtonWidgets.buildRoundedGradientButton(
-                                  text: 'Cancel',
-                                  isborderButton: true,
-                                  textColor: AppColors.primary,
-                                  verticalPadding: 10,
-                                  press: () {
-                                    bookingNoController.clear();
-                                    shippingBillNoController.clear();
-                                    fromDateController.text = _formatDate(DateTime.now()
-                                        .subtract(const Duration(days: 2)));
-                                    toDateController.text = _formatDate(DateTime.now());
-                                    Navigator.pop(context);
-                                  },
-                                ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Cancel',
+                                isborderButton: true,
+                                textColor: AppColors.primary,
+                                verticalPadding: 10,
+                                press: () {
+                                  bookingNoController.clear();
+                                  shippingBillNoController.clear();
+                                  fromDateController.text = _formatDate(DateTime.now()
+                                      .subtract(const Duration(days: 2)));
+                                  toDateController.text = _formatDate(DateTime.now());
+                                  Navigator.pop(context);
+                                },
                               ),
-                              const SizedBox(
-                                width: 8,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Search',
+                                press: () {
+                                  search();
+                                },
                               ),
-                              Expanded(
-                                child: ButtonWidgets.buildRoundedGradientButton(
-                                  text: 'Search',
-                                  press: () {
-                                    search();
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -1762,7 +2066,6 @@ class _ExportScreenState extends State<ExportScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (BuildContext context) {
-        TextEditingController originController = TextEditingController();
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return FractionallySizedBox(
@@ -1993,45 +2296,42 @@ class _ExportScreenState extends State<ExportScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: Expanded(
-                          flex: 1,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: ButtonWidgets.buildRoundedGradientButton(
-                                  text: 'Cancel',
-                                  isborderButton: true,
-                                  textColor: AppColors.primary,
-                                  verticalPadding: 10,
-                                  press: () {
-                                    setState(() {
-                                      selectedFilters.clear();
-                                      isFilterApplied = false;
-                                      selectedDate = null;
-                                      slotFilterDate = "Slot Date";
-                                    });
-                                    Navigator.pop(context);
-                                    filterShipments();
-                                  },
-                                ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Cancel',
+                                isborderButton: true,
+                                textColor: AppColors.primary,
+                                verticalPadding: 10,
+                                press: () {
+                                  setState(() {
+                                    selectedFilters.clear();
+                                    isFilterApplied = false;
+                                    selectedDate = null;
+                                    slotFilterDate = "Slot Date";
+                                  });
+                                  Navigator.pop(context);
+                                  filterShipments();
+                                },
                               ),
-                              const SizedBox(
-                                width: 8,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Apply',
+                                press: () {
+                                  Navigator.pop(context);
+                                  filterShipments();
+                                  setState(() {
+                                    isFilterApplied = true;
+                                  });
+                                },
                               ),
-                              Expanded(
-                                child: ButtonWidgets.buildRoundedGradientButton(
-                                  text: 'Apply',
-                                  press: () {
-                                    Navigator.pop(context);
-                                    filterShipments();
-                                    setState(() {
-                                      isFilterApplied = true;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

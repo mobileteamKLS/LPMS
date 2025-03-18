@@ -5,21 +5,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/screens/slot_booking/BookingCreationExport.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../api/auth.dart';
+import '../../core/dimensions.dart';
 import '../../core/img_assets.dart';
 import '../../models/ShippingList.dart';
 import '../../theme/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../ui/widgest/AppDrawer.dart';
 import '../../ui/widgest/CustomTextField.dart';
+import '../../ui/widgest/buttons.dart';
 import '../../util/Global.dart';
 import '../../util/Uitlity.dart';
 import 'dart:io';
 
+import '../../util/media_query.dart';
 import 'BookingCreationImport.dart';
 import 'ExportDashboard.dart';
 
@@ -53,6 +57,9 @@ class _ImportScreenState extends State<ImportScreen> {
 
   late TextEditingController fromDateController;
   late TextEditingController toDateController;
+  TextEditingController bookingNoController = TextEditingController();
+  TextEditingController boeNoController = TextEditingController();
+
   late String startOfDayFormatted;
   late String endOfDayFormatted;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -235,115 +242,106 @@ class _ImportScreenState extends State<ImportScreen> {
         children: [
           Container(
             constraints: const BoxConstraints.expand(),
+            padding: EdgeInsets.symmetric(
+                horizontal: ScreenDimension.onePercentOfScreenWidth *
+                    AppDimensions.defaultPageHorizontalPadding),
             color: AppColors.background,
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 2, left: 10, right: 10),
-                  child: Material(
-                    color: Colors.transparent,
-                    // Ensures background transparency
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(CupertinoIcons.cube),
-                            Text(
-                              '  SHIPMENT LIST',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.search,
-                                color: AppColors.primary,
-                              ),
-                              onPressed: () {
-                                print("Search button pressed");
-                                showShipmentSearchDialog(context);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.more_vert_outlined,
-                                color: AppColors.primary,
-                              ),
-                              onPressed: () {
-                                print("More button pressed");
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 2, left: 10, right: 10, bottom: 4),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: ScreenDimension.onePercentOfScreenWidth,
+                      vertical: ScreenDimension.onePercentOfScreenHight*1.5),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Showing (0/0)',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                       Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6.0),
+                            child: SvgPicture.asset(
+                              menu,
+                              height: ScreenDimension.onePercentOfScreenHight *
+                                  AppDimensions.defaultIconSize,
+                            ),
+                          ),
+                          Text(
+                            'Shipment Listing',
+                            style: AppStyle.defaultHeading,
+                          ),
+                        ],
                       ),
                       Row(
                         children: [
-                          GestureDetector(
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.upload_file,
-                                  color: AppColors.primary,
-                                ),
-                                Text(
-                                  ' Export',
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                more,
+                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                height: ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize,
+                              ),
                             ),
                             onTap: () {
-                              if (filteredList.isEmpty &&
-                                  listShipmentDetails.isEmpty) {
-                                CustomSnackBar.show(context, message: "No Data Found");
-                                return;
-                              }
-                              if (filteredList.isNotEmpty) {
-                                exportToExcel(filteredList);
-                              } else {
-                                exportToExcel(listShipmentDetails);
-                              }
+
                             },
                           ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          GestureDetector(
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.filter_alt_outlined,
-                                  color: AppColors.primary,
-                                ),
-                                Text(
-                                  ' Filter',
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
+                          SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  1.5),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: ScreenDimension.onePercentOfScreenWidth,
+                      vertical: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                       Text(
+                        'Showing (0/0)',
+                        style: AppStyle.defaultTitle,
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                search_scan,
+                                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                                height: ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize,
+                              ),
                             ),
                             onTap: () {
-                              showShipmentSearchBottomSheet(context);
+                              print("Search button pressed");
+                              showFlightSearchBottomSheet(context);
                             },
+                          ),
+                          SizedBox(
+                              width: ScreenDimension.onePercentOfScreenWidth *
+                                  4),
+                          InkWell(
+                            onTap: () {
+                              showFlightFilterBottomSheet(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: SvgPicture.asset(
+                                filter,
+                                height:
+                                ScreenDimension.onePercentOfScreenHight *
+                                    AppDimensions.defaultIconSize1,
+                              ),
+                            ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -357,7 +355,7 @@ class _ImportScreenState extends State<ImportScreen> {
                         child: SingleChildScrollView(
                           child: Padding(
                             padding: const EdgeInsets.only(
-                                top: 8.0, left: 0.0, bottom: 60),
+                                top: 8.0, left: 0.0, bottom: 80),
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width / 1.01,
                               child: (hasNoRecord)
@@ -497,6 +495,543 @@ class _ImportScreenState extends State<ImportScreen> {
       //     if (index == 2) {}
       //   },
       // ),
+    );
+  }
+
+  void showFlightSearchBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        void search() async {
+          String bookingNo = bookingNoController.text.trim();
+          String boeNo = boeNoController.text.trim();
+          print("BOE $boeNo");
+          String fromDate = fromDateController.text.trim();
+          String toDate = toDateController.text.trim();
+
+          if (fromDate.isEmpty || toDate.isEmpty) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            CustomSnackBar.show(
+              context,
+              message: "Please fill in all fields",
+              backgroundColor: Colors.red,
+            );
+            return;
+          }
+          DateTime fromDateTime = DateFormat('d MMM yyyy').parse(fromDate);
+          DateTime toDateTime = DateFormat('d MMM yyyy').parse(toDate);
+
+          if (fromDateTime.isAfter(toDateTime)) {
+            // fromDateController.text = _formatDate(
+            //     DateTime.now().subtract(const Duration(days: 2)));
+            fromDateController.text = '';
+            toDateController.text = _formatDate(DateTime.now());
+            CustomSnackBar.show(
+              context,
+              message: "From Date should be less than To Date",
+              backgroundColor: AppColors.warningColor,
+            );
+            return;
+          }
+          if (toDateTime.isBefore(fromDateTime)) {
+            // fromDateController.text = _formatDate(
+            //     DateTime.now().subtract(const Duration(days: 2)));
+            toDateController.text = '';
+            CustomSnackBar.show(
+              context,
+              message: "To Date should be greater than From Date",
+              backgroundColor: AppColors.warningColor,
+            );
+            return;
+          }
+
+          String fromDateISO = fromDateTime.toIso8601String();
+          String toDateISO = toDateTime.toIso8601String();
+
+          if (selectedTerminalId != null) {
+            getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo,
+                airportId: selectedTerminalId!);
+          } else {
+            getShipmentDetails(toDateISO, fromDateISO, bookingNo, boeNo);
+          }
+
+          Navigator.pop(context);
+        }
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return FractionallySizedBox(
+              widthFactor: 1,
+              child: Container(
+                height: ScreenDimension.onePercentOfScreenHight * 96,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: SvgPicture.asset(
+                                    searchBlack,
+                                    height: ScreenDimension
+                                        .onePercentOfScreenHight *
+                                        AppDimensions.defaultIconSize,
+                                  ),
+                                ),
+                                Text(
+                                  'Shipment Search',
+                                  style: AppStyle.defaultHeading,
+                                ),
+                              ],
+                            ),
+                            InkWell(
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: SvgPicture.asset(
+                                      cancel,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.defaultIconSize,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Enter details to search",
+                              style: TextStyle(
+                                fontSize: ScreenDimension.textSize *
+                                    AppDimensions.titleText3,
+                                color: AppColors.textColorPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: SvgPicture.asset(
+                                    clear,
+                                    height: ScreenDimension
+                                        .onePercentOfScreenHight *
+                                        AppDimensions.cardIconsSize2,
+                                  ),
+                                ),
+                                Text("Clear",
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: ScreenDimension.textSize *
+                                          AppDimensions.bodyTextMedium,
+                                      fontWeight: FontWeight.w500,
+                                    )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              controller: bookingNoController,
+                              labelText: "Booking No.",
+                              isValidationRequired: false,
+                            ),
+                            SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomTextField(
+                              controller: boeNoController,
+                              labelText: "BOE No.",
+                              isValidationRequired: false,
+                            ),
+                            SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomDatePicker(
+                              controller: fromDateController,
+                              labelText: 'From Date',
+                              isFromDate: true,
+                              otherDateController: toDateController,
+                            ),
+                            SizedBox( height: ScreenDimension.onePercentOfScreenHight*1.5),
+                            CustomDatePicker(
+                              controller: toDateController,
+                              labelText: 'To Date',
+                              otherDateController: fromDateController,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: ScreenDimension.onePercentOfScreenHight * 50,
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Cancel',
+                                isborderButton: true,
+                                textColor: AppColors.primary,
+                                verticalPadding: 10,
+                                press: () {
+                                  bookingNoController.clear();
+                                  boeNoController.clear();
+                                  fromDateController.text = _formatDate(DateTime.now()
+                                      .subtract(const Duration(days: 2)));
+                                  toDateController.text = _formatDate(DateTime.now());
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Search',
+                                press: () {
+                                  print("${boeNoController.text}");
+                                 search();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void showFlightFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        TextEditingController originController = TextEditingController();
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return FractionallySizedBox(
+              widthFactor: 1,
+              child: Container(
+                height: ScreenDimension.onePercentOfScreenHight * 42,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Filter/Sort',
+                              style: AppStyle.defaultHeading,
+                            ),
+                            InkWell(
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: SvgPicture.asset(
+                                      clear,
+                                      height: ScreenDimension
+                                          .onePercentOfScreenHight *
+                                          AppDimensions.cardIconsSize,
+                                    ),
+                                  ),
+                                  Text("Clear",
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: ScreenDimension.textSize *
+                                            AppDimensions.bodyTextLarge,
+                                        fontWeight: FontWeight.w500,
+                                      )),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Text(
+                          "SORT BY STATUS",
+                          style: TextStyle(
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.bodyTextSmall,
+                            color: AppColors.textColorSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 8.0),
+                        child: Wrap(
+                          spacing: 8.0,
+                          children: [
+                            FilterChip(
+                              label: const Text(
+                                'Draft',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected: selectedFilters.contains('DRAFT'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('DRAFT')
+                                      : selectedFilters.remove('DRAFT');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters.contains('DRAFT')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                              checkmarkColor: AppColors.primary,
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gated-in',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected: selectedFilters.contains('GATED-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('GATED-IN')
+                                      : selectedFilters.remove('GATED-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters.contains('GATED-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gate-in Pending',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected:
+                              selectedFilters.contains('PENDING FOR GATE-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('PENDING FOR GATE-IN')
+                                      : selectedFilters
+                                      .remove('PENDING FOR GATE-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters
+                                      .contains('PENDING FOR GATE-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                            FilterChip(
+                              label: const Text(
+                                'Gate-in Rejected',
+                                style: TextStyle(color: AppColors.primary),
+                              ),
+                              selected:
+                              selectedFilters.contains('REJECT FOR GATE-IN'),
+                              showCheckmark: false,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selected
+                                      ? selectedFilters.add('REJECT FOR GATE-IN')
+                                      : selectedFilters
+                                      .remove('REJECT FOR GATE-IN');
+                                });
+                              },
+                              selectedColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                side: BorderSide(
+                                  color: selectedFilters
+                                      .contains('REJECT FOR GATE-IN')
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 16.0, bottom: 0),
+                        child: Text(
+                          "FILTER BY DATE",
+                          style: TextStyle(
+                            fontSize: ScreenDimension.textSize *
+                                AppDimensions.bodyTextSmall,
+                            color: AppColors.textColorSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all( 16),
+                        child: GestureDetector(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.calendar_today,
+                                  color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                slotFilterDate,
+                                style: const TextStyle(
+                                    fontSize: 16, color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            pickDate(context, setState);
+                          },
+                        ),
+                      ),
+                      Utils.customDivider(
+                        space: 0,
+                        color: Colors.black,
+                        hasColor: true,
+                        thickness: 1,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Cancel',
+                                isborderButton: true,
+                                textColor: AppColors.primary,
+                                verticalPadding: 10,
+                                press: () {
+                                  setState(() {
+                                    selectedFilters.clear();
+                                    isFilterApplied = false;
+                                    selectedDate = null;
+                                    slotFilterDate = "Slot Date";
+                                  });
+                                  Navigator.pop(context);
+                                  filterShipments();
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: ButtonWidgets.buildRoundedGradientButton(
+                                text: 'Apply',
+                                press: () {
+                                  Navigator.pop(context);
+                                  filterShipments();
+                                  setState(() {
+                                    isFilterApplied = true;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -785,12 +1320,12 @@ class _ImportScreenState extends State<ImportScreen> {
     return Card(
       color: AppColors.white,
       surfaceTintColor: AppColors.white,
+      margin: EdgeInsets.symmetric(horizontal: 0,vertical: 4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
       elevation: 3,
       child: SizedBox(
-        height: isExpanded ? 216 : 116,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -817,10 +1352,7 @@ class _ImportScreenState extends State<ImportScreen> {
                             const SizedBox(width: 4),
                             Text(
                               shipmentDetails.statusDescription,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
+                              style: AppStyle.statusText,
                             ),
                           ],
                         ),
@@ -834,10 +1366,13 @@ class _ImportScreenState extends State<ImportScreen> {
                         borderRadius: BorderRadius.circular(5),
                         color: AppColors.gradient1,
                       ),
-                      child: const Icon(
-                        size: 28,
-                        Icons.keyboard_arrow_right_outlined,
-                        color: AppColors.primary,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          rightArrow,
+                          height: ScreenDimension.onePercentOfScreenHight *
+                              AppDimensions.cardIconsSize2,
+                        ),
                       ),
                     ),
                     onTap: (){
@@ -855,126 +1390,131 @@ class _ImportScreenState extends State<ImportScreen> {
 
                 ],
               ),
-              SizedBox(height: 8,),
-              Row(
+              SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.4),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     shipmentDetails.bookingNo,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style:AppStyle.subHeading,
                   ),
-                  const SizedBox(width: 24),
-                  // Text(
-                  //   '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}  ',
-                  //   style: const TextStyle(
-                  //       fontSize: 16, fontWeight: FontWeight.w800),
-                  // ),
-                  // Container(
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.grey.shade200,
-                  //     borderRadius: BorderRadius.circular(4),
-                  //     border: Border.all(color: Colors.black26),
-                  //   ),
-                  //   padding: const EdgeInsets.symmetric(
-                  //       horizontal: 4, vertical: 2),
-                  //   child: Text(
-                  //     shipmentDetails.cargoTypeName.substring(0, 3),
-                  //     style: const TextStyle(
-                  //       fontSize: 12,
-                  //       color: Colors.black54,
-                  //     ),
-                  //   ),
-                  // ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children:  [
+                      Text(
+                        'Slot Booking Date:',
+                        style: AppStyle.defaultTitle,
+                      ),
+                      SizedBox(width: ScreenDimension.onePercentOfScreenWidth),
+                      Text(
+                        "${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.bookingDt))}",
+                        style:  AppStyle.sideDescText,
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              // const SizedBox(height: 2),
 
               isExpanded
                   ? Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Column(
                         children: [
-                          Column(
+                          Utils.customDivider(
+                            space: 0,
+                            color: Colors.black,
+                            hasColor: true,
+                            thickness: 1,
+                          ),
+                          SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'BOE No.',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    '${shipmentDetails.boeNo}  ',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
+                              SizedBox(
+                                width: ScreenDimension.onePercentOfScreenWidth*44,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                         Text(
+                                          'BOE No.',
+                                          style:  AppStyle.sideDescText,
+                                        ),
+                                        Text(
+                                          '${shipmentDetails.boeNo}  ',
+                                          style: AppStyle.defaultTitle,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                     Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'CHA Name',
+                                          style: AppStyle.sideDescText,
+                                        ),
+                                        Text(
+                                          'ABC',
+                                          style: AppStyle.defaultTitle,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 10),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'CHA Name',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    'ABC',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
+
+                              SizedBox(
+                                width: ScreenDimension.onePercentOfScreenWidth*44,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                         Text(
+                                          'BOE Date',
+                                          style: AppStyle.sideDescText,
+                                        ),
+                                        Text(
+                                          '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.boeDt))}  ',
+                                          style: AppStyle.defaultTitle,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                         Text(
+                                          'Importer Name',
+                                          style: AppStyle.sideDescText,
+                                        ),
+                                        Text(
+                                          shipmentDetails.exporterImporter,
+                                          style: AppStyle.defaultTitle,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(width: 64),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'BOE Date',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    '${DateFormat('dd MMM yyyy').format(DateTime.parse(shipmentDetails.boeDt))}  ',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Exporter Name',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    shipmentDetails.exporterImporter,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
+                          Utils.customDivider(
+                            space: 0,
+                            color: Colors.black,
+                            hasColor: true,
+                            thickness: 1,
                           ),
                         ],
                       ),
                     )
                   : const SizedBox(),
-              const SizedBox(height: 8),
+              SizedBox(height: ScreenDimension.onePercentOfScreenHight,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -989,7 +1529,7 @@ class _ImportScreenState extends State<ImportScreen> {
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

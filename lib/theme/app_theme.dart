@@ -100,7 +100,7 @@ class AppStyle{
 
   static TextStyle sideDescText = TextStyle(
     color: AppColors.textColorSecondary,
-    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextSmall,
+    fontSize: ScreenDimension.textSize * AppDimensions.bodyTextLarge,
     fontWeight: FontWeight.w500,
   );
 

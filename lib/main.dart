@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
     );
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'VINIMAY',
       debugShowCheckedModeBanner: false,
       theme:AppTheme.lightTheme,
       home:  const LoginPageNew(),
