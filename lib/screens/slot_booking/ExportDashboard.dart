@@ -178,10 +178,10 @@ class _ExportScreenState extends State<ExportScreen> {
                               border: OutlineInputBorder(),
                             ),
                             value: selectedTerminalId,
-                            items: terminals.map((terminal) {
+                            items: terminalsList.map((terminal) {
                               return DropdownMenuItem<int>(
-                                value: terminal['id'],
-                                child: Text(terminal['name'] ?? ''),
+                                value: int.parse(terminal.value),
+                                child: Text(terminal.nameDisplay),
                               );
                             }).toList(),
                             onChanged: (value) {

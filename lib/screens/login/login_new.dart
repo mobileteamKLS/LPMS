@@ -197,9 +197,13 @@ class _LoginPageNewState extends State<LoginPageNew> {
         setState(() {
           terminalsList =
               jsonData.map((json) => TerminalMaster.fromJson(json)).toList();
-          terminalsList.forEach((element) {
+          // terminalsList.forEach((element) {
+          //
+          // });
 
-          });
+        });
+        setState(() {
+          selectedTerminalId=int.parse(terminalsList.first.value);
         });
         print("-----Terminal Lenght=${terminalsList.length}-----");
         Navigator.pushAndRemoveUntil(
