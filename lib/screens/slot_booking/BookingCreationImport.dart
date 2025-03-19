@@ -16,6 +16,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/auth.dart';
 import '../../core/dimensions.dart';
+import '../../models/TerminalMaster.dart';
 import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
 import '../../theme/app_color.dart';
@@ -44,14 +45,19 @@ class BookingCreationImport extends StatefulWidget {
 class _BookingCreationExportState extends State<BookingCreationImport> {
   // final multiSelectController = MultiSelectController<Vehicle>();
   final TextEditingController chaController = TextEditingController();
+  final TextEditingController bookingTypeController = TextEditingController();
 
   // final TextEditingController noOfVehiclesController = TextEditingController();
   bool enableVehicleNo = true;
   bool isValid = true;
   final FocusNode _cityFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  int modeSelected = 0;
-  int chaIdMaster = 0;
+  int truckLoadType = 0;
+  int directImport = 1;
+  int cargoShipmentType = 1;
+  int transit = 1;
+  int chaIdMaster = 1;
+  bool isDirectImport=false;
   String bookingDate = "";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
@@ -83,7 +89,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   }
 
   void _updateTextField() {
-    if (modeSelected == 1) {
+    if (truckLoadType == 1) {
       noOfVehiclesController.text = '1';
       isFTlAndOneShipment = false;
     } else {
@@ -171,10 +177,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         chaNameMaster=jsonData["ChaName"];
         chaController.text=jsonData["ChaName"].toUpperCase();
         if(jsonData["IsFTL"]){
-          modeSelected=0;
+          truckLoadType=0;
         }
         if(jsonData["IsLTL"]){
-          modeSelected=1;
+          truckLoadType=1;
         }
         List<String> vehicleIdList = List<String>.from(
             jsonData["VehicleType"].map((id) => id.toString())
@@ -254,8 +260,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       vehicleType: vehicleIdList,
       bookingDt: widget.operationType=="E"?bookingDate: null,
       noofVehicle: int.parse(noOfVehiclesController.text),
-      isFtl: modeSelected == 0,
-      isLtl: modeSelected == 1,
+      isFtl: truckLoadType == 0,
+      isLtl: truckLoadType == 1,
       origin: originMaster,
       destination: destinationMaster,
       hsnCode: null,
@@ -378,6 +384,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
 
       await Future.wait([
         loadCargoTypes(),
+        getBookingType(),
+        loadCargoCategory(),
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Importer'),
       ]);
@@ -463,6 +471,100 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
     } catch (error) {
       print("Error: $error");
     }
+  }
+
+  Future<void> getBookingType() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    var queryParams = {
+      "BusinessType": "",
+      "BusinessTypeId": "0",
+      "OrgProdId": "3276",
+      "OrgId": "11227",
+      "Identifier": "SlotBookingWeight",
+      "IsSystemListOfValue": "true",
+      "TopRecords": "20"
+    };
+    await authService
+        .postData(
+      "api_master/Common/GetListOfValueData",
+      queryParams,
+    )
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          bookingTypeList =
+              jsonData.map((json) => BookingType.fromJson(json)).toList();
+        });
+        print("-----Booking Type=${bookingTypeList.length}-----");
+      }
+      setState(() {
+        _isLoading = false;
+      });
+
+    }).catchError((onError) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(onError);
+    });
+  }
+
+  Future<void> loadCargoCategory() async {
+    print("Category API");
+    await Future.delayed(const Duration(seconds: 2));
+    cargoCategoryList=[];
+    final mdl = SelectionModels(
+      jointableName: "",
+      jointableCondition: "",
+      topRecord: 10,
+      allRecord: true,
+      isTariff: false,
+      isDisabled: false,
+      isAll: true,
+      whereCondition:
+      " AND Identifier = ''LandPortCargoType'' AND Listid NOT IN (11026)",
+    );
+    if (mdl.topRecord == null || mdl.topRecord == 10) {
+      mdl.topRecord = 999;
+    }
+    SelectionQuery body = SelectionQuery();
+
+    body.query =encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    mdl.query = body.query;
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api_master/GenericDropDown/GetAllListOfValues")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          cargoCategoryList =
+              jsonData.map((json) => CargoCategory.fromJson(json)).toList();
+        });
+        print("-----Cargo Category=${cargoCategoryList.length}-----");
+      } else {
+        print("response is empty");
+      }
+    }).catchError((onError) {
+      print("$onError");
+    });
+
   }
 
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
@@ -608,10 +710,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                 border: OutlineInputBorder(),
                               ),
                               value: selectedTerminalId,
-                              items: terminals.map((terminal) {
+                              items: terminalsList.map((terminal) {
                                 return DropdownMenuItem<int>(
-                                  value: terminal['id'],
-                                  child: Text(terminal['name'] ?? ''),
+                                  value: int.parse(terminal.value),
+                                  child: Text(terminal.nameDisplay),
                                 );
                               }).toList(),
                               onChanged: (value) {
@@ -927,7 +1029,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         MediaQuery.sizeOf(context).width * 0.42,
                                     child: TextFormField(
                                       controller: noOfVehiclesController,
-                                      enabled: (modeSelected == 1 ||  widget.operationType=="V")? false : true,
+                                      enabled: (truckLoadType == 1 ||  widget.operationType=="V")? false : true,
                                       onChanged: (value){
                                         if (int.parse(
                                             noOfVehiclesController.text) ==
@@ -960,7 +1062,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         LengthLimitingTextInputFormatter(2),
                                       ],
                                       validator: (value) {
-                                        if (modeSelected != 1 &&
+                                        if (truckLoadType != 1 &&
                                             (value == null || value.isEmpty)) {
                                           setState(() {
                                             _textFieldHeight2 = 65;
@@ -989,7 +1091,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                                 0.5,
                                         minHeight: 45.0,
                                         fontSize: 14.0,
-                                        initialLabelIndex: modeSelected,
+                                        initialLabelIndex: truckLoadType,
                                         activeBgColor: widget.operationType == "C"
                                             ? [AppColors.primary]
                                             : [AppColors.textFieldBorderColor],
@@ -1004,7 +1106,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         onToggle:widget.operationType!="C"?null:  (index) {
                                           print('switched to: $index');
                                           setState(() {
-                                            modeSelected = index!;
+                                            truckLoadType = index!;
                                           });
                                           _updateTextField();
                                         },
@@ -1090,6 +1192,86 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         value.description.toUpperCase();
                                     chaNameMaster = value.description;
                                     chaIdMaster = int.parse(value.value);
+                                    _formKey.currentState!.validate();
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery.sizeOf(context).height * 0.015,
+                              ),
+                              SizedBox(
+                                width:
+                                MediaQuery.sizeOf(context).width ,
+                                child: TypeAheadField<
+                                    BookingType>(
+                                  controller: bookingTypeController,
+                                  debounceDuration:
+                                  const Duration(milliseconds: 300),
+                                  suggestionsCallback: (search) =>
+                                      BookingTypeService.find(search),
+                                  itemBuilder: (context, item) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                          border: Border(
+                                            top: BorderSide(
+                                                color: Colors.black, width: 0.2),
+                                            left: BorderSide(
+                                                color: Colors.black, width: 0.2),
+                                            right: BorderSide(
+                                                color: Colors.black, width: 0.2),
+                                            bottom: BorderSide
+                                                .none, // No border on the bottom
+                                          ),
+                                          color: AppColors.white
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          Text(item.code.toUpperCase()),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<BookingType>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
+                                  ),
+                                  builder: (context, controller, focusNode) =>
+                                      CustomTextField(
+                                        controller: controller,
+                                        labelText: "Booking Type",
+                                        isEnabled:  !(widget.operationType=="V"),
+                                        registerTouchedCallback:
+                                        _addMarkTouchedCallback,
+                                        focusNode: focusNode,
+                                      ),
+                                  decorationBuilder: (context, child) =>
+                                      Material(
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('No Booking Type Found',
+                                        style: TextStyle(fontSize: 16)),
+                                  ),
+                                  onSelected: (value) {
+                                    bookingTypeController.text =
+                                        value.description.toUpperCase();
+                                    chaNameMaster = value.description;
+                                    // chaIdMaster = int.parse(value.value);
                                     _formKey.currentState!.validate();
                                   },
                                 ),
@@ -1245,9 +1427,234 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                         ),
                       ),
                     ),
+
                     SizedBox(
                       height: MediaQuery.sizeOf(context).height * 0.015,
                     ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight *
+                            AppDimensions.defaultContainerPadding),
+                        child: Form(
+
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "DIRECT IMPORT",
+                                style: AppStyle.defaultTitle,
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery.sizeOf(context).height * 0.01,
+                              ),
+
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                    MediaQuery.sizeOf(context).width * 0.45,
+                                    child: AbsorbPointer(
+                                      absorbing:widget.operationType!="C",
+                                      child: ToggleSwitch(
+                                        minWidth:
+                                        MediaQuery.sizeOf(context).width *
+                                            0.5,
+                                        minHeight: 45.0,
+                                        fontSize: 14.0,
+                                        initialLabelIndex: directImport,
+                                        activeBgColor: widget.operationType == "C"
+                                            ? [AppColors.primary]
+                                            : [AppColors.textFieldBorderColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        totalSwitches: 2,
+                                        labels: const ['YES', 'NO'],
+                                        cornerRadius: 0.0,
+                                        borderWidth: 0.5,
+                                        borderColor: [Colors.grey],
+                                        onToggle:widget.operationType!="C"?null:  (index) {
+                                          print('switched to: $index');
+                                          setState(() {
+                                            directImport = index!;
+                                            if(directImport==0){
+                                              isDirectImport=true;
+                                            }
+                                            else{
+                                              isDirectImport=false;
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    if(!isDirectImport)SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+                    if(!isDirectImport) Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: AppColors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(ScreenDimension.onePercentOfScreenHight *
+                            AppDimensions.defaultContainerPadding),
+                        child: Form(
+
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "CARGO SHIPMENT TYPE",
+                                style: AppStyle.defaultTitle,
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery.sizeOf(context).height * 0.01,
+                              ),
+
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                    MediaQuery.sizeOf(context).width * 0.9,
+                                    child: AbsorbPointer(
+                                      absorbing:widget.operationType!="C",
+                                      child: ToggleSwitch(
+                                        minWidth:
+                                        MediaQuery.sizeOf(context).width *
+                                            0.5,
+                                        minHeight: 45.0,
+                                        fontSize: 14.0,
+                                        initialLabelIndex: cargoShipmentType,
+                                        activeBgColor: widget.operationType == "C"
+                                            ? [AppColors.primary]
+                                            : [AppColors.textFieldBorderColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        totalSwitches: 2,
+                                        labels: const ['WAREHOUSE', 'TRANSSHIPMENT'],
+                                        cornerRadius: 0.0,
+                                        borderWidth: 0.5,
+                                        borderColor: [Colors.grey],
+                                        onToggle:widget.operationType!="C"?null:  (index) {
+                                          print('switched to: $index');
+                                          setState(() {
+                                            cargoShipmentType = index!;
+                                          });
+                                          _updateTextField();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery.sizeOf(context).height * 0.01,
+                              ),
+                              Text(
+                                "TRANSIT",
+                                style: AppStyle.defaultTitle,
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery.sizeOf(context).height * 0.01,
+                              ),
+
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 45,
+                                    width:
+                                    MediaQuery.sizeOf(context).width * 0.45,
+                                    child: AbsorbPointer(
+                                      absorbing:widget.operationType!="C",
+                                      child: ToggleSwitch(
+                                        minWidth:
+                                        MediaQuery.sizeOf(context).width *
+                                            0.5,
+                                        minHeight: 45.0,
+                                        fontSize: 14.0,
+                                        initialLabelIndex: transit,
+                                        activeBgColor: widget.operationType == "C"
+                                            ? [AppColors.primary]
+                                            : [AppColors.textFieldBorderColor],
+                                        activeFgColor: Colors.white,
+                                        inactiveBgColor: Colors.white,
+                                        inactiveFgColor: Colors.grey[900],
+                                        totalSwitches: 2,
+                                        labels: const ['YES', 'NO'],
+                                        cornerRadius: 0.0,
+                                        borderWidth: 0.5,
+                                        borderColor: [Colors.grey],
+                                        onToggle:widget.operationType!="C"?null:  (index) {
+                                          print('switched to: $index');
+                                          setState(() {
+                                            transit = index!;
+                                          });
+                                          _updateTextField();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.015,
+                    ),
+
                     AddShipmentDetailsListImportsNew(
                       shipmentDetailsList: shipmentListImports,
                       validateAndNavigate: validateAndNavigate,

@@ -380,7 +380,7 @@ class AuthService {
 }
 
 class Post {
-  final int statusCode;
+   final int statusCode;
   final String body;
 
   Post({required this.statusCode, required this.body});

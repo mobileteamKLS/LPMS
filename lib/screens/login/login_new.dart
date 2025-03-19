@@ -135,17 +135,19 @@ class _LoginPageNewState extends State<LoginPageNew> {
         queryParams,
         headers)
         .then((response) {
-      if (response.body.isEmpty) {
+      if (response.body.isEmpty || (response.statusCode!=200)) {
         CustomSnackBar.show(context, message: "Invalid Login Details",backgroundColor: Colors.red);
+        setState(() {
+          _isLoading = false;
+        });
         return;
+
       }
       final Map<String, dynamic> jsonData = json.decode(response.body);
       _saveCredentials();
       setState(() {
         loginMaster = [LoginDetailsMaster.fromJSON(jsonData)];
       });
-      // _usernameController.clear();
-      // _passwordController.clear();
       loadTerminals();
     });
   }

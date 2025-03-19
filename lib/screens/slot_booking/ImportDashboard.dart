@@ -171,10 +171,10 @@ class _ImportScreenState extends State<ImportScreen> {
                                 border: OutlineInputBorder(),
                               ),
                               value: selectedTerminalId,
-                              items: terminals.map((terminal) {
+                              items: terminalsList.map((terminal) {
                                 return DropdownMenuItem<int>(
-                                  value: terminal['id'],
-                                  child: Text(terminal['name'] ?? ''),
+                                  value: int.parse(terminal.value),
+                                  child: Text(terminal.nameDisplay),
                                 );
                               }).toList(),
                               onChanged: (value) {
@@ -1292,11 +1292,11 @@ class _ImportScreenState extends State<ImportScreen> {
                       });
                     },
                     child: Text(
-                      isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                      isExpanded ? 'Show Less' : 'Show More',
                       style: const TextStyle(
                         color: AppColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -1398,6 +1398,7 @@ class _ImportScreenState extends State<ImportScreen> {
                     shipmentDetails.bookingNo,
                     style:AppStyle.subHeading,
                   ),
+                  SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.4,),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children:  [
@@ -1525,10 +1526,10 @@ class _ImportScreenState extends State<ImportScreen> {
                       });
                     },
                     child: Text(
-                      isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                      isExpanded ? 'Show Less' : 'Show More',
                       style: const TextStyle(
                         color: AppColors.primary,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

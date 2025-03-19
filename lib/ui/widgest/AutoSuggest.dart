@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:lpms/models/ShippingList.dart';
+import 'package:lpms/models/TerminalMaster.dart';
 import 'package:lpms/util/Uitlity.dart';
 
 import '../../screens/slot_booking/BookingCreationExport.dart';
@@ -80,6 +81,45 @@ class CargoTypeService {
     String normalizedInput = normalizeString(input);
     return cargoTypeList.any((agent) {
       String normalizedAgentName = normalizeString(agent.nameDisplay);
+      return normalizedAgentName == normalizedInput;
+    });
+  }
+}
+class CargoCategoryService {
+
+  static List<CargoCategory> find(String search) {
+    String normalizedSearch = Utils.normalizeString(search);
+    print("____$normalizedSearch");
+    return cargoCategoryList.where((agent) {
+      String normalizedAgentName =  Utils.normalizeString(agent.description);
+      return normalizedAgentName.contains(normalizedSearch);
+    }).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    String normalizedInput = normalizeString(input);
+    return cargoCategoryList.any((agent) {
+      String normalizedAgentName = normalizeString(agent.nameDisplay);
+      return normalizedAgentName == normalizedInput;
+    });
+  }
+}
+
+class BookingTypeService {
+
+  static List<BookingType> find(String search) {
+    String normalizedSearch = Utils.normalizeString(search);
+    print("____$normalizedSearch");
+    return bookingTypeList.where((agent) {
+      String normalizedAgentName =  Utils.normalizeString(agent.description);
+      return normalizedAgentName.contains(normalizedSearch);
+    }).toList();
+  }
+
+  static bool isValidAgent(String input) {
+    String normalizedInput = normalizeString(input);
+    return bookingTypeList.any((agent) {
+      String normalizedAgentName = normalizeString(agent.description);
       return normalizedAgentName == normalizedInput;
     });
   }

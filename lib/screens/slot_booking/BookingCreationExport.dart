@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lpms/core/img_assets.dart';
 import 'package:lpms/screens/slot_booking/AddVehicleDetailsImport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
@@ -16,6 +18,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/auth.dart';
 import '../../core/dimensions.dart';
+import '../../models/TerminalMaster.dart';
 import '../../models/login_model.dart';
 import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
@@ -170,10 +173,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                 border: OutlineInputBorder(),
                               ),
                               value: selectedTerminalId,
-                              items: terminals.map((terminal) {
+                              items: terminalsList.map((terminal) {
                                 return DropdownMenuItem<int>(
-                                  value: terminal['id'],
-                                  child: Text(terminal['name'] ?? ''),
+                                  value: int.parse(terminal.value),
+                                  child: Text(terminal.nameDisplay),
                                 );
                               }).toList(),
                               onChanged: (value) {
@@ -255,7 +258,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                         ],
                       ),
                     ),
-                    Container(
+                    widget.operationType=="C"?Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
@@ -281,7 +284,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                             Row(
+                            Row(
                               children: [
                                 Text(
                                   "BOOKING INFO.",
@@ -334,9 +337,148 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child:  Padding(
-                                        padding:
-                                            const EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING",style: AppStyle.statusText,)
+                                          padding:
+                                          const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+                                          child: Center(child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING",style: AppStyle.statusText,))
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ):Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.gradient1,
+                            AppColors.gradient2,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12, left: 10, bottom: 12, right: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "BOOKING INFO.",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4.0),
+                                  child: SvgPicture.asset(
+                                    truck,
+                                    colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                    height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                  ),
+                                ),
+                                Text(
+                                  "00:00 - 23:00",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText3,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6.0),
+                                  child: SvgPicture.asset(
+                                    calendarClock,
+                                    colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                    height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                  ),
+                                ),
+                                Text(
+                                  "00:00 - 23:00",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText3,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 6.0),
+                                      child: SvgPicture.asset(
+                                        location,
+                                        colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                        height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                      ),
+                                    ),
+                                    Text(
+                                      " $originMaster",
+                                      style: const TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                      color: AppColors.cardTextColor,
+                                    ),
+                                    Text(
+                                      " $destinationMaster",
+                                      style: const TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child:  Padding(
+                                          padding:
+                                          const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+                                          child: Center(child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING",style: AppStyle.statusText,))
                                       ),
                                     )
                                   ],
@@ -984,8 +1126,10 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
 
       await Future.wait([
         loadCargoTypes(),
+        loadCargoCategory(),
         loadCHAExporterNames('Agent'),
         loadCHAExporterNames('Exporter'),
+
 
       ]);
       if(widget.operationType!="C"){
@@ -1061,11 +1205,61 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
     }
   }
 
+  Future<void> loadCargoCategory() async {
+    print("Category API");
+    await Future.delayed(const Duration(seconds: 2));
+    cargoCategoryList=[];
+    final mdl = SelectionModels(
+      jointableName: "",
+      jointableCondition: "",
+      topRecord: 10,
+      allRecord: true,
+      isTariff: false,
+      isDisabled: false,
+      isAll: true,
+      whereCondition:
+      " AND Identifier = ''LandPortCargoType'' AND Listid NOT IN (11026)",
+    );
+    if (mdl.topRecord == null || mdl.topRecord == 10) {
+      mdl.topRecord = 999;
+    }
+    SelectionQuery body = SelectionQuery();
+
+    body.query =encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
+    mdl.query = body.query;
+    var headers = {
+      'Accept': 'text/plain',
+      'Content-Type': 'multipart/form-data',
+    };
+    var fields = {
+      'Query': '${body.query}',
+    };
+
+    await authService
+        .sendMultipartRequest(
+        headers: headers,
+        fields: fields,
+        endPoint: "api_master/GenericDropDown/GetAllListOfValues")
+        .then((response) {
+      if (response.body.isNotEmpty) {
+        print(json.decode(response.body));
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          cargoCategoryList =
+              jsonData.map((json) => CargoCategory.fromJson(json)).toList();
+        });
+        print("-----Cargo Category=${cargoCategoryList.length}-----");
+      } else {
+        print("response is empty");
+      }
+    }).catchError((onError) {
+      print("$onError");
+    });
+
+  }
+
   Future<void> loadCHAExporterNames(basedOnPrevious) async {
     await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _isLoading = true;
-    });
     exporterList = [];
     cargoTypeList = [];
     final mdl = SelectionModels();
@@ -1126,17 +1320,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       } else {
         print("response is empty");
       }
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
     }).catchError((onError) {
-      setState(() {
-        setState(() {
-          _isLoading = false;
-        });
-      });
     });
     // await authService
     //     .fetchLoginDataPOST(

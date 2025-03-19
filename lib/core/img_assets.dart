@@ -49,3 +49,6 @@ const circleUp = 'assets/svgs/circleup.svg';
 const menu = 'assets/svgs/menu.svg';
 const slot = 'assets/svgs/slotBooking.svg';
 const searchBlack="assets/svgs/search_black.svg";
+const truck="assets/svgs/truck.svg";
+const calendarClock="assets/svgs/calendar_clock.svg";
+const location="assets/svgs/location.svg";

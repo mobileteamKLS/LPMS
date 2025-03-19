@@ -404,6 +404,7 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                           bottom: BorderSide
                                               .none, // No border on the bottom
                                         ),
+                                        color: AppColors.white,
                                       ),
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
@@ -413,6 +414,17 @@ class _AddVehicleDetailsExportsState extends State<AddVehicleDetailsExports> {
                                       ),
                                     );
                                   },
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<Vehicle>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
+                                  ),
                                   builder: (context, controller, focusNode) =>
                                       CustomTextField(
                                     controller: controller,

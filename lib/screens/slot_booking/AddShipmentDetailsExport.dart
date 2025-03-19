@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:lpms/models/TerminalMaster.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Global.dart';
 import 'package:lpms/util/Uitlity.dart';
@@ -38,6 +39,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   late TextEditingController exporterNameController = TextEditingController();
   late TextEditingController hsnCodeController = TextEditingController();
   late TextEditingController cargoTypeController = TextEditingController();
+  late TextEditingController cargoCategoryController = TextEditingController();
   late TextEditingController cargoDescriptionController =
   TextEditingController();
   late TextEditingController qualityController = TextEditingController();
@@ -50,6 +52,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
   final RegExp doublePattern = RegExp(r'^\d*\.?\d*$');
   int exporterId=0;
   int cargoTypeId=0;
+  int cargoCategoryId=0;
   final AuthService authService = AuthService();
   final List<VoidCallback> _markFieldsTouched = [];
   void _addMarkTouchedCallback(VoidCallback callback) {
@@ -67,11 +70,29 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     exporterNameController.clear();
     hsnCodeController.clear();
     cargoTypeController.clear();
+    cargoCategoryController.clear();
     cargoDescriptionController.clear();
-    valueController.text="0";
+    valueController.text="0.0";
     qualityController.text="0";
-    weightController.text="0";
+    weightController.text="0.0";
   }
+
+
+  @override
+  void dispose() {
+    billNoController.dispose();
+    billDateController.dispose();
+    exporterNameController.dispose();
+    hsnCodeController.dispose();
+    cargoTypeController.dispose();
+    cargoCategoryController.dispose();
+    cargoDescriptionController.dispose();
+    valueController.dispose();
+    qualityController.dispose();
+    weightController.dispose();
+    super.dispose();
+  }
+
   late ShipmentDetailsExports editDetails;
   @override
   void initState() {
@@ -86,16 +107,19 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
         TextEditingController(text: widget.shipment?.hsnCode ?? '');
     cargoTypeController =
         TextEditingController(text: widget.shipment?.cargoType ?? '');
+    cargoCategoryController =
+        TextEditingController(text: widget.shipment?.cargoType ?? '');
     cargoDescriptionController =
         TextEditingController(text: widget.shipment?.cargoDescription ?? '');
     qualityController =
         TextEditingController(text: widget.shipment?.quantity.toString() ?? '0');
     weightController = TextEditingController(
-        text: widget.shipment?.cargoWeight.toString() ?? '0');
+        text: widget.shipment?.cargoWeight.toString() ?? '0.0');
     valueController = TextEditingController(
-        text: widget.shipment?.cargoValue.toString() ?? '0');
+        text: widget.shipment?.cargoValue.toString() ?? '0.0');
     exporterId=widget.shipment?.exporterId??0;
     cargoTypeId=widget.shipment?.cargoTypeId??0;
+    cargoCategoryId=widget.shipment?.cargoTypeId??0;
     print("isExport shp: ${widget.isExport}");
     if (widget.shipment != null) editDetails = widget.shipment!;
     exporterFocusNode.addListener(() async {
@@ -440,6 +464,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           bottom: BorderSide
                                               .none, // No border on the bottom
                                         ),
+                                        color: AppColors.white,
                                       ),
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
@@ -472,6 +497,17 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Exporter Found',
                                         style: TextStyle(fontSize: 16)),
+                                  ),
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<CargoTypeExporterImporterAgent>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
                                   ),
                                   onSelected: (value) {
                                     exporterNameController.text =
@@ -701,6 +737,88 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                               SizedBox(
                                 width: MediaQuery.sizeOf(context).width,
                                 child: TypeAheadField<
+                                    CargoCategory>(
+                                  controller: cargoCategoryController,
+                                  debounceDuration:
+                                  const Duration(milliseconds: 300),
+                                  suggestionsCallback: (search) =>
+                                      CargoCategoryService.find(search),
+                                  itemBuilder: (context, item) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        border: Border(
+                                          top: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          left: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          right: BorderSide(
+                                              color: Colors.black, width: 0.2),
+                                          bottom: BorderSide
+                                              .none, // No border on the bottom
+                                        ),
+                                        color: AppColors.white,
+                                      ),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          // Text(item.code.toUpperCase()),
+                                          // const SizedBox(width: 10),
+                                          Text(item.description.toUpperCase()),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  builder: (context, controller, focusNode) =>
+                                      CustomTextField(
+                                        controller: controller,
+                                        labelText: "Cargo Category",
+                                        registerTouchedCallback:
+                                        _addMarkTouchedCallback,
+                                        focusNode: focusNode,
+                                      ),
+                                  decorationBuilder: (context, child) =>
+                                      Material(
+                                        type: MaterialType.card,
+                                        elevation: 4,
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: child,
+                                      ),
+                                  // itemSeparatorBuilder: (context, index) =>
+                                  //     Divider(),
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('No Cargo Category Found',
+                                        style: TextStyle(fontSize: 16)),
+                                  ),
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<CargoCategory>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
+                                  ),
+                                  onSelected: (value) {
+                                    cargoCategoryController.text =
+                                        value.description
+                                            .toUpperCase();
+                                    cargoCategoryId=int.parse(value.value);
+                                    _formKey.currentState!.validate();
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                MediaQuery
+                                    .sizeOf(context)
+                                    .height * 0.015,
+                              ),
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width,
+                                child: TypeAheadField<
                                     CargoTypeExporterImporterAgent>(
                                   controller: cargoTypeController,
                                   debounceDuration:
@@ -720,6 +838,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                           bottom: BorderSide
                                               .none, // No border on the bottom
                                         ),
+                                        color: AppColors.white,
                                       ),
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
@@ -752,6 +871,17 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     padding: EdgeInsets.all(8.0),
                                     child: Text('No Cargo Type Found',
                                         style: TextStyle(fontSize: 16)),
+                                  ),
+                                  listBuilder: (context, children) =>ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 180,
+                                    ),
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      reverse: SuggestionsController.of<CargoTypeExporterImporterAgent>(context).effectiveDirection ==
+                                          VerticalDirection.up,
+                                      children: children,
+                                    ),
                                   ),
                                   onSelected: (value) {
                                     cargoTypeController.text =
@@ -1114,46 +1244,46 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        height: 60,
-        color: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 5,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            GestureDetector(
-              onTap: () {},
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.chart_pie),
-                  Text("Dashboard"),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.help_outline,
-                    color: AppColors.primary,
-                  ),
-                  Text(
-                    "User Help",
-                    style: TextStyle(color: AppColors.primary),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      // bottomNavigationBar: BottomAppBar(
+      //   padding: const EdgeInsets.symmetric(horizontal: 10),
+      //   height: 60,
+      //   color: Colors.white,
+      //   surfaceTintColor: Colors.white,
+      //   shape: const CircularNotchedRectangle(),
+      //   notchMargin: 5,
+      //   child: Row(
+      //     mainAxisSize: MainAxisSize.max,
+      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //     children: <Widget>[
+      //       GestureDetector(
+      //         onTap: () {},
+      //         child: const Column(
+      //           mainAxisAlignment: MainAxisAlignment.center,
+      //           children: [
+      //             Icon(CupertinoIcons.chart_pie),
+      //             Text("Dashboard"),
+      //           ],
+      //         ),
+      //       ),
+      //       GestureDetector(
+      //         onTap: () {},
+      //         child: const Column(
+      //           mainAxisAlignment: MainAxisAlignment.center,
+      //           children: [
+      //             Icon(
+      //               Icons.help_outline,
+      //               color: AppColors.primary,
+      //             ),
+      //             Text(
+      //               "User Help",
+      //               style: TextStyle(color: AppColors.primary),
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
    onDatePicked() {

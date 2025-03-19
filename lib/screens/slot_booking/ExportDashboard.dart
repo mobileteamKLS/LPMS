@@ -579,7 +579,7 @@ class _ExportScreenState extends State<ExportScreen> {
     body.query =
         encryptionService.encryptUsingRandomKeyPrivateKey(mdl.toJson());
     print(encryptionService.decryptUsingRandomKeyPrivateKey(
-        "LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764cAkuH+KCIt7oG0AeN3KFjRPmk7Sp9KSfg6LFwP4L1CWS8q8G2siRbz18g+KCveuZj3weqlB9EfvmQWu9Y9F6nP/wlZo0P/dcWawkix2uQ9Di3JyxBW0Vp6EWWd+INUdRs0wbvfelxgXUt4ZIoE1K8dXwEyHLb+KILFp98lkX99XU7F0ht6/ebjov5ULu+fHYZNzacHLkwRY3FBiqpPggJUMZmQd8z8VtnBDBEdGoR/g71LcLxjC5Mqxqy8M379jK"));
+        "LZCLfQHPgHAlajwnEtThKB+IvntjvuYcE0N58IIMmCovXeuyiDQb/pynXkuBI764ZQmoH212H+3v2xTdiUpwRNIbN4XGvNlQ6jgkn6q9eXVrYXdTvhXNYK6cgsYOqbN71GPheSf3jerqMF83VfV4vdoUn1hVQCw13eNQdTKUmfdWb2wg20iDRk3tfCvfl4s4S5Vuq2mCaWPwMghn9Dq0DZzC3OlNeNwY7meeVce3W7I742DnBSnqEaMgpvM8+YhtwqKx4lb4te6bDWKBf+gpOAdrYnnY6kYk/qkvchXFU2c="));
     mdl.query = body.query;
     var headers = {
       'Accept': 'text/plain',
@@ -1179,11 +1179,11 @@ class _ExportScreenState extends State<ExportScreen> {
                       });
                     },
                     child: Text(
-                      isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                      isExpanded ? 'Show Less' : 'Show More',
                       style: const TextStyle(
                         color: AppColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -1362,6 +1362,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     shipmentDetails.bookingNo,
                     style:AppStyle.subHeading,
                   ),
+                  SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.4,),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children:  [
@@ -1489,10 +1490,10 @@ class _ExportScreenState extends State<ExportScreen> {
                       });
                     },
                     child: Text(
-                      isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                      isExpanded ? 'Show Less' : 'Show More',
                       style: const TextStyle(
                         color: AppColors.primary,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
