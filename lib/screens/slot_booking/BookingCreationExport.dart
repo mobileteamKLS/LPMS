@@ -15,7 +15,6 @@ import 'package:lpms/ui/widgest/CustomTextField.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-
 import '../../api/auth.dart';
 import '../../core/dimensions.dart';
 import '../../models/TerminalMaster.dart';
