@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
     );
     return MaterialApp(
-      title: 'VINIMAY',
+      title: 'Vinimay',
       debugShowCheckedModeBanner: false,
       theme:AppTheme.lightTheme,
       home:  const LoginPageNew(),

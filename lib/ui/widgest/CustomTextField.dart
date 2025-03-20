@@ -2,11 +2,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:lpms/theme/app_color.dart';
 import 'dart:async';
-
+    import 'package:flutter/painting.dart';
 import '../../core/dimensions.dart';
 import '../../core/img_assets.dart';
 import '../../util/media_query.dart';
@@ -860,10 +859,10 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
       ],
-      style: GoogleFonts.roboto(textStyle: TextStyle(
+      style: TextStyle(
           color: widget.hastextcolor == true
               ? Colors.black
-              : Colors.black, fontSize: widget.fontSize)),
+              : Colors.black, fontSize: widget.fontSize),
       //textAlign: TextAlign.left,
       cursorColor: AppColors.primary,
       controller: widget.controller,
@@ -879,10 +878,10 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         labelText: widget.labelText ?? '',
         floatingLabelBehavior: FloatingLabelBehavior.always, // Keeps the label always floating above the field
-        labelStyle: GoogleFonts.roboto(textStyle: TextStyle(
+        labelStyle:TextStyle(
             color: widget.hastextcolor
                 ? AppColors.black
-                : AppColors.black, fontSize: widget.fontSize)),
+                : AppColors.black, fontSize: widget.fontSize),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6.0),
           borderSide: BorderSide(color: AppColors.textFieldBorderColor, width: 0.5),
@@ -926,10 +925,10 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
       maxLength: widget.maxLength,
       maxLines: widget.maxLines,
       readOnly: widget.readOnly,
-      style: GoogleFonts.poppins(textStyle: TextStyle(
+      style:TextStyle(
           color: widget.hastextcolor == true
               ? widget.fontColor
-              : AppColors.black, fontSize: widget.fontSize)),
+              : AppColors.black, fontSize: widget.fontSize),
       //textAlign: TextAlign.left,
       inputFormatters: <TextInputFormatter>[
         widget.isDigitsOnly == true ? FilteringTextInputFormatter.allow(RegExp("[0-9]")) : FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
@@ -950,7 +949,7 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
         /* constraints: BoxConstraints.loose(Size.fromHeight(widget.boxHeight)),*/
         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         hintText: widget.hintText != null ? widget.hintText : '',
-        hintStyle: GoogleFonts.poppins(textStyle: TextStyle(fontSize: widget.fontSize, color: widget.hintTextcolor, fontWeight: FontWeight.w400)),
+        hintStyle:TextStyle(fontSize: widget.fontSize, color: widget.hintTextcolor, fontWeight: FontWeight.w400),
         fillColor: widget.fillColor,
         filled: true,
         border: OutlineInputBorder(
@@ -1026,10 +1025,10 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
       },
       maxLines: widget.maxLines,
       readOnly: widget.readOnly,
-      style: GoogleFonts.poppins(textStyle: TextStyle(
+      style:  TextStyle(
           color: widget.hastextcolor
               ? widget.fontColor
-              : AppColors.grey)),
+              : AppColors.grey),
       //textAlign: TextAlign.left,
       cursorColor: AppColors.hintTextColor,
       controller: widget.controller,
@@ -1043,10 +1042,10 @@ class _GroupIdCustomTextFieldState extends State<GroupIdCustomTextField> {
       decoration: InputDecoration(
         contentPadding: EdgeInsets.symmetric(vertical: widget.verticalPadding, horizontal: 20),
         labelText: widget.labelText,
-        labelStyle: GoogleFonts.poppins(textStyle: TextStyle(
+        labelStyle: TextStyle(
             color: widget.hastextcolor
                 ? AppColors.textColorPrimary
-                : AppColors.labelTextColor)),
+                : AppColors.labelTextColor),
         fillColor: Colors.transparent,
         filled: true,
         border: const UnderlineInputBorder(

@@ -201,32 +201,33 @@ class _ShipmentItemNewState extends State<ShipmentItemNew> {
                       height: 10,
                     ),
                     ShipmentInfoRow(
-                      header1: "Cargo Type",
-                      value1: shipmentDetails.cargoType,
-                      header2: "Cargo Description",
-                      value2: shipmentDetails.cargoDescription,
+                      header1: "Cargo Category",
+                      value1: shipmentDetails.cargoCategory,
+                      header2: "Cargo Type",
+                      value2: shipmentDetails.cargoType,
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     ShipmentInfoRow(
-                      header1: "Quantity",
-                      value1: shipmentDetails.quantity.toString(),
-                      header2: "Cargo Weight",
-                      value2: shipmentDetails.cargoWeight.toString(),
+                      header1: "Cargo Description",
+                      value1: shipmentDetails.cargoDescription,
+                      header2: "Quantity",
+                      value2: shipmentDetails.quantity.toString(),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     ShipmentInfoRow(
-                      header1: "Cargo Value",
-                      value1: shipmentDetails.cargoValue.toString(),
-                      header2: "",
-                      value2: "",
+                      header1: "Cargo Weight",
+                      value1: shipmentDetails.cargoWeight.toString(),
+                      header2: "Cargo Value",
+                      value2: shipmentDetails.cargoValue.toString(),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
+
                   ],
                 ),
               ),
@@ -2456,7 +2457,7 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShipmentInfoRow(
-                      header1: "Exporter Name",
+                      header1: "Importer Name",
                       value1: shipmentDetails.nameOfExporterImporter,
                       header2: "HSN Code",
                       value2: shipmentDetails.hsnCode,
@@ -2465,10 +2466,10 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                       height: 10,
                     ),
                     ShipmentInfoRow(
-                      header1: "Cargo Type",
-                      value1: shipmentDetails.cargoType,
-                      header2: "Cargo Description",
-                      value2: shipmentDetails.cargoDescription,
+                      header1: "Cargo Description",
+                      value1: shipmentDetails.cargoDescription,
+                      header2: "Quantity",
+                      value2: shipmentDetails.quantity.toString(),
                     ),
                     const SizedBox(
                       height: 10,
@@ -2482,11 +2483,11 @@ class _ShipmentItemNewImportsState extends State<ShipmentItemNewImports> {
                     const SizedBox(
                       height: 10,
                     ),
-                    const ShipmentInfoRow(
-                      header1: "Cargo Value",
-                      value1: "",
-                      header2: "",
-                      value2: "",
+                    ShipmentInfoRow(
+                      header1: "Cargo Weight",
+                      value1: shipmentDetails.cargoWeight.toString(),
+                      header2: "Cargo Value",
+                      value2: shipmentDetails.cargoValue.toString(),
                     ),
                     const SizedBox(
                       height: 10,

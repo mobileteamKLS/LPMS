@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:lpms/core/img_assets.dart';
 import 'package:lpms/screens/slot_booking/AddVehicleDetailsImport.dart';
 import 'package:lpms/ui/widgest/CustomTextField.dart';
@@ -51,6 +52,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
   int modeSelected = 0;
   int chaIdMaster = 0;
   String bookingDate="";
+  String bookingNo="";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
   final double initialHeight = 45;
@@ -400,7 +402,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   ),
                                 ),
                                 Text(
-                                  "00:00 - 23:00",
+                                  "$bookingNo",
                                   style: TextStyle(
                                     fontSize: ScreenDimension.textSize *
                                         AppDimensions.titleText3,
@@ -423,7 +425,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
                                   ),
                                 ),
                                 Text(
-                                  "00:00 - 23:00",
+                                    bookingDate==""?"": DateFormat('d MMM yyyy HH:mm').format(DateTime.parse(bookingDate)),
                                   style: TextStyle(
                                     fontSize: ScreenDimension.textSize *
                                         AppDimensions.titleText3,
@@ -1546,6 +1548,7 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
       setState(() {
         chaIdMaster=jsonData["CHAId"];
         bookingDate=jsonData["BookingDt"];
+        bookingNo=jsonData["BookingNo"];
         chaNameMaster=jsonData["ChaName"];
         noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
         chaController.text=jsonData["ChaName"].toUpperCase();
@@ -1558,8 +1561,20 @@ class _BookingCreationExportState extends State<BookingCreationExport> {
         List<String> vehicleIdList = List<String>.from(
             jsonData["VehicleType"].map((id) => id.toString())
         );
-        // print(vehicleIdList.toString());
-        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
+        print(vehicleIdList.toString());
+        Set<String> selectedIds = Set<String>();
+
+        multiSelectController.selectWhere((DropdownItem<Vehicle> item) {
+          String id = item.value.id;
+          if (!selectedIds.contains(id)) {
+            selectedIds.add(id);
+            return vehicleIdList.contains(id);
+          }
+          return false;
+        });
+
+
+
         // selectedVehicleList=vehicleIdList.addAll([42, 44, 89].map((id) => id.toString()));
       });
 

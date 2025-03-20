@@ -102,7 +102,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
     cargoTypeController =
         TextEditingController(text: widget.shipment?.cargoType ?? '');
     cargoCategoryController =
-        TextEditingController(text: widget.shipment?.cargoType ?? '');
+        TextEditingController(text: widget.shipment?.cargoCategory ?? '');
     cargoDescriptionController =
         TextEditingController(text: widget.shipment?.cargoDescription ?? '');
     qualityController =
@@ -807,7 +807,9 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                     cargoCategoryController.text =
                                         value.description
                                             .toUpperCase();
-                                    cargoCategoryId=int.parse(value.value);
+                                    setState(() {
+                                      cargoCategoryId=int.parse(value.value);
+                                    });
                                     _formKey.currentState!.validate();
                                   },
                                 ),
@@ -1123,6 +1125,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             hsnCode: hsnCodeController.text,
                                             cargoValue: valueController.text,
                                             cargoType: cargoTypeController.text,
+                                            cargoCategory:cargoCategoryController.text ,
                                             cargoDescription:
                                             cargoDescriptionController.text,
                                             quantity:
@@ -1130,12 +1133,13 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             cargoWeight:
                                             double.parse(weightController.text),
                                             cargoTypeId: cargoTypeId,
+                                            cargoCategoryId: cargoCategoryId,
                                             chaName: chaNameMaster,
                                             typeOfGoods: null,
                                             importerId: importerId,
                                             unitOfQt: null,
                                             portOfDest: null,
-                                            isUliPverified: false,
+                                            isUliPverified: false,  isULIPHSNCodePverified: false, hsnCodeList: [],
                                             grossWt: null,
                                             countryOrig:null,
                                             whRequestId: 0,
@@ -1152,6 +1156,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             hsnCode: hsnCodeController.text,
                                             cargoValue: valueController.text,
                                             cargoType: cargoTypeController.text,
+                                            cargoCategory:cargoCategoryController.text,
                                             cargoDescription:
                                             cargoDescriptionController.text,
                                             quantity:
@@ -1159,6 +1164,7 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             cargoWeight:
                                             double.parse(weightController.text),
                                             cargoTypeId: cargoTypeId,
+                                            cargoCategoryId: cargoCategoryId,
                                             chaName: chaNameMaster,
                                             typeOfGoods: null,
                                             importerId: importerId,
@@ -1168,7 +1174,8 @@ class _AddShipmentDetailsImportsState extends State<AddShipmentDetailsImports> {
                                             grossWt: null,
                                             countryOrig:null,
                                             whRequestId: 0,
-
+                                            isULIPHSNCodePverified: false,
+                                            hsnCodeList: [],
                                           );
                                           Navigator.pop(context, editDetails);
                                         }

@@ -108,7 +108,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
     cargoTypeController =
         TextEditingController(text: widget.shipment?.cargoType ?? '');
     cargoCategoryController =
-        TextEditingController(text: widget.shipment?.cargoType ?? '');
+        TextEditingController(text: widget.shipment?.cargoCategory ?? '');
     cargoDescriptionController =
         TextEditingController(text: widget.shipment?.cargoDescription ?? '');
     qualityController =
@@ -805,7 +805,10 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                     cargoCategoryController.text =
                                         value.description
                                             .toUpperCase();
-                                    cargoCategoryId=int.parse(value.value);
+                                    setState(() {
+                                      cargoCategoryId=int.parse(value.value);
+                                    });
+                                    print("$cargoCategoryId");
                                     _formKey.currentState!.validate();
                                   },
                                 ),
@@ -1151,6 +1154,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             exporterNameController.text,
                                             hsnCode: hsnCodeController.text,
                                             cargoType: cargoTypeController.text,
+                                            cargoCategory:cargoCategoryController.text ,
                                             cargoDescription:
                                             cargoDescriptionController.text,
                                             quantity: int.parse(
@@ -1160,13 +1164,14 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                 weightController.text),
                                             cargoValue: valueController.text,
                                             cargoTypeId: cargoTypeId,
+                                            cargoCategoryId: cargoCategoryId,
                                             chaName: chaNameMaster,
                                             typeOfGoods: null,
                                             exporterId: exporterId,
                                             unitOfQt: null,
                                             portOfDest: null,
                                             grossQt: null,
-                                            isUliPverified: false,
+                                            isUliPverified: false,  isULIPHSNCodePverified: false, hsnCodeList: [],
 
                                           );
                                           Navigator.pop(context,
@@ -1182,6 +1187,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             exporterNameController.text,
                                             hsnCode: hsnCodeController.text,
                                             cargoType: cargoTypeController.text,
+                                            cargoCategory:cargoCategoryController.text,
                                             cargoDescription:
                                             cargoDescriptionController.text,
                                             quantity: int.parse(
@@ -1191,6 +1197,7 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                                 weightController.text),
                                             cargoValue: valueController.text,
                                             cargoTypeId: cargoTypeId,
+                                            cargoCategoryId: cargoCategoryId,
                                             chaName: chaNameMaster,
                                             typeOfGoods: null,
                                             exporterId: exporterId,
@@ -1198,7 +1205,8 @@ class _AddShipmentDetailsState extends State<AddShipmentDetails> {
                                             portOfDest: "",
                                             grossQt: null,
                                             isUliPverified: false,
-
+                                            isULIPHSNCodePverified: false,
+                                            hsnCodeList: [],
                                           );
                                           Navigator.pop(context,
                                               editDetails);

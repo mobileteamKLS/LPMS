@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:lpms/screens/slot_booking/AddVehicleDetailsImport.dart';
 import 'package:lpms/util/Uitlity.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
@@ -16,6 +18,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../api/auth.dart';
 import '../../core/dimensions.dart';
+import '../../core/img_assets.dart';
 import '../../models/TerminalMaster.dart';
 import '../../models/selection_model.dart';
 import '../../models/ShippingList.dart';
@@ -59,6 +62,8 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
   int chaIdMaster = 1;
   bool isDirectImport=false;
   String bookingDate = "";
+  String bookingNo="";
+  String bookingTypeId="";
   double _textFieldHeight = 45;
   double _textFieldHeight2 = 45;
   final double initialHeight = 45;
@@ -173,6 +178,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       setState(() {
         chaIdMaster=jsonData["CHAId"];
         bookingDate=jsonData["BookingDt"];
+        bookingNo=jsonData["BookingNo"];
         noOfVehiclesController.text=jsonData["NoofVehicle"].toString();
         chaNameMaster=jsonData["ChaName"];
         chaController.text=jsonData["ChaName"].toUpperCase();
@@ -186,7 +192,16 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
             jsonData["VehicleType"].map((id) => id.toString())
         );
         print(vehicleIdList.toString());
-        multiSelectController.selectWhere((DropdownItem<Vehicle> item) => vehicleIdList.contains(item.value.id));
+        Set<String> selectedIds = Set<String>();
+
+        multiSelectController.selectWhere((DropdownItem<Vehicle> item) {
+          String id = item.value.id;
+          if (!selectedIds.contains(id)) {
+            selectedIds.add(id);
+            return vehicleIdList.contains(id);
+          }
+          return false;
+        });
       });
 
       setState(() {
@@ -281,9 +296,13 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
       orgId: loginMaster[0].adminOrgId,
       isYes: false,
       isNo: true,
+      isWarehouse:cargoShipmentType == 0,
+      isTransit:transit == 0,
+      ttWHConfigurationType:"$bookingTypeId",
+      isTransitCompleted:false,
       landportAirportId: 0,
       eventCode: widget.operationType=="E"?"UpdeteImpSlotBooking":"CreateImpSlotBooking",
-      directImportId: 0,
+      directImportId:directImport == 1 ?0:1,
     );
     Map<String, dynamic> payload = bookingCreationImport.toJson();
     Utils.printPayload(payload);
@@ -503,6 +522,10 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
         print("-----Booking Type=${bookingTypeList.length}-----");
       }
       setState(() {
+        // bookingTypeController.text=bookingTypeList[bookingTypeList.length-1].description;
+        // bookingTypeId=bookingTypeList[bookingTypeList.length-1].value;
+        // print("--------$bookingTypeId");
+        // print("!!!!!!!!!!!!${bookingTypeController.text}");
         _isLoading = false;
       });
 
@@ -796,7 +819,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                         ],
                       ),
                     ),
-                    Container(
+                    widget.operationType=="C"?Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
@@ -878,6 +901,146 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                         padding:
                                             const EdgeInsets.symmetric(horizontal: 8),
                                         child:Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING")
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ):
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.gradient1,
+                            AppColors.gradient2,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 12, left: 10, bottom: 12, right: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "BOOKING INFO.",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4.0),
+                                  child: SvgPicture.asset(
+                                    truck,
+                                    colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                    height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                  ),
+                                ),
+                                Text(
+                                  "$bookingNo",
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText3,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6.0),
+                                  child: SvgPicture.asset(
+                                    calendarClock,
+                                    colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                    height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                  ),
+                                ),
+                                Text(
+                                  bookingDate==""?"": DateFormat('d MMM yyyy HH:mm').format(DateTime.parse(bookingDate)),
+                                  style: TextStyle(
+                                    fontSize: ScreenDimension.textSize *
+                                        AppDimensions.titleText3,
+                                    color: AppColors.cardTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: ScreenDimension.onePercentOfScreenHight*0.5,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 6.0),
+                                      child: SvgPicture.asset(
+                                        location,
+                                        colorFilter: const ColorFilter.mode(AppColors.cardTextColor, BlendMode.srcIn),
+                                        height: ScreenDimension.onePercentOfScreenHight * AppDimensions.defaultIconSize1,
+                                      ),
+                                    ),
+                                    Text(
+                                      " $originMaster",
+                                      style: const TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                      color: AppColors.cardTextColor,
+                                    ),
+                                    Text(
+                                      " $destinationMaster",
+                                      style: const TextStyle(
+                                          color: AppColors.cardTextColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child:  Padding(
+                                          padding:
+                                          const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+                                          child: Center(child: Text(widget.operationType=="C"?"NEW BOOKING":(widget.operationType=="V")?"VIEW BOOKING":"EDIT BOOKING",style: AppStyle.statusText,))
                                       ),
                                     )
                                   ],
@@ -1270,7 +1433,7 @@ class _BookingCreationExportState extends State<BookingCreationImport> {
                                   onSelected: (value) {
                                     bookingTypeController.text =
                                         value.description.toUpperCase();
-                                    chaNameMaster = value.description;
+                                    bookingTypeId = value.value;
                                     // chaIdMaster = int.parse(value.value);
                                     _formKey.currentState!.validate();
                                   },

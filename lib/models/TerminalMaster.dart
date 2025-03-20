@@ -305,3 +305,56 @@ class BookingType {
     "value": value,
   };
 }
+
+class HsnCodeDetails {
+  int? id;
+  int? detailsId;
+  String? hsnCode;
+  int? quantity;
+  String? decription;
+  dynamic cargoTypeName;
+
+  HsnCodeDetails({
+    required this.id,
+    required this.detailsId,
+    required this.hsnCode,
+    required this.quantity,
+    required this.decription,
+    required this.cargoTypeName,
+  });
+
+  factory HsnCodeDetails.fromJson(Map<String, dynamic> json) => HsnCodeDetails(
+    id: json["Id"],
+    detailsId: json["DetailsId"],
+    hsnCode: json["HSNCode"],
+    quantity: json["Quantity"],
+    decription: json["Decription"],
+    cargoTypeName: json["CargoTypeName"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "Id": id,
+    "DetailsId": detailsId,
+    "HSNCode": hsnCode,
+    "Quantity": quantity,
+    "Decription": decription,
+    "CargoTypeName": cargoTypeName,
+  };
+  HsnCodeDetails copyWith({
+    int? id,
+    int? detailsId,
+    String? hsnCode,
+    int? quantity,
+    String? decription,
+    dynamic cargoTypeName,
+  }) {
+    return HsnCodeDetails(
+      id: id ?? this.id,
+      detailsId: detailsId ?? this.detailsId,
+      hsnCode: hsnCode ?? this.hsnCode,
+      quantity: quantity ?? this.quantity,
+      decription: decription ?? this.decription,
+      cargoTypeName: cargoTypeName ?? this.cargoTypeName,
+    );
+  }
+}

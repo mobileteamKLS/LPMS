@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../util/Global.dart';
+import 'TerminalMaster.dart';
 
 class SlotBookingCreationExport {
   int bookingId;
@@ -177,6 +178,10 @@ class SlotBookingCreationImport {
   String chaId;
   bool isYes;
   bool isNo;
+  bool isWarehouse;
+  bool isTransit;
+  String ttWHConfigurationType;
+  bool isTransitCompleted;
   int orgProdId;
   int userId;
   String branchCode;
@@ -207,6 +212,10 @@ class SlotBookingCreationImport {
     required this.chaId,
     required this.isYes,
     required this.isNo,
+    required this.isWarehouse,
+    required this.isTransit,
+    required this.ttWHConfigurationType,
+    required this.isTransitCompleted,
     required this.orgProdId,
     required this.userId,
     required this.branchCode,
@@ -238,6 +247,10 @@ class SlotBookingCreationImport {
     chaId: json["CHAId"],
     isYes: json["IsYes"],
     isNo: json["IsNo"],
+    isWarehouse: json["IsWarehouse"],
+    isTransit: json["IsTransit"],
+    ttWHConfigurationType: json["TTWHConfigurationType"],
+    isTransitCompleted: json["IsTransitCompleted"],
     orgProdId: json["OrgProdId"],
     userId: json["UserId"],
     branchCode: json["BranchCode"],
@@ -269,6 +282,10 @@ class SlotBookingCreationImport {
     "CHAId": chaId,
     "IsYes": isYes,
     "IsNo": isNo,
+    "IsWarehouse": isWarehouse,
+    "IsTransit": isTransit,
+    "TTWHConfigurationType": ttWHConfigurationType,
+    "IsTransitCompleted": isTransitCompleted,
     "OrgProdId": orgProdId,
     "UserId": userId,
     "BranchCode": branchCode,
@@ -389,6 +406,8 @@ class ShipmentDetailsExports {
   String cargoDescription;
   int cargoTypeId;
   String cargoType;
+  int cargoCategoryId;
+  String cargoCategory;
   dynamic cargoWeight;
   String chaName;
   String nameOfExporterImporter;
@@ -403,12 +422,16 @@ class ShipmentDetailsExports {
   String? portOfDest;
   String? grossQt;
   bool isUliPverified;
+  bool isULIPHSNCodePverified;
+  List<HsnCodeDetails> hsnCodeList;
 
   ShipmentDetailsExports({
     this.detailsId = 0,
     required this.cargoDescription,
     required this.cargoTypeId,
+    required this.cargoCategoryId,
     this.cargoType = "",
+    this.cargoCategory = "",
     required this.cargoWeight,
     required this.chaName,
     required this.nameOfExporterImporter,
@@ -423,6 +446,8 @@ class ShipmentDetailsExports {
     required this.portOfDest,
     required this.grossQt,
     required this.isUliPverified,
+    required this.isULIPHSNCodePverified,
+    required this.hsnCodeList,
   });
 
   factory ShipmentDetailsExports.fromJson(Map<String, dynamic> json) =>
@@ -430,6 +455,7 @@ class ShipmentDetailsExports {
         detailsId: json["DetailsId"],
         cargoDescription: json["CargoDescription"],
         cargoTypeId: json["CargoTypeId"],
+          cargoCategoryId: json["cargoCategoryId"],
         cargoWeight: json["CargoWeight"],
         chaName: json["ChaName"],
         nameOfExporterImporter: json["NameOfExporterImporter"],
@@ -444,13 +470,19 @@ class ShipmentDetailsExports {
         portOfDest: json["PortOfDest"],
         grossQt: json["GrossQt"],
         isUliPverified: json["IsULIPverified"],
-        cargoType: (cargoTypeList.firstWhere((cargo) => cargo.value == json["CargoTypeId"].toString())).nameDisplay
+        isULIPHSNCodePverified: json["IsULIPHSNCodePverified"],
+        hsnCodeList: List<HsnCodeDetails>.from(
+            json["HsnCodes"]
+                .map((x) => HsnCodeDetails.fromJson(x))),
+        cargoType: (cargoTypeList.firstWhere((cargo) => cargo.value == json["CargoTypeId"].toString())).nameDisplay,
+        cargoCategory: (cargoCategoryList.firstWhere((cargo) => cargo.value == json["cargoCategoryId"].toString())).nameDisplay,
       );
 
   Map<String, dynamic> toJson() => {
         "DetailsId": detailsId,
         "CargoDescription": cargoDescription,
         "CargoTypeId": cargoTypeId.toString(),
+        "cargoCategoryId": cargoCategoryId.toString(),
         "CargoWeight": cargoWeight,
         "ChaName": chaName,
         "NameOfExporterImporter": nameOfExporterImporter,
@@ -465,13 +497,18 @@ class ShipmentDetailsExports {
         "PortOfDest": portOfDest,
         "GrossQt": grossQt,
         "IsULIPverified": isUliPverified,
+        "IsULIPHSNCodePverified": isULIPHSNCodePverified,
+    "HsnCodes":
+    List<dynamic>.from(hsnCodeList.map((x) => x.toJson())),
       };
 
   ShipmentDetailsExports copyWith({
     int? detailsId,
     String? cargoDescription,
     int? cargoTypeId,
+    int? cargoCategoryId,
     String? cargoType,
+    String? cargoCategory,
     dynamic cargoWeight,
     String? chaName,
     String? nameOfExporterImporter,
@@ -486,12 +523,16 @@ class ShipmentDetailsExports {
     String? portOfDest,
     String? grossQt,
     bool? isUliPverified,
+    bool? isULIPHSNCodePverified,
+    List<HsnCodeDetails>? hsnCodeList,
   }) {
     return ShipmentDetailsExports(
       detailsId: detailsId ?? this.detailsId,
       cargoDescription: cargoDescription ?? this.cargoDescription,
       cargoTypeId: cargoTypeId ?? this.cargoTypeId,
+      cargoCategoryId: cargoCategoryId??this.cargoCategoryId,
       cargoType: cargoType ?? this.cargoType,
+      cargoCategory: cargoCategory ?? this.cargoCategory,
       cargoWeight: cargoWeight ?? this.cargoWeight,
       chaName: chaName ?? this.chaName,
       nameOfExporterImporter: nameOfExporterImporter ?? this.nameOfExporterImporter,
@@ -506,6 +547,8 @@ class ShipmentDetailsExports {
       portOfDest: portOfDest ?? this.portOfDest,
       grossQt: grossQt ?? this.grossQt,
       isUliPverified: isUliPverified ?? this.isUliPverified,
+      isULIPHSNCodePverified: isULIPHSNCodePverified??this.isULIPHSNCodePverified,
+      hsnCodeList: hsnCodeList??[],
     );
   }
 }
@@ -515,6 +558,8 @@ class ShipmentDetailsImports {
   String cargoDescription;
   int cargoTypeId;
   String cargoType;
+  int cargoCategoryId;
+  String cargoCategory;
   dynamic cargoWeight;
   String chaName;
   String nameOfExporterImporter;
@@ -532,12 +577,16 @@ class ShipmentDetailsImports {
   int? whRequestId;
   int? bookingId;
   String? portOfDest;
+  bool isULIPHSNCodePverified;
+  List<HsnCodeDetails> hsnCodeList;
 
   ShipmentDetailsImports({
     this.detailsId = 0,
     required this.cargoDescription,
     required this.cargoTypeId,
+    required this.cargoCategoryId,
     this.cargoType = "",
+    this.cargoCategory = "",
     required this.cargoWeight,
     required this.chaName,
     required this.nameOfExporterImporter,
@@ -555,6 +604,8 @@ class ShipmentDetailsImports {
     required this.whRequestId,
     required this.bookingId,
     required this.isUliPverified,
+    required this.isULIPHSNCodePverified,
+    required this.hsnCodeList,
   });
 
   factory ShipmentDetailsImports.fromJson(Map<String, dynamic> json) =>
@@ -562,6 +613,7 @@ class ShipmentDetailsImports {
         detailsId: json["DetailsId"],
         cargoDescription: json["CargoDescription"],
         cargoTypeId: json["CargoTypeId"],
+        cargoCategoryId: json["cargoCategoryId"],
         cargoWeight: json["CargoWeight"],
         chaName: json["ChaName"],
         nameOfExporterImporter: json["NameOfExporterImporter"],
@@ -579,13 +631,20 @@ class ShipmentDetailsImports {
         whRequestId: json["WHRequestId"],
         bookingId: json["BookingId"],
         isUliPverified: json["IsULIPverified"],
+        isULIPHSNCodePverified: json["IsULIPHSNCodePverified"],
+        hsnCodeList: List<HsnCodeDetails>.from(
+            json["HsnCodes"]
+                .map((x) => HsnCodeDetails.fromJson(x))),
         cargoType: (cargoTypeList.firstWhere((cargo) => cargo.value == json["CargoTypeId"].toString())).nameDisplay,
+        cargoCategory: (cargoCategoryList.firstWhere((cargo) => cargo.value == json["cargoCategoryId"].toString())).nameDisplay,
       );
+
 
   Map<String, dynamic> toJson() => {
         "DetailsId": detailsId.toString(),
         "CargoDescription": cargoDescription,
         "CargoTypeId": cargoTypeId.toString(),
+        "cargoCategoryId": cargoCategoryId.toString(),
         "CargoWeight": cargoWeight,
         "ChaName": chaName,
         "NameOfExporterImporter": nameOfExporterImporter,
@@ -603,13 +662,18 @@ class ShipmentDetailsImports {
         "WHRequestId": grossWt??0,
         "BookingId": bookingId,
         "IsULIPverified": isUliPverified,
+    "IsULIPHSNCodePverified": isULIPHSNCodePverified,
+    "HsnCodes":
+    List<dynamic>.from(hsnCodeList.map((x) => x.toJson())),
       };
 
   ShipmentDetailsImports copyWith({
     int? detailsId,
     String? cargoDescription,
     int? cargoTypeId,
+    int? cargoCategoryId,
     String? cargoType,
+    String? cargoCategory,
     dynamic cargoWeight,
     String? chaName,
     String? nameOfExporterImporter,
@@ -627,12 +691,16 @@ class ShipmentDetailsImports {
     int? whRequestId,
     int? bookingId,
     String? portOfDest,
+    bool? isULIPHSNCodePverified,
+    List<HsnCodeDetails>? hsnCodeList,
   }) {
     return ShipmentDetailsImports(
       detailsId: detailsId ?? this.detailsId,
       cargoDescription: cargoDescription ?? this.cargoDescription,
       cargoTypeId: cargoTypeId ?? this.cargoTypeId,
+      cargoCategoryId: cargoCategoryId??this.cargoCategoryId,
       cargoType: cargoType ?? this.cargoType,
+      cargoCategory: cargoCategory ?? this.cargoCategory,
       cargoWeight: cargoWeight ?? this.cargoWeight,
       chaName: chaName ?? this.chaName,
       nameOfExporterImporter: nameOfExporterImporter ?? this.nameOfExporterImporter,
@@ -650,6 +718,8 @@ class ShipmentDetailsImports {
       whRequestId: whRequestId ?? this.whRequestId,
       bookingId: bookingId ?? this.bookingId,
       isUliPverified: isUliPverified ?? this.isUliPverified,
+      isULIPHSNCodePverified: isULIPHSNCodePverified??this.isULIPHSNCodePverified,
+      hsnCodeList: hsnCodeList??[],
     );
   }
 }
@@ -728,7 +798,7 @@ class VehicleDetailsExports {
       bookingId: json["BookingId"],
       driverAadhaar: json["DriverAadhaar"],
       driverContact: json["DriverContact"],
-      driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
+      driverDob: "",//DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),//TODO: change it
       driverName: json["DriverName"],
       drivingLicenseNo: json["DrivingLicenseNo"],
       slotDateTime: json["SlotDateTime"]??"",
@@ -950,7 +1020,7 @@ class VehicleDetailsImports {
         bookingId: json["BookingId"],
         driverAadhaar: json["DriverAadhaar"],
         driverContact: json["DriverContact"],
-        driverDob: DateFormat('dd MMM yyyy').format(DateTime.parse(json["DriverDOB"])),
+        driverDob: "",//TODO: change it
         driverName: json["DriverName"],
         drivingLicenseNo: json["DrivingLicenseNo"],
         slotDateTime: json["SlotDateTime"]??"",
