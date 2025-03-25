@@ -944,18 +944,223 @@ class VehicleDetailsExports {
   }
 }
 
+// class VehicleDetailsImports {
+//   int vehicleId;
+//   int? bookingId;
+//   String vehicleTypeName;
+//   String? driverAadhaar;
+//   String? driverContact;
+//   String? driverDob;
+//   String? driverName;
+//   String? drivingLicenseNo;
+//   String? slotDateTime;
+//   String? slotViewDateTime;
+//   String? truckNo;
+//   dynamic vehicleTypeId;
+//   int? slotConfigId;
+//   int? slotDurationId;
+//   String? slotStartTime;
+//   String? slotEndTime;
+//   DrivingLicense? drivingLicense;
+//   RcDetails? rcScanned;
+//   bool? isModifySlot;
+//   bool? isNewSlot;
+//   String? remarksChassisNo;
+//   bool? isGateIn;
+//   String? bookedTimeSlot;
+//   dynamic gateinNo;
+//   String? VTNo;
+//   // String? registrationDate;
+//   // String? grossWt;
+//   // String? tareWt;
+//   // String? netWt;
+//   // String? isvehicleVerified;
+//   // String? isDriverVerified;
+//
+//   VehicleDetailsImports({
+//     this.vehicleId = 0,
+//     this.bookingId,
+//     this.vehicleTypeName = "",
+//     this.driverAadhaar,
+//     required this.driverContact,
+//     required this.driverDob,
+//     required this.driverName,
+//     required this.drivingLicenseNo,
+//     this.slotDateTime,
+//     this.slotViewDateTime = "",
+//     this.bookedTimeSlot,
+//     required this.truckNo,
+//     required this.vehicleTypeId,
+//     this.slotConfigId ,
+//     this.slotDurationId,
+//     this.slotStartTime ,
+//     this.slotEndTime,
+//     this.drivingLicense,
+//     this.rcScanned,
+//     this.isModifySlot = false,
+//     this.isNewSlot = true,
+//     required this.remarksChassisNo,
+//     this.isGateIn = true,
+//     this.gateinNo,
+//     this.VTNo,
+//     // this.registrationDate=null,
+//     // this.grossWt=null ,
+//     // this.tareWt=null,
+//     // this.netWt =null,
+//     // this.isvehicleVerified=null,
+//     // this.isDriverVerified =null,
+//   });
+//       // : drivingLicense = drivingLicense ?? DrivingLicense(),
+//       //   // Assign default DrivingLicense if null
+//       //   rcScanned = rcScanned ?? DrivingLicense();
+//
+//   factory VehicleDetailsImports.fromJson(Map<String, dynamic> json) =>
+//       VehicleDetailsImports(
+//         vehicleId: json["VehicleId"],
+//         bookingId: json['BookingId'] as int?,
+//         driverAadhaar: json['DriverAadhaar'] as String?,
+//         driverContact: json['DriverContact'] as String?,
+//         driverDob:json['DriverDOB'] as String?,
+//         driverName: json['DriverName'] as String?,
+//         drivingLicenseNo: json['DrivingLicenseNo'] as String?,
+//         slotDateTime: json["SlotDateTime"]??"",
+//         truckNo: json["TruckNo"],
+//         vehicleTypeId: json["VehicleType"],
+//         slotConfigId: json["SlotConfigId"],
+//         slotDurationId: json["SlotDurationId"],
+//         slotStartTime: json["SlotStartTime"],
+//         slotEndTime: json["SlotEndTime"],
+//         drivingLicense: json["DrivingLicense"] != null
+//             ? DrivingLicense.fromJson(json["DrivingLicense"])
+//             : null,
+//         rcScanned: json['RCScanned'] != null
+//             ? RcDetails.fromJson(json['RCScanned'])
+//             : null,
+//         isModifySlot: json["IsModifySlot"]??false,
+//         isNewSlot: json["IsNewSlot"]??false,
+//         remarksChassisNo: json["RemarksChassisNo"],
+//         isGateIn: json["IsGateIn"],
+//         vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,
+//         bookedTimeSlot: json['BookedTimeSlot'] as String?,
+//
+//         slotViewDateTime:json['SlotDateTime'] != null
+//             ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'].trim() ?? ""}"
+//             : "",
+//         gateinNo: json["GateInNo"]??"",
+//         VTNo:  json["VTNo"],
+//         // registrationDate: json["RegistrationDate"],
+//         // grossWt: json["GrossWt"],
+//         // tareWt: json["TareWt"],
+//         // netWt: json["NetWt"],
+//         // isvehicleVerified: json["IsvehicleVerified"],
+//         // isDriverVerified: json["IsDriverVerified"],
+//       );
+//
+//   Map<String, dynamic> toJson() => {
+//         "VehicleId": vehicleId,
+//         "DriverAadhaar": driverAadhaar,
+//         "DriverContact": driverContact,
+//         "DriverDOB":(driverDob != null && driverDob!.isNotEmpty)
+//             ? DateFormat('d MMM yyyy').parse(driverDob!).toIso8601String()
+//             : null,
+//         "DriverName": driverName,
+//         "DrivingLicenseNo": drivingLicenseNo,
+//         "SlotDateTime": slotDateTime,
+//         "TruckNo": truckNo,
+//         "VehicleType": vehicleTypeId,
+//         "SlotConfigId": slotConfigId,
+//         "SlotDurationId": slotDurationId,
+//         "SlotStartTime": slotStartTime,
+//         "SlotEndTime": slotEndTime,
+//         "DrivingLicense": drivingLicense?.toJson(),
+//         "RCScanned": rcScanned?.toJson(),
+//         "IsModifySlot": isModifySlot,
+//         "IsNewSlot": isNewSlot,
+//         "RemarksChassisNo": remarksChassisNo,
+//         "IsGateIn": isGateIn,
+//         // "RegistrationDate": null,
+//         // "GrossWt": null,
+//         // "TareWt": null,
+//         // "NetWt": null,
+//         // "IsvehicleVerified": null,
+//         // "IsDriverVerified": null,
+//       };
+//
+//   VehicleDetailsImports copyWith({
+//     int? vehicleId,
+//     String? vehicleTypeName,
+//     String? driverAadhaar,
+//     String? driverContact,
+//     String? driverDob,
+//     String? driverName,
+//     String? drivingLicenseNo,
+//     String? slotDateTime,
+//     String? slotViewDateTime,
+//     String? truckNo,
+//     int? vehicleTypeId,
+//     int? slotConfigId,
+//     int? slotDurationId,
+//     String? slotStartTime,
+//     String? slotEndTime,
+//     DrivingLicense? drivingLicense,
+//     RcDetails? rcScanned,
+//     bool? isModifySlot,
+//     bool? isNewSlot,
+//     String? remarksChassisNo,
+//     bool? isGateIn,
+//     String? bookedTimeSlot,
+//   }) {
+//     return VehicleDetailsImports(
+//       vehicleId: vehicleId ?? this.vehicleId,
+//       vehicleTypeName: vehicleTypeName ?? this.vehicleTypeName,
+//       driverAadhaar: driverAadhaar ?? this.driverAadhaar,
+//       driverContact: driverContact ?? this.driverContact,
+//       driverDob: driverDob ?? this.driverDob,
+//       driverName: driverName ?? this.driverName,
+//       drivingLicenseNo: drivingLicenseNo ?? this.drivingLicenseNo,
+//       slotDateTime: slotDateTime ?? this.slotDateTime,
+//       slotViewDateTime: slotViewDateTime ?? this.slotViewDateTime,
+//       truckNo: truckNo ?? this.truckNo,
+//       vehicleTypeId: vehicleTypeId ?? this.vehicleTypeId,
+//       slotConfigId: slotConfigId ?? this.slotConfigId,
+//       slotDurationId: slotDurationId ?? this.slotDurationId,
+//       slotStartTime: slotStartTime ?? this.slotStartTime,
+//       slotEndTime: slotEndTime ?? this.slotEndTime,
+//       drivingLicense: drivingLicense ?? this.drivingLicense,
+//       rcScanned: rcScanned ?? this.rcScanned,
+//       isModifySlot: isModifySlot ?? this.isModifySlot,
+//       isNewSlot: isNewSlot ?? this.isNewSlot,
+//       remarksChassisNo: remarksChassisNo ?? this.remarksChassisNo,
+//       isGateIn: isGateIn ?? this.isGateIn,
+//       bookedTimeSlot: bookedTimeSlot ?? this.bookedTimeSlot,
+//     );
+//   }
+//
+//   String? validateDrivingLicense() {
+//     return drivingLicense == null ? 'Driving License document is required for vehicle no' : null;
+//   }
+//
+//   String? validateRcScanned() {
+//     return rcScanned == null ? 'RC Scanned document is required for vehicle no' : null;
+//   }
+//
+//   String validateSlotViewDateTime() {
+//     return slotViewDateTime!.isEmpty ? 'Slot DateTime is required for vehicle no' : "";
+//   }
+// }
+
 class VehicleDetailsImports {
   int vehicleId;
   int? bookingId;
   String vehicleTypeName;
   String? driverAadhaar;
-  String driverContact;
+  String? driverContact;
   String? driverDob;
-  String driverName;
-  String drivingLicenseNo;
+  String? driverName;
+  String? drivingLicenseNo;
   String? slotDateTime;
-  String slotViewDateTime;
-  String truckNo;
+  String? slotViewDateTime;
+  String? truckNo;
   dynamic vehicleTypeId;
   int? slotConfigId;
   int? slotDurationId;
@@ -965,69 +1170,57 @@ class VehicleDetailsImports {
   RcDetails? rcScanned;
   bool? isModifySlot;
   bool? isNewSlot;
-  String remarksChassisNo;
+  String? remarksChassisNo;
   bool? isGateIn;
   String? bookedTimeSlot;
   dynamic gateinNo;
   String? VTNo;
-  // String? registrationDate;
-  // String? grossWt;
-  // String? tareWt;
-  // String? netWt;
-  // String? isvehicleVerified;
-  // String? isDriverVerified;
+  bool? isPriority; // Added this field to match JSON
 
   VehicleDetailsImports({
     this.vehicleId = 0,
     this.bookingId,
     this.vehicleTypeName = "",
     this.driverAadhaar,
-    required this.driverContact,
-    required this.driverDob,
-    required this.driverName,
-    required this.drivingLicenseNo,
+    this.driverContact, // Made optional
+    this.driverDob, // Made optional
+    this.driverName, // Made optional
+    this.drivingLicenseNo, // Made optional
     this.slotDateTime,
     this.slotViewDateTime = "",
     this.bookedTimeSlot,
-    required this.truckNo,
-    required this.vehicleTypeId,
-    this.slotConfigId ,
+    this.truckNo, // Made optional
+    this.vehicleTypeId, // Made optional
+    this.slotConfigId,
     this.slotDurationId,
-    this.slotStartTime ,
+    this.slotStartTime,
     this.slotEndTime,
     this.drivingLicense,
     this.rcScanned,
     this.isModifySlot = false,
     this.isNewSlot = true,
-    required this.remarksChassisNo,
-    this.isGateIn = true,
+    this.remarksChassisNo, // Made optional
+    this.isGateIn = false, // Changed default to match JSON
     this.gateinNo,
     this.VTNo,
-    // this.registrationDate=null,
-    // this.grossWt=null ,
-    // this.tareWt=null,
-    // this.netWt =null,
-    // this.isvehicleVerified=null,
-    // this.isDriverVerified =null,
+    this.isPriority = false, // Added with default value
   });
-      // : drivingLicense = drivingLicense ?? DrivingLicense(),
-      //   // Assign default DrivingLicense if null
-      //   rcScanned = rcScanned ?? DrivingLicense();
 
   factory VehicleDetailsImports.fromJson(Map<String, dynamic> json) =>
       VehicleDetailsImports(
-        vehicleId: json["VehicleId"],
-        bookingId: json["BookingId"],
-        driverAadhaar: json["DriverAadhaar"],
-        driverContact: json["DriverContact"],
-        driverDob: "",//TODO: change it
-        driverName: json["DriverName"],
-        drivingLicenseNo: json["DrivingLicenseNo"],
-        slotDateTime: json["SlotDateTime"]??"",
-        truckNo: json["TruckNo"],
+        vehicleId: json["VehicleId"] ?? 0,
+        bookingId: json['BookingId'],
+        driverAadhaar: json['DriverAadhaar'],
+        driverContact: json['DriverContact'],
+        driverDob: json['DriverDOB'],
+        driverName: json['DriverName'],
+        drivingLicenseNo: json['DrivingLicenseNo'],
+        slotDateTime: json["SlotDateTime"] ?? "",
+        truckNo: json["TruckNo"] ?? "",
         vehicleTypeId: json["VehicleType"],
         slotConfigId: json["SlotConfigId"],
         slotDurationId: json["SlotDurationId"],
+        // Handle potentially missing fields
         slotStartTime: json["SlotStartTime"],
         slotEndTime: json["SlotEndTime"],
         drivingLicense: json["DrivingLicense"] != null
@@ -1036,55 +1229,52 @@ class VehicleDetailsImports {
         rcScanned: json['RCScanned'] != null
             ? RcDetails.fromJson(json['RCScanned'])
             : null,
-        isModifySlot: json["IsModifySlot"]??false,
-        isNewSlot: json["IsNewSlot"]??false,
-        remarksChassisNo: json["RemarksChassisNo"],
-        isGateIn: json["IsGateIn"],
-        vehicleTypeName:(vehicleTypeList.firstWhere((v) => v.value == json["VehicleType"].toString(),)).description,
-        bookedTimeSlot:json['BookedTimeSlot'],
-
-        slotViewDateTime:json['SlotDateTime'] != null
-            ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'].trim() ?? ""}"
+        isModifySlot: json["IsModifySlot"] ?? false,
+        isNewSlot: json["IsNewSlot"] ?? true,
+        remarksChassisNo: json["RemarksChassisNo"] ?? "",
+        isGateIn: json["IsGateIn"] ?? false,
+        // Safely handle vehicleTypeName if vehicleTypeList is available
+        vehicleTypeName: json["VehicleType"] != null && json["VehicleType"] != 0 ?
+        vehicleTypeList
+            .where((v) => v.value == json["VehicleType"].toString())
+            .map((v) => v.description)
+            .firstOrNull ?? "" : "",
+        bookedTimeSlot: json['BookedTimeSlot'],
+        slotViewDateTime: json['SlotDateTime'] != null && json['BookedTimeSlot'] != null
+            ? "${DateFormat('dd MMM yyyy').format(DateTime.parse(json['SlotDateTime']))}\n${json['BookedTimeSlot'].trim()}"
             : "",
-        gateinNo: json["GateInNo"]??"",
-        VTNo:  json["VTNo"],
-        // registrationDate: json["RegistrationDate"],
-        // grossWt: json["GrossWt"],
-        // tareWt: json["TareWt"],
-        // netWt: json["NetWt"],
-        // isvehicleVerified: json["IsvehicleVerified"],
-        // isDriverVerified: json["IsDriverVerified"],
+        gateinNo: json["GateInNo"],
+        VTNo: json["VTNo"],
+        isPriority: json["IsPriority"] ?? false, // Added to parse from JSON
       );
 
   Map<String, dynamic> toJson() => {
-        "VehicleId": vehicleId,
-        "DriverAadhaar": driverAadhaar,
-        "DriverContact": driverContact,
-        "DriverDOB":(driverDob != null && driverDob!.isNotEmpty)
-            ? DateFormat('d MMM yyyy').parse(driverDob!).toIso8601String()
-            : null,
-        "DriverName": driverName,
-        "DrivingLicenseNo": drivingLicenseNo,
-        "SlotDateTime": slotDateTime,
-        "TruckNo": truckNo,
-        "VehicleType": vehicleTypeId,
-        "SlotConfigId": slotConfigId,
-        "SlotDurationId": slotDurationId,
-        "SlotStartTime": slotStartTime,
-        "SlotEndTime": slotEndTime,
-        "DrivingLicense": drivingLicense?.toJson(),
-        "RCScanned": rcScanned?.toJson(),
-        "IsModifySlot": isModifySlot,
-        "IsNewSlot": isNewSlot,
-        "RemarksChassisNo": remarksChassisNo,
-        "IsGateIn": isGateIn,
-        // "RegistrationDate": null,
-        // "GrossWt": null,
-        // "TareWt": null,
-        // "NetWt": null,
-        // "IsvehicleVerified": null,
-        // "IsDriverVerified": null,
-      };
+    "VehicleId": vehicleId,
+    "BookingId": bookingId,
+    "DriverAadhaar": driverAadhaar,
+    "DriverContact": driverContact,
+    "DriverDOB": (driverDob != null && driverDob!.isNotEmpty)
+        ? DateFormat('d MMM yyyy').parse(driverDob!).toIso8601String()
+        : null,
+    "DriverName": driverName,
+    "DrivingLicenseNo": drivingLicenseNo,
+    "SlotDateTime": slotDateTime,
+    "TruckNo": truckNo,
+    "VehicleType": vehicleTypeId,
+    "SlotConfigId": slotConfigId,
+    "SlotDurationId": slotDurationId,
+    "SlotStartTime": slotStartTime,
+    "SlotEndTime": slotEndTime,
+    "DrivingLicense": drivingLicense?.toJson(),
+    "RCScanned": rcScanned?.toJson(),
+    "IsModifySlot": isModifySlot,
+    "IsNewSlot": isNewSlot,
+    "RemarksChassisNo": remarksChassisNo,
+    "IsGateIn": isGateIn,
+    "GateInNo": gateinNo,
+    "VTNo": VTNo,
+    "IsPriority": isPriority, // Added to JSON output
+  };
 
   VehicleDetailsImports copyWith({
     int? vehicleId,
@@ -1145,9 +1335,11 @@ class VehicleDetailsImports {
   }
 
   String validateSlotViewDateTime() {
-    return slotViewDateTime.isEmpty ? 'Slot DateTime is required for vehicle no' : "";
+    return slotViewDateTime!.isEmpty ? 'Slot DateTime is required for vehicle no' : "";
   }
 }
+
+
 
 class DrivingLicense {
   int? bookingId;

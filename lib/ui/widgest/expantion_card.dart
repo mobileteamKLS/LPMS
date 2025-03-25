@@ -3536,7 +3536,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 ),
                               ),
                               Text(
-                                vehicleDetails.truckNo,
+                                vehicleDetails.truckNo??"",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textColorPrimary,
@@ -3559,7 +3559,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                 ),
                               ),
                               Text(
-                                vehicleDetails.slotViewDateTime,
+                                vehicleDetails.slotViewDateTime??"",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textColorPrimary,
@@ -3769,9 +3769,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                                     setState(() {
                                       widget.vehicleDetailsList[index] =
                                           updateVehicle;
-                                      print("View Date is" +
-                                          widget.vehicleDetailsList[index]
-                                              .slotViewDateTime);
+
                                     });
                                   }
                                 });
@@ -3804,7 +3802,7 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                       header1: "Type of Vehicle",
                       value1: vehicleDetails.vehicleTypeName,
                       header2: "Driving License No.",
-                      value2: vehicleDetails.drivingLicenseNo,
+                      value2: vehicleDetails.drivingLicenseNo??"",
                     ),
                     const SizedBox(
                       height: 10,
@@ -3813,16 +3811,16 @@ class _VehicleItemNewState extends State<VehicleItemNew> {
                       header1: "Driver DOB",
                       value1: vehicleDetails.driverDob??"",
                       header2: "Driver Name",
-                      value2: vehicleDetails.driverName,
+                      value2: vehicleDetails.driverName??"",
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     ShipmentInfoRow(
                       header1: "Driver Mob No.",
-                      value1: vehicleDetails.driverContact,
+                      value1: vehicleDetails.driverContact??"",
                       header2: "Remark/Chassis No.",
-                      value2: vehicleDetails.remarksChassisNo,
+                      value2: vehicleDetails.remarksChassisNo??"",
                     ),
                     const SizedBox(
                       height: 10,
